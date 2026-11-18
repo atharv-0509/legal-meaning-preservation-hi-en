@@ -116,7 +116,20 @@ HI_PAGES = [
 
 
 # --------------------------------------------------------------------------- fake OpenAI-compatible server
+def fake_judge(prompt: str) -> str:
+    """Deterministic fake LLM judge: penalises length differences between original and simplification."""
+    orig = prompt.split("Original:\n", 1)[1].split("\n\nSimplification:", 1)[0]
+    simp = prompt.split("Simplification:\n", 1)[1].split("\n\nAnswer", 1)[0]
+    gap = abs(len(orig.split()) - len(simp.split()))
+    bracket = "Accurate (7-10)" if gap < 5 else "Imprecise (2-6)" if gap < 25 else "Off-track (1)"
+    return "Sure:\n" + json.dumps({"bracket": bracket, "omissions": min(3, gap // 5), "hallucinations": 0,
+                                   "inconsistencies": 0, "confusions": 0, "main_change": "omission",
+                                   "explanation": "synthetic"})
+
+
 def fake_simplify(prompt: str) -> str:
+    if prompt.startswith("You are an expert in Indian law"):
+        return fake_judge(prompt)
     text = prompt.split("\n\n", 1)[1]
     text = text.split(":", 1)[1].rsplit("\n", 1)[0].strip()
     hindi = any("ऀ" <= c <= "ॿ" for c in text)

@@ -12,14 +12,15 @@ Team: [names / roll numbers]. The project should also work as a resume piece and
 
 ## 1. Current status (update this section as work moves)
 
-As of 14 Oct 2026:
+As of 18 Nov 2026:
 - [x] Project chosen (PID-08) and Milestone 1 presented on 14 Oct 2026 (10-slide deck: problem, related work, gaps, feasibility, objectives, method, techniques, experiments + timeline).
-- [x] Dataset pipeline (`legal-lmp-dataset/`) written and tested end to end on **synthetic** text (`tests/`). Also checked on generated English and Hindi PDFs, including the OCR route.
+- [x] Dataset pipeline (`legal-lmp-dataset/`) written and tested end to end on **synthetic** text (`tests/`).
+  - 18 Nov 2026: the earlier code was not available in the cloud workspace, so the pipeline was rebuilt from this spec. The PDF and OCR routes are untested on real PDFs; the parser is tested on synthetic page text (`tests/fixtures.py`). Step 2b now ends with `select_clauses.py --finalize`. The rubric lives in `src/rubric.py`. Identical provisions are deduplicated at selection and excluded from the holdouts.
 - [ ] Download the 4 source PDFs into `data/raw/` (see §5). India Code blocks scripted downloads, so a person must download them in a browser.
 - [ ] Run `extract.py` on the real acts and tune the parser to their formatting.
 - [ ] Choose the LLM used for simplifications and record its exact name.
 - [ ] Pilot annotation round (20 shared pairs) → update guidelines → main round.
-- [ ] Training / evaluation code (not started; see §8).
+- [x] Training / evaluation code written (`modeling/`, see §8). Checked only on synthetic data with a tiny offline model; next check: reproduce FrJUDGE (`modeling/prepare_frjudge.py`).
 - [ ] IEEE paper, final slides, demo.
 
 When you (Claude) finish a step, tick it here and add one line saying what changed.
@@ -73,6 +74,8 @@ Code and data: https://github.com/GRAAL-Research/JUDGEBERT (data CC-BY-NC-SA 4.0
 **Model:**
 - `almanach/camembertv2-base` with a regression head; the sentence pair is concatenated with [SEP].
 - lr 5e-5, batch 16, up to 100 epochs, patience 5, linear decay.
+- In the released `few_shot_training.py` the `EarlyStoppingCallback(patience=5)` is commented out: it trains 100 epochs and keeps the best dev-loss checkpoint (`load_best_model_at_end`). Pairs are tokenised as `tokenizer(original, simplification, truncation=True)`.
+- Released split files are `{original, simplification, label}` JSONL (train 186 / dev 21 / test 90; with DA 560 / 63 / 268).
 - 10 runs with seeds 42–51, 60/10/30 split.
 
 **Data augmentation (DA):**
@@ -148,9 +151,10 @@ sources.json                 acts, domains, PDF paths
 requirements.txt
 data/raw/README.md           which PDFs to download, exact names
 guidelines/annotation_guidelines.md   rubric, error types, conventions, change log
-src/common.py                JSONL I/O, normalisation, Devanagari-aware tokeniser, ROUGE/BLEU, is_unrelated
+src/common.py                JSONL I/O, normalisation, Devanagari-aware tokeniser, ROUGE/BLEU, is_unrelated, Pearson/Spearman
+src/rubric.py                BRACKETS, BRACKET_MAX, ERROR_COLS, MAIN_CHANGES, lmp_score(), decision(): single source of truth
 src/extract.py               PDF -> sub-section units (pdftotext or Tesseract OCR)
-src/select_clauses.py        EN-HI alignment, filters, weighted sampling, review CSV with auto_flags
+src/select_clauses.py        EN-HI alignment, filters, dedup, weighted sampling, review CSV with auto_flags; --finalize applies the review
 src/simplify.py              LLM simplifications (OpenAI-compatible API), resumable
 src/perturb.py               rule-based legal-error injection, EN + HI
 src/sanity.py                identical/unrelated DA pairs + holdout sets
@@ -159,6 +163,9 @@ src/agreement.py             read workbooks, Krippendorff α, human ceiling, agg
 src/split.py                 clause-grouped random + OOD splits
 tests/test_units.py          parser, Hindi handling, perturbation rules (synthetic strings)
 tests/test_pipeline.py       every step end to end: synthetic units, fake LLM, simulated annotators
+tests/test_modeling.py       baselines, LLM judge (fake server), evaluate, error analysis, train.py on a tiny offline BERT
+tests/fixtures.py            SYNTHETIC fixtures only (never copy into data/)
+modeling/                    see §8
 ```
 
 ### Pipeline
@@ -168,7 +175,7 @@ tests/test_pipeline.py       every step end to end: synthetic units, fake LLM, s
 | 0 | Download `rti_en.pdf`, `rti_hi.pdf`, `cpa_en.pdf`, `cpa_hi.pdf` into `data/raw/` (by hand, from the India Code pages above; use the act's official PDF and its Hindi version) | |
 | 1 | `python src/extract.py [--act rti --lang hi --backend ocr]` | `data/interim/<act>_<lang>_units.jsonl` |
 | 2 | `python src/select_clauses.py --per-act 30` | `data/processed/clauses.jsonl`, `clauses_review.csv` |
-| 2b | Humans review `clauses_review.csv` and set `keep=0` on misaligned, garbled or fragmentary rows | |
+| 2b | Humans review `clauses_review.csv` and set `keep=0` on misaligned, garbled or fragmentary rows (small OCR fixes in `text_en`/`text_hi` are allowed and recorded in `review_edits`), then `python src/select_clauses.py --finalize --per-act 30` | `clauses_final.jsonl` (later steps read only this) |
 | 3 | `LLM_API_KEY=… [LLM_BASE_URL=…] python src/simplify.py --model <name>` (trial first: `--limit 10`; preview: `--dry-run`) | `simplifications.jsonl` |
 | 4 | `python src/perturb.py` | `perturbations.jsonl` |
 | 5 | `python src/sanity.py [--unrelated-label 1]` | `augment_pairs.jsonl`, `holdout_identical.jsonl`, `holdout_unrelated.jsonl` |
@@ -176,12 +183,14 @@ tests/test_pipeline.py       every step end to end: synthetic units, fake LLM, s
 | 7 | `python src/agreement.py [--pilot]` | `labeled_pairs.jsonl`, `annotations.jsonl`, `reports/agreement*.md`, `reports/adjudicate*.csv` |
 | 8 | `python src/split.py --seeds 42 43 44 45 46` | `data/splits/random_s<seed>/`, `ood_<A>_to_<B>/`, holdout copies |
 
-Run the tests after any change: `python tests/test_units.py && python tests/test_pipeline.py`.
+Run the tests after any change: `python tests/test_units.py && python tests/test_pipeline.py && python tests/test_modeling.py`.
 
 ### Data schemas
 
 - **Units**: `act_id, lang, section, subsection, key ("s7_1"), heading, text, n_words, n_sents`. EN and HI rows of the same provision share `key`.
-- **`clauses.jsonl`**: `clause_id ("rti-s7_1"), act_id, domain, section, subsection, key, heading_en/hi, text_en/hi, n_words_en/hi, reading_ease_en, markers_en/hi, source`.
+- **`clauses.jsonl`** / **`clauses_final.jsonl`**: `clause_id ("rti-s7_1"), act_id, domain, section, subsection, key, heading_en/hi, text_en/hi, n_words_en/hi, n_sents_en, reading_ease_en, markers_en/hi, weight, auto_flags, sample_rank, source` (+ `review_note`, `review_edits` after finalize).
+- **`simplifications.jsonl`**: `sim_id, clause_id, act_id, lang, variant, original, simplification, raw_output, model, served_model, prompt_id, temperature, top_p, max_tokens, seed, finish_reason, usage, timestamp`.
+- **`perturbations.jsonl`**: `sim_id, base_sim_id, clause_id, act_id, lang, variant="perturbed", original, simplification, error_type, change, span, model, prompt_id`.
 - **`pairs.jsonl`** (the answer key; annotators never see it): `pair_id ("<clause_id>|<lang>|<variant>"), pair_uid (sha1, 10 hex), clause_id, act_id, domain, lang, variant, original, simplification, error_type, change, model, base_sim_id`.
 - **`labeled_pairs.jsonl`**: the `pairs.jsonl` fields plus `label` (mean), `label_std, scores, n_annotators, main_change, simplicity, mean_<error>`.
 - **Split files**: `pair_id, clause_id, act_id, lang, variant, original, simplification, label`.
@@ -198,7 +207,8 @@ Run the tests after any change: `python tests/test_units.py && python tests/test
   - `main_change`
   - `comment`, `minutes`
 - **Computed columns**: `lmp_score` and `check`.
-- `agreement.py` **recomputes** the score from the bracket and error counts, so the spreadsheet program used doesn't matter. Keep `ERROR_COLS` and `BRACKET_MAX` in sync if the rubric changes.
+- A hidden `meta` sheet records annotator, round and creation date (nothing that reveals the variant).
+- `agreement.py` **recomputes** the score from the bracket and error counts, so the spreadsheet program used doesn't matter. `ERROR_COLS` and `BRACKET_MAX` live only in `src/rubric.py`; if the rubric changes, also update the formula in `build_pairs.write_workbook` and the guidelines change log.
 
 ---
 
@@ -219,6 +229,10 @@ Run the tests after any change: `python tests/test_units.py && python tests/test
   - Rules only fire at clause ends, so they don't touch words like उपयोगी. Add a unit test for any new rule.
 - **India Code blocks scripted fetches** (robots disallowed). Don't try to download from there in code; ask a human.
 - On Windows, open CSVs written with `utf-8-sig`, or Excel garbles the Hindi.
+- **Acts repeat wording** (standard provisos, "as may be prescribed" sections). Two provisions with identical text would leak across clause-grouped splits, so `select_clauses` drops duplicates and `sanity` excludes from the holdouts any provision whose text equals a selected clause. `check_disjoint` also checks at the text level.
+- **Perturbation "as may be prescribed"**: `may` in this idiom is not a permission; modality and negation rules skip it (`EN_PERM_SKIP_*`).
+- **Simplification length caps** differ from the paper (100 tokens): defaults are 200 (EN) / 500 (HI) because clauses go up to 90 words and Devanagari costs more tokens. Truncated outputs are reported (`finish_reason=length`). State this in the paper.
+- **The `normal` prompt** (`bless_en_v1`) is the BLESS (Kew et al., 2023) simplification prompt as we recall it; diff it against the paper before the main run. A Hindi speaker must check `bless_hi_v1` and `kid12_hi_v1`.
 
 ---
 
@@ -236,9 +250,14 @@ Run the tests after any change: `python tests/test_units.py && python tests/test
 
 ---
 
-## 8. Modelling plan (next phase; not built yet)
+## 8. Modelling (code written; see `modeling/README.md`)
 
-Put this in a separate `modeling/` folder that reads `data/splits/`.
+`modeling/` reads `data/splits/` and writes `modeling/runs/<system>/<split>/preds_*.jsonl`; `evaluate.py` recomputes all
+metrics from those files into `reports/results.md`. Scripts: `train.py`, `baselines.py`, `llm_judge.py`, `evaluate.py`,
+`error_analysis.py`, `predict.py` (+ Gradio `--demo`), `prepare_frjudge.py`, `run_experiments.sh`.
+Implementation choices: model selection on the human dev set by default (`--dev-set da` mirrors the paper); fixed splits
+(OOD, FrJUDGE) get an `_s<seed>` suffix per model seed so `evaluate.py` aggregates them; baselines reported naive and
+train-calibrated.
 
 **Main model:** a cross-encoder regression (JUDGEBERT setup).
 - Input is `original [SEP] simplification`; output is a score 1–10. Regression head, MSE loss.
