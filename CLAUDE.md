@@ -15,13 +15,15 @@ Team: [names / roll numbers]. The project should also work as a resume piece and
 As of 18 Nov 2026:
 - [x] Project chosen (PID-08) and Milestone 1 presented on 14 Oct 2026 (10-slide deck: problem, related work, gaps, feasibility, objectives, method, techniques, experiments + timeline).
 - [x] Dataset pipeline (`legal-lmp-dataset/`) written and tested end to end on **synthetic** text (`tests/`).
-  - 18 Nov 2026: the earlier code was not available in the cloud workspace, so the pipeline was rebuilt from this spec. The PDF and OCR routes are untested on real PDFs; the parser is tested on synthetic page text (`tests/fixtures.py`). Step 2b now ends with `select_clauses.py --finalize`. The rubric lives in `src/rubric.py`. Identical provisions are deduplicated at selection and excluded from the holdouts.
+  - 18 Nov 2026: the earlier code was not available in the cloud workspace, so the pipeline was rebuilt from this spec. The parser is unit-tested on synthetic page text (`tests/fixtures.py`), and the pdftotext route was checked once on Chromium-rendered EN/HI PDFs of those pages (clean units, Hindi "करे गा ।" repaired). The OCR route is untested (no tesseract in that environment), and nothing has been run on the real India Code PDFs yet. Step 2b now ends with `select_clauses.py --finalize`. The rubric lives in `src/rubric.py`. Identical provisions are deduplicated at selection and excluded from the holdouts.
 - [ ] Download the 4 source PDFs into `data/raw/` (see §5). India Code blocks scripted downloads, so a person must download them in a browser.
 - [ ] Run `extract.py` on the real acts and tune the parser to their formatting.
 - [ ] Choose the LLM used for simplifications and record its exact name.
 - [ ] Pilot annotation round (20 shared pairs) → update guidelines → main round.
 - [x] Training / evaluation code written (`modeling/`, see §8). Checked only on synthetic data with a tiny offline model; next check: reproduce FrJUDGE (`modeling/prepare_frjudge.py`).
 - [ ] IEEE paper, final slides, demo.
+  - 18 Nov 2026: `paper/paper_draft.md` drafted (structure, dataset/method text from the design; every result is [TBD]; references to verify). Demo: `modeling/predict.py --demo` (Gradio).
+  - `train.py` was checked with real PyTorch on a tiny offline BERT (dev MSE falls 39 → 6.5 in 40 epochs). Hugging Face was blocked in that cloud environment, so no pretrained backbone and no FrJUDGE run yet: do both on Colab first.
 
 When you (Claude) finish a step, tick it here and add one line saying what changed.
 
