@@ -1,0 +1,22 @@
+{
+  "acts": [
+    {
+      "act_id": "rti",
+      "name_en": "The Right to Information Act, 2005",
+      "name_hi": "सूचना का अधिकार अधिनियम, 2005",
+      "domain": "public_information",
+      "url": "https://www.indiacode.nic.in/handle/123456789/2065",
+      "pdf": {"en": "data/raw/rti_en.pdf", "hi": "data/raw/rti_hi.pdf"},
+      "version_note": "[TBD: record the 'as on' / amendment date printed on each PDF]"
+    },
+    {
+      "act_id": "cpa",
+      "name_en": "The Consumer Protection Act, 2019",
+      "name_hi": "उपभोक्ता संरक्षण अधिनियम, 2019",
+      "domain": "consumer_law",
+      "url": "https://www.indiacode.nic.in/handle/123456789/15256",
+      "pdf": {"en": "data/raw/cpa_en.pdf", "hi": "data/raw/cpa_hi.pdf"},
+      "version_note": "[TBD: record the 'as on' / amendment date printed on each PDF]"
+    }
+  ]
+}

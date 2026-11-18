@@ -1,0 +1,19 @@
+# Source PDFs and generated data stay out of git (see CLAUDE.md §7)
+data/raw/*.pdf
+data/interim/
+data/processed/
+data/annotation/
+data/splits/
+data/ocr_cache/
+reports/*.md
+reports/*.csv
+!reports/.gitkeep
+modeling/runs/
+modeling/cache/
+.env
+*.env
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+~$*.xlsx

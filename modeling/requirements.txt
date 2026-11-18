@@ -1,0 +1,8 @@
+# Modelling (Colab T4 is enough). Install with: pip install -r modeling/requirements.txt
+torch>=2.1
+transformers>=4.40
+sentencepiece
+numpy>=1.24
+scipy>=1.10
+bert-score>=0.3.13
+sentence-transformers>=2.7
