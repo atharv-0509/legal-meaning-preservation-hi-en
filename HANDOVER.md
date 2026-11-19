@@ -88,7 +88,7 @@ powershell -File paper\build.ps1                 # paper + slides only
    `guidelines/annotation_guidelines.md`), then report LLM-vs-human correlation in the paper. Ideally
    score more pairs and re-label.
 2. **Merge `handover` into `main`** on GitHub.
-3. **Hindi CPA PDF** from India Code when it is reachable → `data/raw/cpa_hi.pdf`, re-run extract → select
+3. **Hindi CPA PDF** (retried 19 Nov: not obtainable from the cloud machine; see `sources.json` → `cpa.hi_source_attempts`). Fastest route: open WIPO Lex 23153 in a browser and download the Hindi PDF (a consolidation up to Act 33 of 2021: drop sections that differ from the 2019 English Gazette), or India Code → `data/raw/cpa_hi.pdf`, re-run extract → select
    → simplify (CPA HI) → annotate → `run_all.py all`. Makes E2 cover both acts.
 4. **Demo**: `modeling/predict.py --demo` needs a saved checkpoint. Re-run the transfer model with
    `--save-model` (Kaggle output or Colab) and load it.
