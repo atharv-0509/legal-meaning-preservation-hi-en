@@ -16,9 +16,9 @@ As of 18 Nov 2026:
 - [x] Project chosen (PID-08) and Milestone 1 presented on 14 Oct 2026 (10-slide deck: problem, related work, gaps, feasibility, objectives, method, techniques, experiments + timeline).
 - [x] Dataset pipeline (`legal-lmp-dataset/`) written and tested end to end on **synthetic** text (`tests/`).
   - 18 Nov 2026: the earlier code was not available in the cloud workspace, so the pipeline was rebuilt from this spec. The parser is unit-tested on synthetic page text (`tests/fixtures.py`), and the pdftotext route was checked once on Chromium-rendered EN/HI PDFs of those pages (clean units, Hindi "करे गा ।" repaired). The OCR route is untested (no tesseract in that environment), and nothing has been run on the real India Code PDFs yet. Step 2b now ends with `select_clauses.py --finalize`. The rubric lives in `src/rubric.py`. Identical provisions are deduplicated at selection and excluded from the holdouts.
-- [ ] Download the 4 source PDFs into `data/raw/` (see §5). India Code blocks scripted downloads, so a person must download them in a browser.
-- [ ] Run `extract.py` on the real acts and tune the parser to their formatting.
-- [ ] Choose the LLM used for simplifications and record its exact name.
+- [x] (3 of 4; CPA HI missing) Download the 4 source PDFs into `data/raw/` (see §5). India Code blocks scripted downloads, so a person must download them in a browser.
+- [x] Run `extract.py` on the real acts and tune the parser to their formatting.
+- [x] (agent-written, disclosed) Choose the LLM used for simplifications and record its exact name.
 - [ ] Pilot annotation round (20 shared pairs) → update guidelines → main round.
 - [x] Training / evaluation code written (`modeling/`, see §8). Checked only on synthetic data with a tiny offline model; next check: reproduce FrJUDGE (`modeling/prepare_frjudge.py`).
 - [ ] IEEE paper, final slides, demo.
@@ -27,12 +27,21 @@ As of 18 Nov 2026:
 
 - 19 Nov 2026: Windows Python 3.12.6 environment installed; full pytest baseline passes (33 passed, 0 failed, 0 skipped). Reset the fake-server request counter between tests; setup commands are in `modeling/README.md`.
 - 19 Nov 2026: DoPT RTI EN/HI and Gazette CPA EN extracted; 78 provisional review rows generated; 38 tests pass. Hindi OCR and amendment review remain blocked; CPA HI missing. See `paper/source_provenance.md`; no human review or finalization claimed.
+- 19 Nov 2026 (later, deadline run; branch `agent/real-extraction`):
+  - PDFs: 3 of 4 in `data/raw/` (India Code was down; official DoPT/Gazette copies; `sources.json` has `pdf_url`). **`cpa_hi.pdf` still missing** → CPA is EN-only, E2 uses RTI.
+  - Hindi RTI re-extracted with Tesseract 5.4 + tessdata_best `hin` (devanagari 0.993, bad-matra 0, no U+FFFD); `extract.repair_ocr_numbering` restores OCR-dropped "1" in section/sub-section numbers.
+  - Clause review done by rules + agent spot-check (`src/agent_review.py`, **disclosed, not human**): 78 final clauses (RTI 38, 35 with HI; CPA 40).
+  - Simplifications written by an LLM agent (`src/agent_simplify.py`, model recorded per row); perturb/sanity/build_pairs → **338 pairs**.
+  - Labels: two **disclosed LLM annotators** (Claude Opus 5.5 ×2; LLM-2 also wrote the simplifications, so not blind in practice). α(interval) 0.610; LLM-annotator ceiling 0.723. The 30-pair human validation workbook (`data/annotation/pilot/`) is **not yet scored**.
+  - Results (`reports/tables/*.tsv`, Kaggle kernels `lmp-experiments` v3 and `lmp-transfer`, runbook `run_all.py`): from-scratch XLM-R+DA 0.228 ± 0.288; **FrJUDGE→ours transfer 0.586 ± 0.098** (EN 0.675, HI 0.308; CPA→RTI 0.384, RTI→CPA 0.319); best baseline LaBSE 0.101. Training uses lr 2e-5, batch 8, 30 epochs, no early stopping (early stopping on the ~35-pair dev set collapsed every run).
+  - FrJUDGE reproduction (`reports/frjudge_repro.md`): released-code setting 0.707 ± 0.042 vs paper 0.74.
+  - Open: score the human validation pilot; get the Hindi CPA PDF; push branches to GitHub; demo needs a saved checkpoint.
 
 When you (Claude) finish a step, tick it here and add one line saying what changed.
 
-19 Nov 2026 decision: the deadline version will use disclosed LLM annotations, not human labels
-(see §4/§7). No such annotations have been completed yet. This does not meet the brief's
-human-judgement requirement; a separate 30-pair human validation set is planned.
+19 Nov 2026 decision: the deadline version uses disclosed LLM annotations, not human labels
+(see §4/§7). This does not meet the brief's human-judgement requirement; the 30-pair human
+validation set is built but not yet scored.
 
 ---
 
