@@ -25,8 +25,9 @@ TITLE = ("Assessing Legal Meaning Preservation in English and Hindi "
          "Simplifications of Indian Statutes")
 
 AUTHORS = [
-    {"name": "[Author 1]", "roll": "[Roll number]"},
-    {"name": "[Author 2]", "roll": "[Roll number]"},
+    {"name": "Karan Singh", "roll": "S24CSEU1939"},
+    {"name": "Atharv Arora", "roll": "S24CSEU2439"},
+    {"name": "Jatin Khanchi", "roll": "S24CSEU1932"},
 ]
 AFFILIATION = ["School of Computer Science Engineering and Technology",
                "Bennett University, Greater Noida, India"]
