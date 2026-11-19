@@ -30,6 +30,8 @@ COMMIT = "__COMMIT__"
 # "backbone=plan" items separated by ";" run one after another in this single GPU session
 # (Kaggle allows only 2 concurrent GPU sessions per account).
 TODO = "__TODO__"
+# extra train.py flags for every run (e.g. "--lr 2e-5 --batch-size 8 --patience 10"); see the paper for why
+EXTRA = "__EXTRA__" if "__EXTRA__" != "__" + "EXTRA__" else ""
 SPLITS_B64 = "__SPLITS_B64__"
 W = "/kaggle/working"
 R = f"{W}/lmp"
@@ -71,11 +73,33 @@ for model, plan in plans:
             for s in SEEDS:
                 jobs.append((model, f"{S}/{ood}", f"{name}-da", "--da", s))
 
-for i, (model, split, run, flags, seed) in enumerate(jobs, 1):
-    sh(f"cd {R} && python modeling/train.py --split-dir {split} --model {model} --run-name {run} --seed {seed} "
-       f"--fp16 {flags} --runs-dir {RUNS} 2>&1 | grep -E 'TEST|early stop|Error|Traceback'", check=False)
-    print(f"[{i}/{len(jobs)}] {run} {os.path.basename(split)} {flags} seed {seed}: "
-          f"elapsed {(time.time() - t0) / 60:.1f} min", flush=True)
+# Kaggle gives two T4s: run two jobs at a time, one per GPU (train.py itself uses a single device).
+import queue
+import threading
+
+q = queue.Queue()
+for i, job in enumerate(jobs, 1):
+    q.put((i, job))
+
+
+def worker(gpu: int):
+    while True:
+        try:
+            i, (model, split, run, flags, seed) = q.get_nowait()
+        except queue.Empty:
+            return
+        sh(f"cd {R} && CUDA_VISIBLE_DEVICES={gpu} python modeling/train.py --split-dir {split} --model {model} "
+           f"--run-name {run} --seed {seed} --fp16 {EXTRA} {flags} --runs-dir {RUNS} 2>&1 | "
+           f"grep -E 'TEST|early stop|Error|Traceback' | sed 's/^/[gpu{gpu} job{i}] /'", check=False)
+        print(f"[{i}/{len(jobs)}] gpu{gpu} {run} {os.path.basename(split)} {flags} seed {seed}: "
+              f"elapsed {(time.time() - t0) / 60:.1f} min", flush=True)
+
+
+threads = [threading.Thread(target=worker, args=(g,)) for g in (0, 1)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
 
 if any(plan == "full" for _, plan in plans):
     splits = " ".join(f"{S}/{d}" for d in sorted(os.listdir(S)) if d.startswith(("random_", "ood_")))

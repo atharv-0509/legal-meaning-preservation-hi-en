@@ -26,6 +26,10 @@ KERNELS = {                       # slug -> "backbone=plan;..." run in ONE GPU s
     "lmp-experiments": "xlm-roberta-base=full;google/muril-base-cased=e1",
 }
 LOGS = ROOT / "modeling" / "kaggle_logs"
+# Early stopping on our ~35-pair dev set fires on noise: XLM-R stopped after a few epochs at the
+# label mean (Pearson ~0) with patience 5 (v1) and patience 10 (v2). The FrJUDGE reproduction showed
+# the released-code setting (no early stopping, keep the best dev checkpoint) is the stable one.
+TRAIN_FLAGS = "--lr 2e-5 --batch-size 8 --patience 0 --epochs 30"
 
 
 def run(*cmd, check=True, capture=False):
@@ -55,7 +59,7 @@ def push():
         for attempt in range(48):                     # wait up to ~4 h for a free GPU session
             out = run(PY, "modeling/kaggle/kaggle_client.py", "push", "--user", KAGGLE_USER, "--slug", slug,
                       "--script", "modeling/kaggle/lmp_experiments.py", "--set", f"__COMMIT__={sha}",
-                      "--set", f"__TODO__={todo}", "--set-file", f"__SPLITS_B64__={b64}",
+                      "--set", f"__TODO__={todo}", "--set", f"__EXTRA__={TRAIN_FLAGS}", "--set-file", f"__SPLITS_B64__={b64}",
                       capture=True, check=False).stdout
             print(out)
             if "session count" not in out:
