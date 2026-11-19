@@ -41,6 +41,8 @@ KERNELS = {                       # slug -> "backbone=plan;..." run in ONE GPU s
     "lmp-errcls-aug": ("google/muril-base-cased=errcls-aug;google/muril-base-cased=errcls-augcue;"
                        "xlm-roberta-base=errcls-aug;xlm-roberta-base=errcls-augcue;"
                        "google/muril-base-cased=errcls-augcue-demo"),
+    # demo checkpoint of the best error classifier (MuRIL + augmentation, macro-F1 0.789 over 5 seeds)
+    "lmp-errcls-demo": "google/muril-base-cased=errcls-aug-demo",
     "lmp-errcls": ("xlm-roberta-base=errcls;xlm-roberta-base=frj-errcls;google/muril-base-cased=errcls;"
                    "xlm-roberta-base=errcls-demo;xlm-roberta-base=frj-errcls-demo"),
 }

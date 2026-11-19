@@ -1,0 +1,197 @@
+{
+  "test": {
+    "n": 66,
+    "accuracy": 0.8484848484848485,
+    "macro_f1": 0.7623460825977988,
+    "per_class": {
+      "none": {
+        "precision": 0.8333333333333334,
+        "recall": 0.9090909090909091,
+        "f1": 0.8695652173913043,
+        "support": 33
+      },
+      "modality": {
+        "precision": 0.9,
+        "recall": 0.8181818181818182,
+        "f1": 0.8571428571428572,
+        "support": 11
+      },
+      "negation": {
+        "precision": 1.0,
+        "recall": 0.9,
+        "f1": 0.9473684210526316,
+        "support": 10
+      },
+      "number": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5
+      },
+      "exception_drop": {
+        "precision": 1.0,
+        "recall": 0.25,
+        "f1": 0.4,
+        "support": 4
+      },
+      "scope": {
+        "precision": 0.4,
+        "recall": 0.6666666666666666,
+        "f1": 0.5,
+        "support": 3
+      }
+    },
+    "confusion": {
+      "exception_drop": {
+        "none": 3,
+        "exception_drop": 1
+      },
+      "modality": {
+        "modality": 9,
+        "none": 2
+      },
+      "negation": {
+        "negation": 9,
+        "scope": 1
+      },
+      "none": {
+        "none": 30,
+        "modality": 1,
+        "scope": 2
+      },
+      "number": {
+        "number": 5
+      },
+      "scope": {
+        "scope": 2,
+        "none": 1
+      }
+    }
+  },
+  "by_lang": {
+    "en": {
+      "n": 46,
+      "accuracy": 0.8260869565217391,
+      "macro_f1": 0.7718806016678358,
+      "per_class": {
+        "none": {
+          "precision": 0.8333333333333334,
+          "recall": 0.8695652173913043,
+          "f1": 0.851063829787234,
+          "support": 23
+        },
+        "modality": {
+          "precision": 0.8571428571428571,
+          "recall": 0.8571428571428571,
+          "f1": 0.8571428571428571,
+          "support": 7
+        },
+        "negation": {
+          "precision": 1.0,
+          "recall": 0.8571428571428571,
+          "f1": 0.923076923076923,
+          "support": 7
+        },
+        "number": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 3
+        },
+        "exception_drop": {
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "f1": 0.5,
+          "support": 3
+        },
+        "scope": {
+          "precision": 0.4,
+          "recall": 0.6666666666666666,
+          "f1": 0.5,
+          "support": 3
+        }
+      },
+      "confusion": {
+        "exception_drop": {
+          "none": 2,
+          "exception_drop": 1
+        },
+        "modality": {
+          "modality": 6,
+          "none": 1
+        },
+        "negation": {
+          "negation": 6,
+          "scope": 1
+        },
+        "none": {
+          "none": 20,
+          "modality": 1,
+          "scope": 2
+        },
+        "number": {
+          "number": 3
+        },
+        "scope": {
+          "scope": 2,
+          "none": 1
+        }
+      }
+    },
+    "hi": {
+      "n": 20,
+      "accuracy": 0.9,
+      "macro_f1": 0.7532467532467532,
+      "per_class": {
+        "none": {
+          "precision": 0.8333333333333334,
+          "recall": 1.0,
+          "f1": 0.9090909090909091,
+          "support": 10
+        },
+        "modality": {
+          "precision": 1.0,
+          "recall": 0.75,
+          "f1": 0.8571428571428571,
+          "support": 4
+        },
+        "negation": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 3
+        },
+        "number": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 2
+        },
+        "exception_drop": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        }
+      },
+      "confusion": {
+        "exception_drop": {
+          "none": 1
+        },
+        "modality": {
+          "modality": 3,
+          "none": 1
+        },
+        "negation": {
+          "negation": 3
+        },
+        "none": {
+          "none": 10
+        },
+        "number": {
+          "number": 2
+        }
+      }
+    }
+  }
+}
