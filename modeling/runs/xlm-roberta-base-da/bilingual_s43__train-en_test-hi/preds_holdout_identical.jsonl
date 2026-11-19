@@ -1,0 +1,3 @@
+{"pair_id": "holdout-rti-s29_2|hi|identical", "clause_id": "holdout-rti-s29_2", "act_id": "rti", "lang": "hi", "variant": "identical", "error_type": null, "main_change": null, "label": 10.0, "pred_raw": 6.01171875, "pred": 6.01171875}
+{"pair_id": "holdout-rti-s3|hi|identical", "clause_id": "holdout-rti-s3", "act_id": "rti", "lang": "hi", "variant": "identical", "error_type": null, "main_change": null, "label": 10.0, "pred_raw": 6.14453125, "pred": 6.14453125}
+{"pair_id": "holdout-rti-s10_1|hi|identical", "clause_id": "holdout-rti-s10_1", "act_id": "rti", "lang": "hi", "variant": "identical", "error_type": null, "main_change": null, "label": 10.0, "pred_raw": 5.953125, "pred": 5.953125}

@@ -34,11 +34,11 @@
 
 ## Case 4 — injected modality
 
-`rti-s24_3|hi|perturbed` · gold 5.00 (± 0.00, Partially Preserved) · predicted 9.62 (Preserved) · error type: modality · annotators' main change: obligation/permission
+`cpa-s73_1|en|perturbed` · gold 5.00 (± 0.00, Partially Preserved) · predicted 9.62 (Preserved) · error type: modality · annotators' main change: obligation/permission
 
-**Original:** उपधारा (2) के अधीन जारी की गई प्रत्येक अधिसूचना, संसद् के प्रत्येक सदन के समक्ष रखी जाएगी।
+**Original:** Notwithstanding anything contained in the Code of Criminal Procedure, 1973, where an order is passed under sub-section (1) of section 72, an appeal shall lie, both on facts and on law from— (a) the order made by the District Commission to the State Commission; (b) the order made by the State Commission to the National Commission; and (c) the order made by the National Commission to the Supreme Court.
 
-**Simplification:** उपधारा (2) के तहत जारी हर अधिसूचना को संसद के दोनों सदनों के सामने रखा जा सकेगा।
+**Simplification:** Even though the Code of Criminal Procedure, 1973 says otherwise, when an order is made under sub-section (1) of section 72, an appeal must be made on both facts and law: (a) from an order of the District Commission to the State Commission; (b) from an order of the State Commission to the National Commission; and (c) from an order of the National Commission to the Supreme Court.
 
 **Analysis:** [TBD — written by the team]
 
