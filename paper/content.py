@@ -436,42 +436,60 @@ BODY: list[tuple] = [
 # Verification status is recorded per entry so that an unverified reference cannot reach the PDF
 # unnoticed: "verified" means the authors, venue and year were checked against the publication
 # record; "unverified" is rendered with a visible marker by the builders.
+#
+# All thirteen were checked against the ACL Anthology, arXiv, the ACM DL, the ICLR proceedings and
+# the Penn repository on 19 Nov 2026. Three entries were wrong in the first draft and are fixed:
+#   * BLESS: the author list was substantially wrong (D. Pepe and S. Ebling are not authors;
+#     D. Aumiller and F. Alva-Manchego were missing).
+#   * MeaningBERT: the second author is H. Saggion, not N. Garneau.
+#   * QuestEval: P. Gallinari is the last author, not the third.
+# Author-order and page details worth keeping in mind for the final template pass are noted inline.
 
 REFERENCES = [
     {"text": "D. Beauchemin, M. Albert-Rochette, R. Khoury and P.-L. Deziel, \"JUDGEBERT: Assessing "
              "Legal Meaning Preservation Between Sentences,\" in Proc. EMNLP, 2025, pp. 92-118.",
-     "status": "unverified", "note": "author initials and page range to confirm"},
-    {"text": "T. Kew, A. Chi, S. Vasquez-Rodriguez, S. Agrawal, D. Pepe, M. Shardlow and S. Ebling, "
-             "\"BLESS: Benchmarking Large Language Models on Sentence Simplification,\" in Proc. "
-             "EMNLP, 2023.", "status": "unverified", "note": "author list to confirm"},
+     "status": "verified", "note": "aclanthology.org/2025.emnlp-main.5; preprint arXiv:2508.16870"},
+    {"text": "T. Kew, A. Chi, L. Vasquez-Rodriguez, S. Agrawal, D. Aumiller, F. Alva-Manchego and "
+             "M. Shardlow, \"BLESS: Benchmarking Large Language Models on Sentence "
+             "Simplification,\" in Proc. EMNLP, 2023.",
+     "status": "verified", "note": "aclanthology.org/2023.emnlp-main.821; author list corrected"},
     {"text": "T. Zhang, V. Kishore, F. Wu, K. Q. Weinberger and Y. Artzi, \"BERTScore: Evaluating "
-             "Text Generation with BERT,\" in Proc. ICLR, 2020.", "status": "unverified"},
+             "Text Generation with BERT,\" in Proc. ICLR, 2020.",
+     "status": "verified", "note": "ICLR 2020 poster 1738; arXiv:1904.09675"},
     {"text": "F. Feng, Y. Yang, D. Cer, N. Arivazhagan and W. Wang, \"Language-agnostic BERT "
-             "Sentence Embedding,\" in Proc. ACL, 2022.", "status": "unverified"},
+             "Sentence Embedding,\" in Proc. ACL, 2022.",
+     "status": "verified", "note": "aclanthology.org/2022.acl-long.62"},
     {"text": "A. Conneau, K. Khandelwal, N. Goyal, V. Chaudhary, G. Wenzek, F. Guzman, E. Grave, "
              "M. Ott, L. Zettlemoyer and V. Stoyanov, \"Unsupervised Cross-lingual Representation "
-             "Learning at Scale,\" in Proc. ACL, 2020.", "status": "unverified"},
+             "Learning at Scale,\" in Proc. ACL, 2020.",
+     "status": "verified", "note": "aclanthology.org/2020.acl-main.747"},
     {"text": "S. Khanuja, D. Bansal, S. Mehtani, S. Khosla, A. Dey, B. Gopalan, D. K. Margam, "
              "P. Aggarwal, R. T. Nagipogu, S. Dave, S. Gupta, S. C. B. Gali, V. Subramanian and "
              "P. Talukdar, \"MuRIL: Multilingual Representations for Indian Languages,\" arXiv "
-             "preprint arXiv:2103.10730, 2021.", "status": "unverified"},
+             "preprint arXiv:2103.10730, 2021.",
+     "status": "verified", "note": "all 14 authors confirmed on arXiv"},
     {"text": "S. Doddapaneni, R. Aralikatte, G. Ramesh, S. Goyal, M. M. Khapra, A. Kunchukuttan and "
              "P. Kumar, \"Towards Leaving No Indic Language Behind: Building Monolingual Corpora, "
              "Benchmark and Models for Indic Languages,\" in Proc. ACL, 2023.",
-     "status": "unverified"},
-    {"text": "K. Krippendorff, \"Computing Krippendorff's Alpha-Reliability,\" Annenberg School for "
-             "Communication, University of Pennsylvania, 2011.", "status": "unverified"},
-    {"text": "T. Scialom, P.-A. Dray, P. Gallinari, S. Lamprier, B. Piwowarski, J. Staiano and "
-             "A. Wang, \"QuestEval: Summarization Asks for Fact-based Evaluation,\" in Proc. EMNLP, "
-             "2021.", "status": "unverified"},
+     "status": "verified", "note": "aclanthology.org/2023.acl-long.693"},
+    {"text": "K. Krippendorff, \"Computing Krippendorff's Alpha-Reliability,\" Departmental Papers "
+             "(ASC), Annenberg School for Communication, University of Pennsylvania, 2011.",
+     "status": "verified", "note": "repository.upenn.edu/asc_papers/43"},
+    {"text": "T. Scialom, P.-A. Dray, S. Lamprier, B. Piwowarski, J. Staiano, A. Wang and "
+             "P. Gallinari, \"QuestEval: Summarization Asks for Fact-based Evaluation,\" in Proc. "
+             "EMNLP, 2021.",
+     "status": "verified", "note": "aclanthology.org/2021.emnlp-main.529; author order corrected"},
     {"text": "M. Maddela, Y. Dou, D. Heineman and W. Xu, \"LENS: A Learnable Evaluation Metric for "
-             "Text Simplification,\" in Proc. ACL, 2023.", "status": "unverified"},
-    {"text": "D. Beauchemin, N. Garneau and R. Khoury, \"MeaningBERT: Assessing Meaning Preservation "
-             "Between Sentences,\" Frontiers in Artificial Intelligence, 2023.",
-     "status": "unverified"},
+             "Text Simplification,\" in Proc. ACL, 2023.",
+     "status": "verified", "note": "aclanthology.org/2023.acl-long.905"},
+    {"text": "D. Beauchemin, H. Saggion and R. Khoury, \"MeaningBERT: Assessing Meaning Preservation "
+             "Between Sentences,\" Frontiers in Artificial Intelligence, vol. 6, 2023, "
+             "doi:10.3389/frai.2023.1223924.",
+     "status": "verified", "note": "second author corrected: Saggion, not Garneau"},
     {"text": "S. Paul, A. Mandal, P. Goyal and S. Ghosh, \"Pre-trained Language Models for the Legal "
-             "Domain: A Case Study on Indian Law,\" in Proc. ICAIL, 2023.", "status": "unverified"},
-    {"text": "A. Joshi, S. Paul, A. Sharma, P. Goyal, S. Ghosh and others, \"IL-TUR: Benchmark for "
+             "Domain: A Case Study on Indian Law,\" in Proc. ICAIL, 2023, pp. 187-196.",
+     "status": "verified", "note": "doi:10.1145/3594536.3595165; arXiv:2209.06049"},
+    {"text": "A. Joshi, S. Paul, A. Sharma, P. Goyal, S. Ghosh and A. Modi, \"IL-TUR: Benchmark for "
              "Indian Legal Text Understanding and Reasoning,\" in Proc. ACL, 2024.",
-     "status": "unverified"},
+     "status": "verified", "note": "aclanthology.org/2024.acl-long.618; A. Modi added"},
 ]

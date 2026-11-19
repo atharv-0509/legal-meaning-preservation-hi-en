@@ -192,16 +192,16 @@ As an end-to-end check of the training code against a published result, we conve
 
 ## References
 
-1. D. Beauchemin, M. Albert-Rochette, R. Khoury and P.-L. Deziel, "JUDGEBERT: Assessing Legal Meaning Preservation Between Sentences," in Proc. EMNLP, 2025, pp. 92-118.  **[UNVERIFIED]**
-2. T. Kew, A. Chi, S. Vasquez-Rodriguez, S. Agrawal, D. Pepe, M. Shardlow and S. Ebling, "BLESS: Benchmarking Large Language Models on Sentence Simplification," in Proc. EMNLP, 2023.  **[UNVERIFIED]**
-3. T. Zhang, V. Kishore, F. Wu, K. Q. Weinberger and Y. Artzi, "BERTScore: Evaluating Text Generation with BERT," in Proc. ICLR, 2020.  **[UNVERIFIED]**
-4. F. Feng, Y. Yang, D. Cer, N. Arivazhagan and W. Wang, "Language-agnostic BERT Sentence Embedding," in Proc. ACL, 2022.  **[UNVERIFIED]**
-5. A. Conneau, K. Khandelwal, N. Goyal, V. Chaudhary, G. Wenzek, F. Guzman, E. Grave, M. Ott, L. Zettlemoyer and V. Stoyanov, "Unsupervised Cross-lingual Representation Learning at Scale," in Proc. ACL, 2020.  **[UNVERIFIED]**
-6. S. Khanuja, D. Bansal, S. Mehtani, S. Khosla, A. Dey, B. Gopalan, D. K. Margam, P. Aggarwal, R. T. Nagipogu, S. Dave, S. Gupta, S. C. B. Gali, V. Subramanian and P. Talukdar, "MuRIL: Multilingual Representations for Indian Languages," arXiv preprint arXiv:2103.10730, 2021.  **[UNVERIFIED]**
-7. S. Doddapaneni, R. Aralikatte, G. Ramesh, S. Goyal, M. M. Khapra, A. Kunchukuttan and P. Kumar, "Towards Leaving No Indic Language Behind: Building Monolingual Corpora, Benchmark and Models for Indic Languages," in Proc. ACL, 2023.  **[UNVERIFIED]**
-8. K. Krippendorff, "Computing Krippendorff's Alpha-Reliability," Annenberg School for Communication, University of Pennsylvania, 2011.  **[UNVERIFIED]**
-9. T. Scialom, P.-A. Dray, P. Gallinari, S. Lamprier, B. Piwowarski, J. Staiano and A. Wang, "QuestEval: Summarization Asks for Fact-based Evaluation," in Proc. EMNLP, 2021.  **[UNVERIFIED]**
-10. M. Maddela, Y. Dou, D. Heineman and W. Xu, "LENS: A Learnable Evaluation Metric for Text Simplification," in Proc. ACL, 2023.  **[UNVERIFIED]**
-11. D. Beauchemin, N. Garneau and R. Khoury, "MeaningBERT: Assessing Meaning Preservation Between Sentences," Frontiers in Artificial Intelligence, 2023.  **[UNVERIFIED]**
-12. S. Paul, A. Mandal, P. Goyal and S. Ghosh, "Pre-trained Language Models for the Legal Domain: A Case Study on Indian Law," in Proc. ICAIL, 2023.  **[UNVERIFIED]**
-13. A. Joshi, S. Paul, A. Sharma, P. Goyal, S. Ghosh and others, "IL-TUR: Benchmark for Indian Legal Text Understanding and Reasoning," in Proc. ACL, 2024.  **[UNVERIFIED]**
+1. D. Beauchemin, M. Albert-Rochette, R. Khoury and P.-L. Deziel, "JUDGEBERT: Assessing Legal Meaning Preservation Between Sentences," in Proc. EMNLP, 2025, pp. 92-118.
+2. T. Kew, A. Chi, L. Vasquez-Rodriguez, S. Agrawal, D. Aumiller, F. Alva-Manchego and M. Shardlow, "BLESS: Benchmarking Large Language Models on Sentence Simplification," in Proc. EMNLP, 2023.
+3. T. Zhang, V. Kishore, F. Wu, K. Q. Weinberger and Y. Artzi, "BERTScore: Evaluating Text Generation with BERT," in Proc. ICLR, 2020.
+4. F. Feng, Y. Yang, D. Cer, N. Arivazhagan and W. Wang, "Language-agnostic BERT Sentence Embedding," in Proc. ACL, 2022.
+5. A. Conneau, K. Khandelwal, N. Goyal, V. Chaudhary, G. Wenzek, F. Guzman, E. Grave, M. Ott, L. Zettlemoyer and V. Stoyanov, "Unsupervised Cross-lingual Representation Learning at Scale," in Proc. ACL, 2020.
+6. S. Khanuja, D. Bansal, S. Mehtani, S. Khosla, A. Dey, B. Gopalan, D. K. Margam, P. Aggarwal, R. T. Nagipogu, S. Dave, S. Gupta, S. C. B. Gali, V. Subramanian and P. Talukdar, "MuRIL: Multilingual Representations for Indian Languages," arXiv preprint arXiv:2103.10730, 2021.
+7. S. Doddapaneni, R. Aralikatte, G. Ramesh, S. Goyal, M. M. Khapra, A. Kunchukuttan and P. Kumar, "Towards Leaving No Indic Language Behind: Building Monolingual Corpora, Benchmark and Models for Indic Languages," in Proc. ACL, 2023.
+8. K. Krippendorff, "Computing Krippendorff's Alpha-Reliability," Departmental Papers (ASC), Annenberg School for Communication, University of Pennsylvania, 2011.
+9. T. Scialom, P.-A. Dray, S. Lamprier, B. Piwowarski, J. Staiano, A. Wang and P. Gallinari, "QuestEval: Summarization Asks for Fact-based Evaluation," in Proc. EMNLP, 2021.
+10. M. Maddela, Y. Dou, D. Heineman and W. Xu, "LENS: A Learnable Evaluation Metric for Text Simplification," in Proc. ACL, 2023.
+11. D. Beauchemin, H. Saggion and R. Khoury, "MeaningBERT: Assessing Meaning Preservation Between Sentences," Frontiers in Artificial Intelligence, vol. 6, 2023, doi:10.3389/frai.2023.1223924.
+12. S. Paul, A. Mandal, P. Goyal and S. Ghosh, "Pre-trained Language Models for the Legal Domain: A Case Study on Indian Law," in Proc. ICAIL, 2023, pp. 187-196.
+13. A. Joshi, S. Paul, A. Sharma, P. Goyal, S. Ghosh and A. Modi, "IL-TUR: Benchmark for Indian Legal Text Understanding and Reasoning," in Proc. ACL, 2024.
