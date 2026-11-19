@@ -91,7 +91,8 @@ def krippendorff_alpha(units: dict[str, list], metric: str = "interval") -> floa
 
 def human_ceiling(by_uid: dict[str, dict[str, float]]) -> tuple[float, dict]:
     """Leave-one-out: Pearson of each annotator with the mean of the other annotators of the same
-    items. Its mean is a ceiling for how well any model can agree with 'the' human label."""
+    items. With many independent annotators its mean approximates a ceiling; with two annotators it is
+    just their correlation and is not an upper bound on predicting their mean (it is reported as agreement)."""
     annotators = sorted({a for d in by_uid.values() for a in d})
     per = {}
     for a in annotators:
@@ -168,7 +169,8 @@ def main(argv=None):
          f"- Pairs with >= 2 ratings: {len(multi)} / {len(by_uid)}",
          f"- **Krippendorff's alpha (interval, LMP 1-10): {fmt(alpha_lmp)}** (JUDGEBERT/FrJUDGE reported 0.10)",
          f"- Krippendorff's alpha (nominal, bracket): {fmt(alpha_br)}",
-         f"- **Human ceiling** (mean leave-one-out Pearson): {fmt(ceiling)}", "",
+         f"- **Inter-annotator agreement** (mean leave-one-out Pearson; with two annotators this is their "
+         f"correlation, not an upper bound on predicting their mean): {fmt(ceiling)}", "",
          "## Annotators", "", "| annotator | n | mean LMP | std | LOO Pearson | % Accurate | % Off-track |",
          "|---|---|---|---|---|---|---|"]
     for a in annotators:

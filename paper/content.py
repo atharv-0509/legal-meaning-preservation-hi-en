@@ -233,7 +233,9 @@ BODY: list[tuple] = [
      "The resulting corpus is 78 clauses: 38 from the Right to Information Act, of which 35 have an "
      "aligned Hindi counterpart, and 40 from the Consumer Protection Act, which are English-only "
      "because its Hindi text was unobtainable. That gives 113 clause-language items and, with three "
-     "variants each, 339 pairs, above the 300 the study design calls for. Table II breaks this down."),
+     "variants each less one perturbation rule that found nothing to edit, 338 pairs. The brief asks "
+     "for 300 pairs with human judgements; our 338 carry LLM judgements, so that requirement is not met "
+     "(Section III-D). Table II breaks the corpus down."),
     ("caption", "Corpus composition by act, language and variant"),
     ("table", "dataset"),
     ("h2", "Simplifications"),
@@ -242,24 +244,27 @@ BODY: list[tuple] = [
      "variant uses the zero-shot BLESS prompt, translated for Hindi. The aggressive variant asks "
      "for an explanation to a twelve-year-old in at most two sentences, which reliably sacrifices "
      "conditions and therefore populates the low end of the scale that FrJUDGE lacks. The perturbed "
-     "variant takes a normal simplification and injects exactly one legal error, balanced across "
-     "five types: modality (shall or must becomes may, and the reverse), negation, a changed "
+     "variant takes a normal simplification and applies one rule-based legal edit to it, balanced "
+     "across five types: modality (shall or must becomes may, and the reverse), negation, a changed "
      "number, deletion of an exception, proviso or override, and narrowed scope. The Hindi rules "
      "operate only on clause-final verb groups, so that, for example, karega becomes kar sakega "
      "without touching unrelated words that merely contain the same letters. The idiom \"as may be "
-     "prescribed\" is explicitly exempted, because the may in it confers no permission."),
+     "prescribed\" is explicitly exempted, because the may in it confers no permission. The base "
+     "simplification is not itself verified to be error-free, so a perturbed pair carries one "
+     "additional injected error, not necessarily exactly one error relative to the statute: the "
+     "Hindi normal simplification of RTI section 12(6), for instance, already narrows legislature "
+     "(vidhan-mandal) to assembly (vidhansabha), and its perturbed copy keeps that slip as well."),
     ("p",
-     "Our output caps are 200 tokens for English and 500 for Hindi, rather than JUDGEBERT's 100, "
-     "because our clauses reach 90 words and Devanagari consumes more tokens per word; truncated "
-     "generations are recorded and reported rather than silently kept. One further deviation must "
-     "be stated: JUDGEBERT sampled its simplifications from gpt-4-turbo through an API at "
+     "The API pipeline we built caps output at 200 tokens for English and 500 for Hindi, rather than "
+     "JUDGEBERT's 100, but it was not used for this corpus, and one deviation must be stated: JUDGEBERT sampled its simplifications from gpt-4-turbo through an API at "
      "temperature 1.0 and top-p 0.9, whereas ours were written by a Claude Opus 5.5 agent following "
      "the same prompts, with no sampling parameters to record. The prompt identifier, the model "
      "string and a timestamp are stored with every generation, and the temperature and top-p fields "
      "are null rather than invented. Our simplifications are consequently likely to be more "
      "conservative than temperature-1.0 samples, which plausibly shifts the label distribution "
-     "upward relative to FrJUDGE. In the event no generation hit the cap: all 226 simplifications "
-     "terminated normally, so nothing in the corpus is a truncated output."),
+     "upward relative to FrJUDGE. Because no sampling API was involved, no output cap was enforced, "
+     "and the importer's max_tokens (null) and finish_reason (always written as stop) fields are not "
+     "observations of how generation ended."),
     ("h2", "Scoring protocol and its deviation from human judgement"),
     ("p",
      "This is the point at which the present version of the work departs from our protocol, and we "
@@ -270,8 +275,9 @@ BODY: list[tuple] = [
      "written for the human annotators. This does not satisfy the requirement of agreement with "
      "human legal judgement, and no claim in this paper should be read as establishing it."),
     ("p",
-     "The blinding is real and mechanical rather than a matter of trust. Each annotator receives "
-     "only an opaque pair identifier, in an order shuffled per annotator with items from the same "
+     "Blinding was implemented mechanically for what each annotator could open, and it is only "
+     "partial, as the next paragraph makes explicit. Each annotator receives only an opaque pair "
+     "identifier, in an order shuffled per annotator with items from the same "
      "clause separated; the variant name, the injected error type and the answer key are in files "
      "the annotators never read, and neither annotator sees the other's workbook. The score is not "
      "entered directly: the annotator chooses a bracket and counts errors by type, and the score is "
@@ -289,26 +295,30 @@ BODY: list[tuple] = [
      "Three further caveats belong here rather than in a footnote, because they bound what the "
      "agreement number can mean. First, both annotators are instances of the same model, Claude "
      "Opus 5.5, so their agreement is between two instances of one model family and not between "
-     "two independent judges; it is an upper bound flattered by shared pretraining. Second, the two "
+     "two independent judges, and their agreement is likely inflated by shared pretraining. Second, the two "
      "annotators are not equally blind. The first was given only the opaque identifiers and the "
      "text, and knew the corpus design in the abstract but not which items carried an injected "
      "error. The second also wrote the simplifications, so although its workbook hides the variant "
      "labels it may recognise its own output and infer which copies were perturbed; it is "
      "therefore not blind in practice, and we say so. Third, with two annotators the leave-one-out "
-     "ceiling degenerates into the correlation between the two of them, so what it measures is how "
-     "well one instance of a model predicts another, not a ceiling set by human legal judgement."),
+     "statistic is simply their Pearson correlation. It is not an upper bound on predicting their "
+     "mean: each annotator correlates 0.904 and 0.949 with the mean label, which includes its own "
+     "score. We therefore report it only as inter-LLM agreement and draw no percentage-of-ceiling "
+     "conclusions from it."),
     ("p",
      "On those terms the agreement is as follows. Krippendorff's alpha [8] on the interval LMP scores "
-     "is 0.610 and on the nominal brackets 0.503; the leave-one-out ceiling, which we call the "
-     "LLM-annotator ceiling and never a human ceiling, is a Pearson correlation of 0.723, and 68 "
-     "of the 338 pairs fall on the adjudication list. These figures are far above the 0.10 that "
+     "is 0.610 and on the nominal brackets 0.503; the Pearson correlation between the two annotators "
+     "(inter-LLM agreement) is 0.723; and 68 of the 338 pairs fall on the adjudication list, none of "
+     "which has been adjudicated. These figures are far above the 0.10 that "
      "JUDGEBERT reports between its five law students, and the comparison must be read with that "
      "asymmetry in mind: two instances of one model agreeing is a much weaker result than five "
      "people agreeing, and the gap is evidence about model consistency rather than about the "
-     "construct being well defined. The label distribution is bimodal, with mass at 10 and a tail "
-     "between 1 and 5 and nothing at 6 or 7; that is an arithmetic consequence of the rubric "
-     "itself, since a score is a bracket maximum of 10, 6 or 1 minus one point per error, and it "
-     "matters for RMSE. One convention differed between the annotators and we state it rather than "
+     "construct being well defined. The annotators are also systematically offset: the mean score "
+     "of the first is 8.115 and of the second 6.935, so the label, their mean, is in places a "
+     "numerical compromise between incompatible scoring conventions rather than an adjudicated "
+     "judgement. The label distribution is bimodal, concentrated at 10 with a tail between 1 and 5; "
+     "individual scores rarely fall on 6 or 7 because the rubric subtracts from bracket maxima of "
+     "10, 6 and 1, although mean labels do (15 pairs at 6 and 7 at 7). The bimodality matters for RMSE. One convention differed between the annotators and we state it rather than "
      "smoothing it over: where an inserted or dropped negation reverses an entire operative "
      "provision, one annotator scored Off-track, the other Imprecise with a confusion. The label "
      "is the mean of the two, as in FrJUDGE, and the adjudication list records every such divergence."),
@@ -343,11 +353,11 @@ BODY: list[tuple] = [
      "The model follows JUDGEBERT: the pair is encoded as original, separator, simplification by a "
      "pretrained multilingual encoder, and a linear regression head on the pooled representation "
      "predicts the score under mean-squared-error loss, with predictions clipped to the rubric range "
-     "1 to 10. Candidate backbones are XLM-R, MuRIL and IndicBERT v2; each is trained with and "
-     "without augmentation over clause-grouped seeds. Model selection uses the annotated "
-     "development set by default, with a flag to select on the augmented development set as the "
-     "original work did, because the two choices are not equivalent and the difference should be "
-     "visible."),
+     "1 to 10. We train XLM-R and MuRIL (IndicBERT v2 was planned but not run), each with and "
+     "without augmentation, over three clause-grouped seeds (42-44). Checkpoints are selected on "
+     "the annotated development set. The principal system, the FrJUDGE-pretrained XLM-R fine-tuned "
+     "with augmentation, is fixed in advance as the configuration used for every experiment E1-E4; "
+     "tables list all systems in a fixed order and never choose the featured system by test score."),
     ("p",
      "Our optimisation settings depart from the published ones and the reason is a property of our "
      "corpus, so we state both. JUDGEBERT uses learning rate 5e-5, batch size 16 and early stopping "
@@ -414,6 +424,8 @@ BODY: list[tuple] = [
     ("table", "e4"),
     ("caption", "Mean absolute error on perturbed pairs by injected error type"),
     ("table", "diag"),
+    ("caption", "Within-variant behaviour of the principal system on the E1 random splits"),
+    ("table", "variant"),
     ("p",
      "We state the from-scratch result before the detail, because on its own it is a negative "
      "result and burying it would be worse than reporting it. Trained only on our corpus the "
@@ -463,11 +475,11 @@ BODY: list[tuple] = [
      "to a faithful one while meaning the opposite; an overlap or embedding metric cannot see the "
      "difference by construction. The diagnostic table makes this explicit: LaBSE's error is "
      "largest exactly where the change is smallest on the surface, 5.896 +/- 0.372 mean absolute "
-     "error on negation reversals against 3.022 +/- 0.910 on dropped exceptions. We note the "
-     "alternative reading honestly, namely that correlations this low could indicate a baseline "
-     "implementation fault; against that, the same code reproduces BERTScore's published behaviour "
-     "on FrJUDGE, the four metrics fail in the same direction, and their ranking tracks surface "
-     "sensitivity as theory predicts."),
+     "error on negation reversals against 3.022 +/- 0.910 on dropped exceptions (naive LaBSE "
+     "mapping; Table VII uses the train-calibrated mapping, so its values differ). Correlations "
+     "this low could also indicate a baseline implementation fault. We did not re-run the baselines "
+     "on FrJUDGE to rule that out; what we can say is that the four metrics fail in the same "
+     "direction and their ranking tracks surface sensitivity as expected."),
     ("p",
      "The sanity checks add a caution about calibration that we had not anticipated. In their naive "
      "mapping all four baselines score 100% of identical holdout pairs at or above 9.9, but none "
@@ -628,7 +640,8 @@ BODY: list[tuple] = [
      "The augmented model is genuinely much stronger than the unaugmented one, and the published "
      "0.97 is also partly an artefact of what is in the test set. This is the concrete reason our "
      "own headline metrics exclude augmentation and sanity pairs. The FrJUDGE data is CC-BY-NC-SA "
-     "4.0 and is used only for this check; we do not redistribute it."),
+     "4.0; we use it for this check and as the pre-training data of the transfer experiment, and "
+     "we do not redistribute it."),
 
     ("h1", "Limitations and Ethics"),
     ("bullets", [
@@ -636,11 +649,18 @@ BODY: list[tuple] = [
         "The central claim of the predecessor work, agreement with human legal judgement, is "
         "therefore not tested here, and the planned 30-pair human validation set is the minimum "
         "needed to begin testing it.",
-        "With two annotators the leave-one-out ceiling is just the correlation between them, and "
-        "because both are instances of the same model their agreement may reflect shared "
-        "pretraining rather than a well-defined construct. We therefore call it the LLM-annotator "
-        "ceiling, never a human ceiling. One of the two also wrote the simplifications and so is "
-        "not blind in practice.",
+        "The inter-LLM agreement (Pearson 0.723) is the correlation between two instances of the same "
+        "model, may reflect shared pretraining rather than a well-defined construct, and is not an "
+        "upper bound on predicting their mean. One of the two also wrote the simplifications and so "
+        "is not blind in practice. The 68 largest disagreements were not adjudicated.",
+        "The benchmark encodes its construction: predicting each test pair by the mean training label "
+        "of its variant, which uses answer-key information and is not a deployable system, already "
+        "reaches a higher Pearson than any learned model (E1 table). Overall correlation therefore "
+        "cannot show that a model assesses legal consequences rather than recognising simplification "
+        "style or error templates; the within-variant table is the more honest measure.",
+        "No human checked the Hindi text against the source PDFs; the OCR and rule-based repairs were "
+        "verified only by an automated agent spot-check. The sanity holdouts contain 3 Hindi "
+        "identical pairs and no Hindi unrelated pairs, so the unrelated-pair check is English-only.",
         "The corpus covers two acts and, for Hindi, one act only, because the official Hindi text of "
         "the Consumer Protection Act was unavailable. The two Right to Information editions differ, "
         "and the Hindi text had to be recovered by OCR; both are documented and flagged, and "

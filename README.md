@@ -7,21 +7,20 @@ and a decision: Preserved, Partially Preserved or Not Preserved.
 
 What this project adds to the paper:
 
-**19 November deadline plan:** labels will come from two disclosed LLM annotators
-(Claude Opus 5.5 and GPT-6 Astra), following the rubric in separate workbooks with variant and
-error type hidden. Annotation has not yet been completed. This deviates from the brief's
-human-judgement requirement because of time constraints. Generator overlap must be disclosed;
-it cannot be presented as fully independent blind annotation. A separate 30-pair human
-validation set is planned. See [the dataset card](DATASET_CARD.md).
+**Status (19 Nov 2026):** 338 pairs from the RTI Act (English + Hindi) and the Consumer Protection Act
+(English), labelled by **two disclosed LLM annotators** (both Claude Opus 5.5; one also wrote the
+simplifications) — not by humans, so the brief's human-judgement requirement is not met. A 30-pair human
+validation set is in `data/annotation/human/`. Start with [HANDOVER.md](HANDOVER.md) and the
+[dataset card](DATASET_CARD.md); the paper and slides are in `paper/out/`.
 
 | JUDGEBERT (FrJUDGE) | This project |
 |---|---|
-| French, one domain (insurance) | RTI EN+HI planned; CPA EN only because its Hindi source is unavailable |
-| 297 pairs, one simplification style | Target ≥300 pairs; completed count [TBD]: `normal`, `aggressive` and `perturbed` variants |
-| α = 0.10, no pilot | LLM-annotator agreement planned; separate human validation if scores become available |
+| French, one domain (insurance) | RTI EN+HI (35 bilingual clauses); CPA EN only because its Hindi source is unavailable |
+| 297 pairs, one simplification style | 338 pairs: `normal`, `aggressive` and `perturbed` (one injected legal error) variants |
+| α = 0.10 (five law students) | α = 0.610 between two LLM annotators (not human); 30-pair human validation set |
 | pair-level splits (a test original can reappear as a DA pair in training) | clause-grouped splits, enforced by `check_disjoint` |
 | 0.97 Pearson includes trivial DA test pairs | headline metrics on disclosed LLM-labelled test pairs; sanity checks reported separately on disjoint holdouts |
-| no out-of-domain test | E2 cross-lingual zero-shot (EN→HI, HI→EN), E3 cross-act (RTI↔CPA) |
+| no out-of-domain test | E2 EN vs HI + zero-shot on bilingual RTI clauses, E3 cross-act (RTI↔CPA), FrJUDGE→ours transfer |
 
 ## Layout
 

@@ -5,8 +5,10 @@
 Metrics are recomputed from the prediction files. Runs over random_s42..s46 are one "family"
 (random); their metrics are reported as mean ± std over seeds. OOD splits and language-transfer
 runs (split names with "__train-X_test-Y") are their own families.
-Headline numbers use human-annotated test pairs only; sanity checks (holdouts) are separate.
-The human ceiling (leave-one-out Pearson from the annotations) is printed next to the models.
+Headline numbers use annotated test pairs only (in this release the labels are LLM-produced; see
+DATASET_CARD.md); sanity checks (holdouts) are separate.
+Inter-annotator agreement (leave-one-out Pearson) is printed for reference; with two annotators it is
+their correlation and NOT an upper bound on predicting their mean.
 """
 from __future__ import annotations
 
@@ -122,10 +124,11 @@ def main(argv=None):
     ceiling = human_ceiling(Path(args.labeled))
 
     L = ["# Results", "",
-         "All numbers are computed from prediction files on **human-annotated test pairs only** "
+         "All numbers are computed from prediction files on **annotated test pairs only** (labels: mean of the "
+         "annotators in data/annotation/; LLM-produced in this release) "
          "(mean ± std over seeds where there are several runs). Predictions are clipped to [1, 10]. "
          "Decisions: ≥ 7 Preserved, ≥ 2 Partially Preserved, < 2 Not Preserved.", "",
-         f"**Human ceiling** (mean leave-one-out Pearson of annotators): "
+         f"**Inter-annotator agreement** (mean leave-one-out Pearson; not an upper bound): "
          f"{'n/a' if ceiling is None else f'{ceiling:.3f}'}", ""]
     fam_order = sorted(res, key=lambda f: (not f.startswith("random"), "__" in f, f))
     for fam in fam_order:
