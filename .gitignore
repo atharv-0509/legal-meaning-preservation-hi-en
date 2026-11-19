@@ -4,6 +4,7 @@ data/interim/
 data/processed/
 data/annotation/
 data/splits/
+data/splits_frjudge/
 data/ocr_cache/
 reports/*.md
 reports/*.csv
