@@ -18,12 +18,14 @@ from rubric import decision  # noqa: E402
 
 
 class LMPScorer:
-    def __init__(self, model_dir: str, max_len: int = 256):
+    def __init__(self, model_dir: str, max_len: int = 512):
         import torch
-        from transformers import AutoModelForSequenceClassification, AutoTokenizer
+        from transformers import AutoModelForSequenceClassification
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from lmp_data import load_tokenizer
         self.torch = torch
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.tok = AutoTokenizer.from_pretrained(model_dir)
+        self.tok = load_tokenizer(model_dir)
         self.model = AutoModelForSequenceClassification.from_pretrained(model_dir).to(self.device).eval()
         self.max_len = max_len
 

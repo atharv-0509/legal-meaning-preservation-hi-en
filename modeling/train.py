@@ -28,7 +28,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lmp_data import holdout_files, load_split, read_jsonl, run_dir, write_json, write_preds  # noqa: E402
+from lmp_data import holdout_files, load_split, load_tokenizer, read_jsonl, run_dir, write_json, write_preds  # noqa: E402
 from metrics import evaluate_rows, sanity_metrics  # noqa: E402
 
 
@@ -86,7 +86,7 @@ def main(argv=None):
     ap.add_argument("--batch-size", type=int, default=16)
     ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--patience", type=int, default=5, help="0 = no early stopping (released JUDGEBERT code)")
-    ap.add_argument("--max-len", type=int, default=256)
+    ap.add_argument("--max-len", type=int, default=512)
     ap.add_argument("--weight-decay", type=float, default=0.0)
     ap.add_argument("--max-grad-norm", type=float, default=1.0,
                     help="gradient clipping (1.0 = Hugging Face Trainer default, which JUDGEBERT used); 0 = off")
@@ -99,7 +99,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     import torch
-    from transformers import AutoModelForSequenceClassification, AutoTokenizer, get_linear_schedule_with_warmup
+    from transformers import AutoModelForSequenceClassification, get_linear_schedule_with_warmup
 
     set_seed(args.seed)
     split_dir = Path(args.split_dir)
@@ -119,7 +119,7 @@ def main(argv=None):
     print(f"{system} on {split_name}: train {len(train_rows)}, dev {len(dev_rows)}, test {len(test_rows)} -> {out_dir}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    tok = AutoTokenizer.from_pretrained(args.model)
+    tok = load_tokenizer(args.model)
     model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=1).to(device)
     train, dev, test = (PairData(r, tok, args.max_len) for r in (train_rows, dev_rows, test_rows))
 

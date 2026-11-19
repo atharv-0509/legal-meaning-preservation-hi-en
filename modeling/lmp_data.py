@@ -60,3 +60,30 @@ def write_preds(path: Path, rows: list[dict], preds_raw, lo: float = 1.0, hi: fl
 def write_json(path: Path, obj) -> None:
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+PROBE = "Les informations seront fournies dans un délai de trente jours. The officer shall reply within thirty days."
+
+
+def load_tokenizer(name: str):
+    """AutoTokenizer, with a guard against mis-loaded tokenizers.
+
+    With transformers 5.x, AutoTokenizer loads almanach/camembertv2-base as a byte-level RobertaTokenizer
+    without merges, i.e. one token per CHARACTER, although the checkpoint ships a WordPiece tokenizer.json.
+    Training then sees truncated character soup and collapses to predicting the label mean. If the probe
+    sentence comes out at more than one token per two characters, fall back to the checkpoint's own
+    tokenizer.json via PreTrainedTokenizerFast and keep whichever tokenizer is less fragmented.
+    """
+    from transformers import AutoTokenizer, PreTrainedTokenizerFast
+    tok = AutoTokenizer.from_pretrained(name)
+    n = len(tok.tokenize(PROBE))
+    if n > len(PROBE) / 2:
+        try:
+            fast = PreTrainedTokenizerFast.from_pretrained(name)
+            if len(fast.tokenize(PROBE)) < n:
+                print(f"WARNING: AutoTokenizer for {name} is character-level ({type(tok).__name__}, {n} tokens for "
+                      f"{len(PROBE)} chars); using the checkpoint's tokenizer.json ({len(fast.tokenize(PROBE))} tokens).")
+                return fast
+        except Exception as e:  # noqa: BLE001
+            print(f"WARNING: AutoTokenizer for {name} looks character-level and the fallback failed: {e}")
+    return tok
