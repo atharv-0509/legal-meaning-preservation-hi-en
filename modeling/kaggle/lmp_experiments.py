@@ -83,13 +83,19 @@ for model, plan in plans:
         da = "--da " if plan == "demo-da" else ""
         jobs.append((model, f"{S}/random_s42", f"{name}-demo{'-da' if da else ''}", f"{da}--save-model {DEMO}", 42))
         continue
-    if plan == "errcls":                 # legal-error type classifier (P/R/F1) on the E1 random splits
-        for s in SEEDS:
-            jobs.append((model, f"{S}/random_s{s}", f"errcls-{name}", "", s, "modeling/error_classifier.py", RUNS_ERR))
-        continue
-    if plan == "errcls-demo":            # one classifier on random_s42 saved for the demo app
-        jobs.append((model, f"{S}/random_s42", f"errcls-{name}-demo", f"--save-model {W}/errcls_{name}", 42,
-                     "modeling/error_classifier.py", RUNS_ERR))
+    if plan.startswith("errcls"):        # legal-error type classifier (P/R/F1) on the E1 random splits
+        # errcls[-aug|-augcue][-demo]: aug = extra injected-error pairs from the training clauses
+        # (simplifications and originals); augcue = aug + rule cues in the input; demo = one run saved on random_s42
+        variant = plan[len("errcls"):].replace("-demo", "")
+        flags = {"": "", "-aug": "--augment 3 --augment-originals",
+                 "-augcue": "--augment 3 --augment-originals --cue-features"}[variant]
+        run = f"errcls-{name}{variant}"
+        if plan.endswith("-demo"):
+            jobs.append((model, f"{S}/random_s42", f"{run}-demo", f"{flags} --save-model {W}/errcls_{name}{variant}",
+                         42, "modeling/error_classifier.py", RUNS_ERR))
+        else:
+            for s in SEEDS:
+                jobs.append((model, f"{S}/random_s{s}", run, flags, s, "modeling/error_classifier.py", RUNS_ERR))
         continue
     if plan in ("e1", "full"):
         for s in SEEDS:

@@ -36,6 +36,18 @@ def test_rules_english():
     assert t == "negation" and "reverse" in why
 
 
+def test_augmentation_uses_training_clauses_only():
+    from error_classifier import augment_rows, cue_text
+    train = [{"pair_id": "c1|en|normal", "clause_id": "c1", "lang": "en", "variant": "normal", "gold": "none",
+              "original": ORIG_EN,
+              "simplification": "The officer must decide the request within 30 days, unless it is exempt."}]
+    extra = augment_rows(train, 2, 0, from_originals=True)
+    assert extra and {r["clause_id"] for r in extra} == {"c1"}
+    assert {"negation", "number", "modality", "exception_drop"} <= {r["gold"] for r in extra}
+    assert any(r["gold"] == "none" and r["simplification"] == ORIG_EN for r in extra)
+    assert "neg 0>1" in cue_text(ORIG_EN, "The officer shall not decide the request within 30 days, unless exempt.")
+
+
 def test_rules_hindi():
     orig = "अधिकारी तीस दिन के भीतर सूचना देगा।"
     assert rule_error_type(orig, "अधिकारी तीस दिन के भीतर सूचना नहीं देगा।")[0] == "negation"
@@ -69,6 +81,13 @@ def test_classifier_end_to_end():
             error_classifier.main(["--split-dir", str(paths.splits / f"random_s{seed}"), "--model", str(tmp / "tiny"),
                                    "--epochs", "2", "--seed", str(seed), "--runs-dir", str(runs),
                                    "--da", "--clip-min", "0"])          # unknown regression flags are tolerated
+        error_classifier.main(["--split-dir", str(paths.splits / "random_s42"), "--model", str(tmp / "tiny"),
+                               "--epochs", "1", "--runs-dir", str(runs), "--run-name", "errcls-tiny-augcue",
+                               "--augment", "2", "--augment-originals", "--cue-features"])
+        cfg = json.loads((runs / "errcls-tiny-augcue" / "random_s42" / "errcls_config.json").read_text())
+        assert cfg["n_augmented"] > 0 and cfg["n_train"] > cfg["n_augmented"]
+        aug_preds = read_jsonl(runs / "errcls-tiny-augcue" / "random_s42" / "errcls_preds_test.jsonl")
+        assert all(p["variant"] in ("normal", "perturbed") for p in aug_preds)      # test is never augmented
         preds = read_jsonl(runs / "errcls-tiny" / "random_s42" / "errcls_preds_test.jsonl")
         assert preds and all(p["pred"] in ERROR_CLASSES and p["gold"] in ERROR_CLASSES for p in preds)
         assert all(p["variant"] in ("normal", "perturbed") for p in preds)
@@ -89,5 +108,6 @@ def test_classifier_end_to_end():
 if __name__ == "__main__":
     test_rules_english()
     test_rules_hindi()
+    test_augmentation_uses_training_clauses_only()
     test_classifier_end_to_end()
-    print("3/3 passed")
+    print("4/4 passed")

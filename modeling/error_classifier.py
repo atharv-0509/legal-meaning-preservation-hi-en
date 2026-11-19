@@ -11,6 +11,9 @@ error", not "no error at all": a normal simplification can still omit something.
 
 Model: cross-encoder (`original [SEP] simplification`) with a 6-way classification head, class-weighted
 cross-entropy, AdamW + linear decay, gradient clipping 1.0; the epoch with the best dev macro-F1 is kept.
+--augment K adds, for the TRAIN clauses only, up to K extra injected-error pairs per type per standard simplification
+(same rules as src/perturb.py, labels known by construction); --cue-features appends the rule cues
+(legal_cues.compare) to the input. Both mirror the injection rules, so they suit this diagnostic task, not natural errors.
 Writes <runs-dir>/<run-name>/<split>/errcls_preds_test.jsonl, errcls_metrics.json, errcls_config.json.
 (`--patience` is accepted for compatibility with the Kaggle runner; 0 = no early stopping.)
 """
@@ -28,7 +31,7 @@ from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from legal_cues import ERROR_CLASSES  # noqa: E402
+from legal_cues import ERROR_CLASSES, compare  # noqa: E402
 from lmp_data import load_split, load_tokenizer, write_json  # noqa: E402
 
 LABEL2ID = {c: i for i, c in enumerate(ERROR_CLASSES)}
@@ -45,6 +48,59 @@ def target(row: dict) -> str | None:
 
 def rows_for(split_dir: Path, name: str, langs=None) -> list[dict]:
     return [dict(r, gold=target(r)) for r in load_split(split_dir, name, langs) if target(r) is not None]
+
+
+def augment_rows(train: list[dict], k: int, seed: int, from_originals: bool = False) -> list[dict]:
+    """Extra training pairs from the TRAIN split only: for every standard simplification, inject each applicable
+    error type up to k times with the same rules as src/perturb.py (labels known by construction). Texts that equal
+    an existing training simplification are skipped. Dev/test are never augmented."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+    from perturb import _cap_first, candidate_edits
+    rng = random.Random(seed)
+    seen = {(r["original"], r["simplification"]) for r in train}
+    out = []
+    bases = [r for r in train if r["gold"] == "none"]
+    if from_originals:                  # the statute text itself as the "simplification": identical = none
+        firsts = {}
+        for r in train:
+            firsts.setdefault((r["clause_id"], r["lang"]), r)
+        for r in firsts.values():
+            base = dict(r, pair_id=f"{r['clause_id']}|{r['lang']}|orig", simplification=r["original"], gold="none",
+                        error_type=None, variant="augmented")
+            if (r["original"], r["original"]) not in seen:
+                seen.add((r["original"], r["original"]))
+                out.append(base)
+            bases.append(base)
+    for r in bases:
+        for et, edits in sorted(candidate_edits(r["simplification"], r["lang"]).items()):
+            for i, e in enumerate(rng.sample(edits, min(k, len(edits)))):
+                new = e.apply(r["simplification"])
+                if et == "exception_drop" and r["lang"] == "en":
+                    new = _cap_first(new)
+                if (r["original"], new) in seen:
+                    continue
+                seen.add((r["original"], new))
+                out.append(dict(r, pair_id=f"{r['pair_id']}#aug-{et}-{i}", variant="augmented", simplification=new,
+                                gold=et, error_type=et))
+    return out
+
+
+def cue_text(original: str, simplification: str) -> str:
+    """Rule cues rendered as text and appended to the model input (hybrid model, --cue-features)."""
+    c = compare(original, simplification)
+    (mo, ms), (no, ns) = c["markers"], c["neg"]
+    numo, nums = c["numbers"]
+    parts = [f"neg {no}>{ns}"]
+    for cat in ("obligation", "permission", "prohibition", "exception", "override", "condition", "time_limit"):
+        if (cat in mo) != (cat in ms):
+            parts.append(f"{cat} {'lost' if cat in mo else 'added'}")
+    new, lost = sorted(set(nums) - set(numo)), sorted(set(numo) - set(nums))
+    if new or lost:
+        parts.append(f"numbers new {','.join(new) or '-'} lost {','.join(lost) or '-'}")
+    (wo, ws), (nao, nas) = c["scope_wide"], c["scope_narrow"]
+    if (wo, nao) != (ws, nas):
+        parts.append(f"scope wide {wo}>{ws} narrow {nao}>{nas}")
+    return " [CUES] " + "; ".join(parts)
 
 
 def prf(gold: list[str], pred: list[str], classes=ERROR_CLASSES) -> dict:
@@ -79,6 +135,11 @@ def main(argv=None):
     ap.add_argument("--max-len", type=int, default=512)
     ap.add_argument("--max-grad-norm", type=float, default=1.0)
     ap.add_argument("--langs", nargs="+", default=None)
+    ap.add_argument("--augment", type=int, default=0, help="extra injected-error pairs per type per standard "
+                    "simplification of the training split (0 = off)")
+    ap.add_argument("--augment-originals", action="store_true", help="also inject errors into the training clauses' "
+                    "original texts (original vs original-with-one-error), and add original-vs-original as none")
+    ap.add_argument("--cue-features", action="store_true", help="append rule cues to the input (hybrid model)")
     ap.add_argument("--fp16", action="store_true")
     ap.add_argument("--save-model", default=None)
     ap.add_argument("--runs-dir", default=str(Path(__file__).resolve().parent / "runs_err"))
@@ -96,11 +157,16 @@ def main(argv=None):
     train, dev, test = (rows_for(split_dir, n, args.langs) for n in ("train", "dev", "test"))
     if not train or not dev or not test:
         sys.exit(f"empty train/dev/test in {split_dir}")
+    n_aug = 0
+    if args.augment:
+        extra = augment_rows(train, args.augment, args.seed, args.augment_originals)
+        n_aug = len(extra)
+        train = train + extra
     split_name = split_dir.name if re.search(r"_s\d+$", split_dir.name) else f"{split_dir.name}_s{args.seed}"
     system = args.run_name or f"errcls-{Path(args.model).name}"
     out_dir = Path(args.runs_dir) / system / split_name
     out_dir.mkdir(parents=True, exist_ok=True)
-    print(f"{system} on {split_name}: train {len(train)} {dict(Counter(r['gold'] for r in train))}, "
+    print(f"{system} on {split_name}: train {len(train)} (augmented {n_aug}) {dict(Counter(r['gold'] for r in train))}, "
           f"dev {len(dev)}, test {len(test)}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -110,8 +176,9 @@ def main(argv=None):
         problem_type="single_label_classification", ignore_mismatched_sizes=True).to(device)
 
     def encode(rows):
-        return tok([r["original"] for r in rows], [r["simplification"] for r in rows],
-                   truncation="longest_first", max_length=args.max_len)
+        second = [r["simplification"] + (cue_text(r["original"], r["simplification"]) if args.cue_features else "")
+                  for r in rows]
+        return tok([r["original"] for r in rows], second, truncation="longest_first", max_length=args.max_len)
 
     enc = {"train": encode(train), "dev": encode(dev), "test": encode(test)}
 
@@ -192,6 +259,8 @@ def main(argv=None):
     write_json(out_dir / "errcls_config.json", dict(vars(args), system=system, split_name=split_name,
                                                     best_epoch=best_epoch, best_dev_macro_f1=best[0],
                                                     history=history, seconds=round(time.time() - t0),
+                                                    n_train=len(train), n_augmented=n_aug,
+                                                    train_classes=dict(Counter(r["gold"] for r in train)),
                                                     classes=ERROR_CLASSES))
     print(f"ERRCLS TEST macro_f1 {metrics['test']['macro_f1']:.3f} acc {metrics['test']['accuracy']:.3f} "
           f"(best epoch {best_epoch})")
