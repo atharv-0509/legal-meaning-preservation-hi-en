@@ -42,23 +42,28 @@ agents is in `docs/agents/agent-chat-history.md`.
 | Clauses | `data/processed/clauses_final.jsonl` | 78 clauses (RTI 38, 35 with HI; CPA 40). Review by rules + agent (`src/agent_review.py`), **not human** |
 | Simplifications | `data/processed/simplifications.jsonl` | 226, written by an LLM agent (model in every row; `src/agent_simplify.py`) |
 | Pairs | `data/processed/pairs.jsonl` | **338** (normal / aggressive / perturbed with 112 injected legal errors) |
-| Labels | `data/annotation/*.xlsx`, `data/processed/labeled_pairs.jsonl` | Two **disclosed LLM annotators** (Claude Opus 5.5 ×2). α = 0.610; ceiling 0.723 (`reports/agreement.md`) |
-| Splits | `data/splits/` | random_s42/43/44 (clause-grouped) + ood_rti_to_cpa / ood_cpa_to_rti + holdouts |
+| Labels | `data/annotation/*.xlsx`, `data/processed/labeled_pairs.jsonl` | Two **disclosed LLM annotators** (Claude Opus 5.5 ×2). α = 0.610; inter-LLM Pearson 0.723, not a ceiling (`reports/agreement.md`) |
+| Splits | `data/splits/` | random_s42/43/44 (clause-grouped), bilingual_s42/43/44 (35 RTI clauses, E2), ood_rti_to_cpa / ood_cpa_to_rti (DA from training act only) + holdouts |
 | Experiments | `modeling/runs/`, `reports/tables/*.tsv`, `reports/results.md` | see §2 |
 | FrJUDGE check | `reports/frjudge_repro.md` (+ `.log`) | 0.707 ± 0.042 vs paper 0.74 → training code validated |
-| Paper + slides | `paper/out/LMP_paper_IEEE.{docx,pdf}`, `paper/out/LMP_slides.pptx` | 11-page IEEE paper, 20 slides, authors filled in, no `[TBD]` left |
+| Paper + slides | `paper/out/LMP_paper_IEEE.{docx,pdf}`, `paper/out/LMP_slides.pptx` | 12-page IEEE paper, 21 slides, authors filled in, no `[TBD]` left |
 | Tests | `tests/` | 46 passing (`python -m pytest -q`) |
 
 ## 2. Headline results (Pearson on annotated test pairs, mean ± std over 3 seeds)
 
 | System | E1 overall | EN | HI | CPA→RTI | RTI→CPA |
 |---|---|---|---|---|---|
-| **XLM-R pre-trained on FrJUDGE → ours** | **0.586 ± 0.098** | 0.675 | 0.308 | 0.384 | 0.319 |
-| XLM-R from scratch + DA | 0.228 ± 0.288 | 0.297 | 0.010 | 0.144 | 0.040 |
-| LaBSE (best generic baseline) | 0.101 | | | | |
-| LLM-annotator ceiling | 0.723 | | | | |
+| **XLM-R, FrJUDGE → ours, DA (principal)** | **0.576 ± 0.102** | 0.675 | 0.308 | 0.388 | 0.119 |
+| XLM-R, FrJUDGE → ours, no DA | 0.586 ± 0.098 | 0.687 | 0.322 | | |
+| XLM-R from scratch + DA | 0.228 ± 0.288 | 0.297 | 0.010 | 0.186 | 0.056 |
+| LaBSE, calibrated (best generic baseline) | 0.101 | | | | |
+| Variant-mean lookup (uses answer key; diagnostic) | 0.831 | | | | |
 
-Zero-shot EN↔HI transfer stays weak (≈ 0.07). Training settings that work: lr 2e-5, batch 8, 30 epochs,
+E2 on the 35 bilingual RTI clauses (~126 training pairs) is inconclusive: joint training EN 0.165 / HI −0.041,
+zero-shot EN→HI 0.035, HI→EN 0.131. Within-variant Pearson of the principal system: aggressive 0.487,
+perturbed 0.584. Demo checkpoint: `python modeling/kaggle/kaggle_client.py fetch --user atharvarora05 --slug
+lmp-e23-fixed --prefix demo_model/` → `modeling/checkpoints/demo_model` (git-ignored, ~1.1 GB).
+Training settings that work: lr 2e-5, batch 8, 30 epochs,
 **no early stopping**, keep best dev checkpoint (early stopping on the ~35-pair dev set collapsed every run).
 
 ## 3. How to run things

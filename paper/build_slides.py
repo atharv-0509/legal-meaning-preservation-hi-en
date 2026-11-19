@@ -43,16 +43,24 @@ def box(slide, left, top, width, height):
 
 def write(frame, text, size=18, bold=False, color=INK, align=PP_ALIGN.LEFT, space_after=6,
           italic=False, first=False):
+    """Add a paragraph; **bold** and *italic* spans in `text` become formatted runs (the slide
+    text is written in light Markdown, which PowerPoint would otherwise show literally)."""
+    import re
     p = frame.paragraphs[0] if first else frame.add_paragraph()
     p.alignment = align
     p.space_after = Pt(space_after)
-    run = p.add_run()
-    run.text = text
-    run.font.size = Pt(size)
-    run.font.bold = bold
-    run.font.italic = italic
-    run.font.color.rgb = color
-    run.font.name = FONT
+    for part in re.split(r"(\*\*[^*]+\*\*|\*[^*\s][^*]*\*)", text):
+        if not part:
+            continue
+        strong = part.startswith("**") and part.endswith("**") and len(part) > 4
+        emph = not strong and part.startswith("*") and part.endswith("*") and len(part) > 2
+        run = p.add_run()
+        run.text = part[2:-2] if strong else part[1:-1] if emph else part
+        run.font.size = Pt(size)
+        run.font.bold = bold or strong
+        run.font.italic = italic or emph
+        run.font.color.rgb = color
+        run.font.name = FONT
     return p
 
 
@@ -100,9 +108,19 @@ def bullet_slide(prs, title, bullets, subtitle=None, note=None):
 def table_slide(prs, title, key, subtitle=None, note=None):
     slide = slide_title(prs, title, subtitle)
     rows = tables.get(key)
+    # Large tables (E1 has 16 rows) must still fit between the title and the note.
+    row_h = min(0.4, 4.3 / len(rows))
+    font = 14 if len(rows) <= 9 else 10
     shape = slide.shapes.add_table(len(rows), len(rows[0]), Inches(0.9), Inches(2.0),
-                                   Inches(11.5), Inches(0.4 * len(rows)))
+                                   Inches(11.5), Inches(row_h * len(rows)))
     table = shape.table
+    ncol = len(rows[0])
+    first = (4.8 if len(rows) > 9 else 4.0) if ncol > 3 else 5.0   # wide first column for names
+    table.columns[0].width = Inches(first)
+    for c in range(1, ncol):
+        table.columns[c].width = Inches((11.5 - first) / (ncol - 1))
+    for r in range(len(rows)):
+        table.rows[r].height = Inches(row_h)
     for r, row in enumerate(rows):
         for c, value in enumerate(row):
             cell = table.cell(r, c)
@@ -111,8 +129,10 @@ def table_slide(prs, title, key, subtitle=None, note=None):
             p.alignment = PP_ALIGN.LEFT if c == 0 else PP_ALIGN.CENTER
             run = p.add_run()
             run.text = str(value)
-            run.font.size = Pt(14)
+            run.font.size = Pt(font)
             run.font.bold = r == 0
+            if font < 14:
+                cell.margin_top = cell.margin_bottom = Inches(0.02)
             run.font.name = FONT
             run.font.color.rgb = PAPER if r == 0 else INK
             cell.fill.solid()
@@ -172,7 +192,7 @@ def build(out_path: Path) -> list[str]:
         "Official Hindi is a translation of the same provision → the language comparison is "
         "controlled, not confounded.",
         "Three variants per clause: normal (BLESS prompt), aggressive (\"explain to a "
-        "12-year-old\"), perturbed (exactly one injected legal error of a known type).",
+        "12-year-old\"), perturbed (one additional injected legal error of a known type).",
         "Perturbed = a labelled diagnostic set: which legal error types is a metric blind to?",
         "Clause-grouped splits, asserted disjoint at clause and text level; sanity checks on "
         "holdout provisions used nowhere else.",
@@ -218,7 +238,7 @@ def build(out_path: Path) -> list[str]:
         ("α = 0.610 interval / 0.503 bracket; inter-LLM Pearson 0.723 (agreement, not a ceiling) "
          "— vs. α = 0.10 between FrJUDGE's five law students. Two instances of one model agreeing "
          "is the weaker result. Mean scores differ (8.1 vs 6.9); 68 disagreements unadjudicated.", 16, 1),
-        "Blinding is partial: opaque pair ids and per-annotator shuffle, but annotator 2 wrote "
+        "Blinding is partial: opaque pair ids and per-annotator shuffle, but annotator A wrote "
         "the simplifications; the score is recomputed by our code from bracket + error counts.",
         "Human validation: 30-pair blind sheets for the three authors (results reported when scored). "
         "The brief's 300 human-judged pairs are not met.",
@@ -256,11 +276,18 @@ def build(out_path: Path) -> list[str]:
 
     # ---- 10-12. results
     table_slide(prs, "E1: baselines vs. LMP model", "e1",
-                note="Every cell is produced by modeling/evaluate.py; [TBD] means the run has not "
-                     "been completed yet.")
-    table_slide(prs, "E2: English vs. Hindi, and zero-shot transfer", "e2")
+                note="Every cell is produced by modeling/evaluate.py from the prediction files. The "
+                     "last row is a diagnostic that uses the answer key, not a system.")
+    table_slide(prs, "E2: English vs. Hindi on the 35 bilingual RTI clauses", "e2",
+                note="About 126 training pairs per split: too few to show cross-lingual transfer "
+                     "either way.")
+    table_slide(prs, "E3: train on one act, test on the other", "e3",
+                note="Augmentation partners come only from the training act.")
     table_slide(prs, "E4: sanity checks on disjoint holdouts", "e4",
                 note="JUDGEBERT-DA was the only metric in the original study to pass both checks.")
+    table_slide(prs, "Within each variant (principal system, E1)", "variant",
+                note="A variant-mean lookup reaches 0.831 overall, so overall Pearson mostly rewards "
+                     "telling variants apart; within-variant Pearson is the more honest measure.")
 
     # ---- 13. reproducibility
     bullet_slide(prs, "Two traps that silently ruin results", [
@@ -276,92 +303,72 @@ def build(out_path: Path) -> list[str]:
 
     # ---- 14. demo
     bullet_slide(prs, "Demo", [
-        "modeling/predict.py --model-dir <checkpoint> --demo: paste an original and a simplification, "
-        "get the LMP score and the decision (≥ 7 Preserved / 2–6 Partially Preserved / < 2 Not "
-        "Preserved).",
-        "Checkpoint: the FrJUDGE→ours model saved by the Kaggle 'demo' run (random_s42).",
+        "python modeling/predict.py --model-dir modeling/checkpoints/demo_model --demo: paste an "
+        "original and a simplification, get the LMP score and the decision (≥ 7 Preserved / "
+        "2–6 Partially Preserved / < 2 Not Preserved).",
+        "Checkpoint: XLM-R pre-trained on FrJUDGE, fine-tuned on random_s42 without DA (Kaggle "
+        "'demo' run; test Pearson 0.479 on that split). Fetch it with kaggle_client.py fetch.",
         "The decision uses the rubric's bracket thresholds on the regression output; it is a "
-        "prediction, not an annotation.",
+        "prediction, not an annotation, and the model is not fit for legal use.",
     ])
 
     # ---- 14b. from-scratch fails
-    bullet_slide(prs, "Trained on our corpus alone, it fails", [
-        "Best from-scratch metric: XLM-R + DA, Pearson **0.228 ± 0.288** (seeds 0.56 / 0.21 / "
-        "−0.08). The SD exceeds the mean.",
+    bullet_slide(prs, "Trained on our corpus alone, it is unstable", [
+        "Best from-scratch metric: XLM-R + DA, Pearson **0.228 ± 0.288** (seeds 0.56 / 0.08 / "
+        "0.05). The SD exceeds the mean.",
         ("≈ 1.4 standard errors from zero: not distinguishable from no correlation, nor from "
-         "LaBSE at 0.101, and far from our 0.723 annotator ceiling.", 16, 1),
+         "calibrated LaBSE at 0.101.", 16, 1),
         "Without DA: −0.030. MuRIL + DA: 0.067; MuRIL without DA collapses (RMSE 4.4).",
-        "E2: EN 0.297 vs HI 0.010; zero-shot EN→HI 0.057, HI→EN −0.017. "
-        "E3: CPA→RTI 0.144, RTI→CPA 0.040.",
-        "E4: no system passes both sanity checks — XLM-R-DA 33% / 31%; JUDGEBERT-DA passed "
-        "both. The transferred models get much closer but still fail one each.",
-        "But the same code reaches **0.707 on FrJUDGE**. So the limit is scale, not method.",
-    ], subtitle="~200 training pairs with a bimodal label distribution")
+        "The same code reaches **0.707 on FrJUDGE**, which is consistent with too little data — "
+        "but FrJUDGE also differs in language, domain and label spread, so this is not proof.",
+    ], subtitle="~200 training pairs per split")
 
-    # ---- 14b2. the main result
-    bullet_slide(prs, "Main result: the scale can be borrowed", [
-        "Pre-train the same cross-encoder on **FrJUDGE** (French insurance forms) → 0.873 on "
-        "its test set. Then fine-tune on our Indian splits.",
-        "**Pearson 0.586 ± 0.098** (seeds 0.625 / 0.658 / 0.474), vs 0.228 ± 0.288 from "
-        "scratch and 0.101 for LaBSE. Roughly four-fifths of the 0.723 annotator ceiling.",
-        ("The change in kind matters more than the level: from-scratch seeds ranged 0.56 to "
-         "−0.08 and could not be relied on; every transferred seed lands in a narrow band.", 16, 1),
-        "So legal meaning preservation **transfers across a language and a legal system**: the "
-        "rubric's categories are not jurisdiction-specific.",
-        "And it reframes what a small legal corpus is for — 338 pairs cannot fit this target "
-        "but can adapt a model that already has it. A cheap recipe for any other jurisdiction.",
+    # ---- 14b2. transfer
+    bullet_slide(prs, "Pre-training on FrJUDGE helps, and stabilises", [
+        "Pre-train the same cross-encoder on **FrJUDGE** (0.85–0.87 on its test set), then "
+        "fine-tune on our Indian splits.",
+        "Principal system (with DA): **Pearson 0.576 ± 0.102** (seeds 0.564 / 0.684 / 0.481); "
+        "without DA 0.586 ± 0.098 — within noise. From scratch: 0.228 ± 0.288.",
+        ("Transferred seeds lie in 0.48–0.68; from-scratch seeds in 0.05–0.56.", 16, 1),
+        "**Per language (E1):** EN 0.297 → **0.675**, HI 0.010 → **0.308**. Hindi stays far "
+        "weaker; OCR noise, subset size and representation cannot be separated.",
+        "**Across acts (E3):** CPA→RTI 0.186 → **0.388**, RTI→CPA 0.056 → **0.119**. Asymmetric.",
+        "**E2 (35 bilingual clauses):** joint training EN 0.165, HI −0.041; zero-shot EN→HI "
+        "0.035, HI→EN 0.131. Inconclusive: too little data to tell a language gap from a data gap.",
     ], subtitle="French insurance forms → Indian statutes in English and Hindi",
-       note="Still short of the ceiling, that ceiling is two instances of one model, and the "
-            "reversal failure two slides on is unfixed. Not deployable.")
-
-    # ---- 14b3. where the transfer helps
-    bullet_slide(prs, "Where the transfer helps, and where it does not", [
-        "**Per language:** EN 0.297 → **0.675**, HI 0.010 → **0.308**. The gain is "
-        "proportionally largest exactly where we had fewest pairs — what a scarcity "
-        "explanation predicts, and a representation-quality explanation does not.",
-        "**Across acts:** CPA→RTI 0.144 → **0.384**, RTI→CPA 0.040 → **0.319**. "
-        "Carried across a jurisdiction, it also carries across legal domains.",
-        "**Zero-shot EN↔HI stays at zero:** 0.064 and 0.085, barely moved by pre-training.",
-        ("Notable, because the two languages hold the *very same provisions* — nothing but the "
-         "language differs. Supervised adaptation in the target language is doing work that "
-         "cross-lingual representation alone does not.", 16, 1),
-        "Hindi remains the weaker language by a wide margin, and with 105 OCR-recovered pairs we "
-        "cannot separate OCR noise from subset size from Devanagari representation.",
-    ])
+       note="Principal system chosen after E1 was known (mirrors JUDGEBERT-DA). Not evidence that "
+            "LMP is language-independent: LLM labels, and E2 shows no transfer.")
 
     # ---- 14c. what else holds
-    bullet_slide(prs, "What else holds, regardless of the correlation", [
-        "**The diagnostic set separates learned from generic.** Negation is by far the baseline's "
-        "hardest injected error (MAE **4.63** vs ~2.3–2.7 elsewhere) — one \"not\" flips "
-        "the law and barely moves an embedding. The transferred model handles it (**1.88**); its "
-        "own weak point is modality, shall→may (**3.13**).",
-        ("That is the clearest argument in the project for a purpose-built metric: it detects "
-         "precisely what similarity cannot.", 16, 1),
-        "**But a good average is not safety.** On the two cases where an inserted \"not\" reverses "
-        "the provision (label 2.5), the transferred model still predicts **9.0 and 8.3**, and the "
-        "from-scratch model **9.4 and 10.0** — all calling the corpus's most dangerous "
-        "simplification excellent.",
-        "**The sanity checks discriminate.** Train-fitted calibration improves baseline RMSE "
-        "(2.81 → 2.42) while making all four fail both checks at 0%.",
-        "**The apparatus is sound.** We reproduce FrJUDGE at 0.707 in the released setting, and "
-        "show the setting described in the paper's prose (patience 5) is unstable: 0.606 ± "
-        "0.284, one seed collapsing to −0.196.",
-        "**And the published 0.97 is partly test-set composition:** DA-trained, scored on human "
-        "pairs only, it is 0.869.",
+    bullet_slide(prs, "What the diagnostics show", [
+        "**The corpus encodes its construction.** A variant-mean lookup (uses the answer key) "
+        "reaches **0.831** — above every model. Within each variant the principal system still "
+        "correlates **0.49** (aggressive) and **0.58** (perturbed).",
+        "**Negation vs. modality.** Calibrated LaBSE's hardest error is negation (MAE **4.63** vs "
+        "~2.3–2.7 elsewhere). The principal system handles negation (**1.90**); its weak point is "
+        "shall→may modality (**3.16**).",
+        "**E5 cases:** the three outright negations (label 2.5) get **3.2 / 2.5 / 2.6**. But two "
+        "Hindi RTI pairs (modality flip, scope change; label 5.0) get **10.0**.",
+        "**Bias:** under-scores faithful simplifications by ~1 point, over-scores perturbed ones "
+        "by ~2.",
+        "**Sanity checks:** no system passes both. Principal: 94% of unrelated pairs ≤ 1.1, but "
+        "identical ≥ 9.9 on only two of three seeds. Calibration makes baselines fail both.",
+        "**The published 0.97 is partly test-set composition:** DA-trained, scored on human "
+        "pairs only, FrJUDGE gives 0.869.",
     ])
 
     # ---- 15. conclusion
     bullet_slide(prs, "Where this stands", [
-        "Built: bilingual extraction from real government PDFs with quantitative acceptance tests, "
-        "three-variant simplification design, blinded workbooks, clause-grouped splits, "
-        "training / baselines / LLM judge / evaluation / error analysis, one-command results.",
-        "Main result: legal meaning preservation transfers across language and jurisdiction "
-        "(FrJUDGE → Indian EN/HI, 0.228 → ~0.586 and stable).",
-        "Honest status: labels are disclosed LLM judgements, not human legal judgement; human "
-        "validation is prepared but not scored; the metric is not deployable.",
-        "What the design buys: the perturbed diagnostic set and the clause-grouped splits make the "
-        "weaknesses of the original study measurable rather than arguable.",
-        "Next: human labels, and fix the reversal failure instead of averaging it away.",
+        "Built: bilingual extraction from government PDFs with acceptance tests, three-variant "
+        "design with a labelled error set, blinded workbooks, clause-grouped splits, baselines, "
+        "training, evaluation and error analysis, one-command results (run_all.py).",
+        "Result: FrJUDGE pre-training lifts the learned metric from 0.228 ± 0.288 to "
+        "0.576 ± 0.102 on our LLM labels, and makes it stable.",
+        "Limits: labels are disclosed LLM judgements, not human legal judgement; 30-pair human "
+        "validation is prepared, not yet scored; E2 too small; the metric is not deployable.",
+        "What the design buys: the diagnostic set and clause-grouped splits make weaknesses "
+        "measurable rather than arguable — including our own model's modality failures.",
+        "Next: human labels; fix obligation/permission over-scoring instead of averaging it away.",
     ], note=DISCLOSURE)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)

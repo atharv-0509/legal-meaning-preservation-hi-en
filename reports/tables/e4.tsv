@@ -1,15 +1,9 @@
-System	Identical >= 9.9 %	Unrelated <= 1.1 %
-xlm-roberta-base-frjudge	89.9 ± 4.7	17.6 ± 10.2
-xlm-roberta-base-frjudge-da	66.7 ± 57.7	94.1 ± 5.9
-xlm-roberta-base-da	33.3 ± 57.7	31.4 ± 27.8
-labse-cal	0.0 ± 0.0	0.0 ± 0.0
-labse	100.0 ± 0.0	0.0 ± 0.0
-muril-base-cased-da	0.0 ± 0.0	62.7 ± 54.7
-bertscore-cal	0.0 ± 0.0	0.0 ± 0.0
-bertscore	100.0 ± 0.0	0.0 ± 0.0
-bleu	100.0 ± 0.0	11.8 ± 0.0
-bleu-cal	0.0 ± 0.0	0.0 ± 0.0
-rougeL	100.0 ± 0.0	0.0 ± 0.0
-rougeL-cal	0.0 ± 0.0	0.0 ± 0.0
-xlm-roberta-base	0.0 ± 0.0	0.0 ± 0.0
-muril-base-cased	0.0 ± 0.0	0.0 ± 0.0
+System	Identical ≥ 9.9 %: EN (n=50)	Identical ≥ 9.9 %: HI (n=3)	Unrelated ≤ 1.1 %: EN (n=17)	Unrelated ≤ 1.1 %: HI (n=0)
+XLM-R, FrJUDGE→ours, DA	66.7 ± 57.7	66.7 ± 57.7	94.1 ± 5.9	not evaluated
+XLM-R, FrJUDGE→ours, no DA	91.3 ± 5.0	66.7 ± 0.0	17.6 ± 10.2	not evaluated
+XLM-R from scratch, DA	33.3 ± 57.7	33.3 ± 57.7	31.4 ± 27.8	not evaluated
+labse-cal	0.0 ± 0.0	0.0 ± 0.0	0.0 ± 0.0	not evaluated
+labse	100.0 ± 0.0	100.0 ± 0.0	0.0 ± 0.0	not evaluated
+bertscore	100.0 ± 0.0	100.0 ± 0.0	0.0 ± 0.0	not evaluated
+bleu	100.0 ± 0.0	100.0 ± 0.0	11.8 ± 0.0	not evaluated
+rougeL	100.0 ± 0.0	100.0 ± 0.0	0.0 ± 0.0	not evaluated

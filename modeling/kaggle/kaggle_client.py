@@ -5,6 +5,7 @@
     python modeling/kaggle/kaggle_client.py status --user <kaggle-user> --slug lmp-frjudge-repro
     python modeling/kaggle/kaggle_client.py log --user <kaggle-user> --slug lmp-frjudge-repro --out log.txt
     python modeling/kaggle/kaggle_client.py unpack --log log.txt --dest modeling/       # -> modeling/runs/...
+    python modeling/kaggle/kaggle_client.py fetch --user <kaggle-user> --slug lmp-e23-fixed --prefix demo_model/
 
 Authentication: HTTP basic auth with the Kaggle username and API key (kaggle.json). Set KAGGLE_USERNAME and
 KAGGLE_KEY, or run where a proxy injects the credential for www.kaggle.com (then no variables are needed).
@@ -106,6 +107,27 @@ def log(args):
         print(text[-args.tail:] if args.tail else text)
 
 
+def fetch(args):
+    """Download kernel output files whose name starts with --prefix (e.g. the saved demo checkpoint)."""
+    out = call("GET", "/kernels/output", params={"userName": args.user, "kernelSlug": args.slug})
+    files = [f for f in out.get("files", []) if (f.get("fileName") or "").startswith(args.prefix)]
+    if not files:
+        sys.exit(f"no output files starting with {args.prefix!r}")
+    for f in files:
+        name = f["fileName"]
+        if name.startswith(("/", "..")) or ".." in name:
+            continue
+        dest = os.path.join(args.dest, name)
+        os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
+        req = urllib.request.Request(f["url"])
+        if "kaggle.com" in urllib.parse.urlparse(f["url"]).netloc and auth_header():
+            req.add_header("Authorization", auth_header())
+        with urllib.request.urlopen(req, timeout=600) as r, open(dest, "wb") as fh:
+            while chunk := r.read(1 << 20):
+                fh.write(chunk)
+        print(f"{name} -> {dest} ({os.path.getsize(dest) // 1024} KB)")
+
+
 def unpack(args):
     text = open(args.log, encoding="utf-8").read()
     m = re.search(r"===== RUNS_TGZ_B64_BEGIN \d+ =====\n(.*?)\n===== RUNS_TGZ_B64_END", text, re.S)
@@ -139,6 +161,12 @@ def main(argv=None):
             q.add_argument("--out")
             q.add_argument("--tail", type=int, default=3000)
         q.set_defaults(fn=fn)
+    f = sub.add_parser("fetch")
+    f.add_argument("--user", required=True)
+    f.add_argument("--slug", required=True)
+    f.add_argument("--prefix", required=True, help="output-file name prefix, e.g. demo_model/")
+    f.add_argument("--dest", default="modeling/checkpoints")
+    f.set_defaults(fn=fetch)
     u = sub.add_parser("unpack")
     u.add_argument("--log", required=True)
     u.add_argument("--dest", default="modeling")
