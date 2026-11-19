@@ -1,0 +1,180 @@
+{
+  "split_dir": "/kaggle/working/lmp/data/splits_frjudge/frjudge",
+  "model": "xlm-roberta-base",
+  "run_name": "xlm-roberta-base-frjudge-pretrain",
+  "da": true,
+  "dev_set": "da",
+  "train_langs": null,
+  "test_langs": null,
+  "seed": 42,
+  "lr": 2e-05,
+  "batch_size": 8,
+  "epochs": 30,
+  "patience": 0,
+  "max_len": 512,
+  "weight_decay": 0.0,
+  "max_grad_norm": 1.0,
+  "clip_min": 0.0,
+  "fp16": true,
+  "save_model": "/kaggle/working/frjudge-pretrained",
+  "extra_test": [],
+  "runs_dir": "/kaggle/working/runs_frj",
+  "system": "xlm-roberta-base-frjudge-pretrain",
+  "split_name": "frjudge_s42",
+  "best_epoch": 4,
+  "best_dev_mse": 0.8205278659903257,
+  "history": [
+    {
+      "epoch": 1,
+      "train_mse": 26.674414035252163,
+      "dev_mse": 19.66762582082597
+    },
+    {
+      "epoch": 2,
+      "train_mse": 9.246102326256889,
+      "dev_mse": 2.7147847204927413
+    },
+    {
+      "epoch": 3,
+      "train_mse": 3.733769899606705,
+      "dev_mse": 1.6054140698342099
+    },
+    {
+      "epoch": 4,
+      "train_mse": 2.4014012843370436,
+      "dev_mse": 0.8205278659903257
+    },
+    {
+      "epoch": 5,
+      "train_mse": 2.2952706492372923,
+      "dev_mse": 2.3746085768654233
+    },
+    {
+      "epoch": 6,
+      "train_mse": 2.4588524970092944,
+      "dev_mse": 2.1205863156015914
+    },
+    {
+      "epoch": 7,
+      "train_mse": 1.1028795748682958,
+      "dev_mse": 1.8261183445681892
+    },
+    {
+      "epoch": 8,
+      "train_mse": 0.9081238635283496,
+      "dev_mse": 1.5696916913229322
+    },
+    {
+      "epoch": 9,
+      "train_mse": 0.7735832182690501,
+      "dev_mse": 1.3532589937131556
+    },
+    {
+      "epoch": 10,
+      "train_mse": 0.5165819270802395,
+      "dev_mse": 1.9255893587377426
+    },
+    {
+      "epoch": 11,
+      "train_mse": 0.39194249702351436,
+      "dev_mse": 1.2223149180832487
+    },
+    {
+      "epoch": 12,
+      "train_mse": 0.36610859102968657,
+      "dev_mse": 1.5181371115029805
+    },
+    {
+      "epoch": 13,
+      "train_mse": 0.3174135980063251,
+      "dev_mse": 1.3514287765063937
+    },
+    {
+      "epoch": 14,
+      "train_mse": 0.22788518500913466,
+      "dev_mse": 1.7308612004868569
+    },
+    {
+      "epoch": 15,
+      "train_mse": 0.24140878432829466,
+      "dev_mse": 1.2685014971073658
+    },
+    {
+      "epoch": 16,
+      "train_mse": 0.20777567634359,
+      "dev_mse": 1.2251231522314134
+    },
+    {
+      "epoch": 17,
+      "train_mse": 0.1507298505332853,
+      "dev_mse": 1.3511139719480916
+    },
+    {
+      "epoch": 18,
+      "train_mse": 0.20762435074097343,
+      "dev_mse": 1.0211529668124897
+    },
+    {
+      "epoch": 19,
+      "train_mse": 0.15224038218813282,
+      "dev_mse": 1.2386578808464703
+    },
+    {
+      "epoch": 20,
+      "train_mse": 0.15217049994638987,
+      "dev_mse": 1.0559882781335286
+    },
+    {
+      "epoch": 21,
+      "train_mse": 0.12688608060457876,
+      "dev_mse": 1.1310884208706695
+    },
+    {
+      "epoch": 22,
+      "train_mse": 0.10082660548921142,
+      "dev_mse": 1.0212005970660945
+    },
+    {
+      "epoch": 23,
+      "train_mse": 0.09255584328036223,
+      "dev_mse": 1.1320989080985624
+    },
+    {
+      "epoch": 24,
+      "train_mse": 0.07836645407203052,
+      "dev_mse": 1.0550015674679243
+    },
+    {
+      "epoch": 25,
+      "train_mse": 0.07981923462689987,
+      "dev_mse": 1.184610267339777
+    },
+    {
+      "epoch": 26,
+      "train_mse": 0.06676376767988716,
+      "dev_mse": 1.1233724019918887
+    },
+    {
+      "epoch": 27,
+      "train_mse": 0.07430585526994296,
+      "dev_mse": 1.1278472545935536
+    },
+    {
+      "epoch": 28,
+      "train_mse": 0.06529086723790638,
+      "dev_mse": 1.0641753162135854
+    },
+    {
+      "epoch": 29,
+      "train_mse": 0.06370870403147169,
+      "dev_mse": 1.1236586003556908
+    },
+    {
+      "epoch": 30,
+      "train_mse": 0.05391170741724116,
+      "dev_mse": 1.0707607684863938
+    }
+  ],
+  "seconds": 522,
+  "device": "cuda"
+}

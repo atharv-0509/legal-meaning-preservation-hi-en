@@ -1,0 +1,145 @@
+{
+  "test": {
+    "overall": {
+      "n": 119,
+      "pearson": 0.15962331797662435,
+      "spearman": 0.17612423389519113,
+      "rmse": 2.582367703204351,
+      "mae": 2.172203256302521,
+      "over_rate": 0.4789915966386555,
+      "mean_error": 0.45463497899159666,
+      "decision_acc": 0.6134453781512605,
+      "decision_macro_f1": 0.5489452867501647
+    },
+    "by_lang": {
+      "en": {
+        "n": 119,
+        "pearson": 0.15962331797662435,
+        "spearman": 0.17612423389519113,
+        "rmse": 2.582367703204351,
+        "mae": 2.172203256302521,
+        "over_rate": 0.4789915966386555,
+        "mean_error": 0.45463497899159666,
+        "decision_acc": 0.6134453781512605,
+        "decision_macro_f1": 0.5489452867501647
+      }
+    },
+    "by_act_id": {
+      "cpa": {
+        "n": 119,
+        "pearson": 0.15962331797662435,
+        "spearman": 0.17612423389519113,
+        "rmse": 2.582367703204351,
+        "mae": 2.172203256302521,
+        "over_rate": 0.4789915966386555,
+        "mean_error": 0.45463497899159666,
+        "decision_acc": 0.6134453781512605,
+        "decision_macro_f1": 0.5489452867501647
+      }
+    },
+    "by_variant": {
+      "aggressive": {
+        "n": 40,
+        "pearson": 0.5764068023016298,
+        "spearman": 0.604670685618379,
+        "rmse": 1.3828169138347637,
+        "mae": 1.208984375,
+        "over_rate": 0.525,
+        "mean_error": -0.384375,
+        "decision_acc": 0.725,
+        "decision_macro_f1": 0.7234443746071653
+      },
+      "normal": {
+        "n": 40,
+        "pearson": 0.17173578114041987,
+        "spearman": 0.16893067461275635,
+        "rmse": 1.7406542133502856,
+        "mae": 1.65771484375,
+        "over_rate": 0.0,
+        "mean_error": -1.65771484375,
+        "decision_acc": 1.0,
+        "decision_macro_f1": 1.0
+      },
+      "perturbed": {
+        "n": 39,
+        "pearson": 0.0776736053148391,
+        "spearman": 0.2310890205075994,
+        "rmse": 3.9088451415565277,
+        "mae": 3.687800480769231,
+        "over_rate": 0.9230769230769231,
+        "mean_error": 3.481670673076923,
+        "decision_acc": 0.10256410256410256,
+        "decision_macro_f1": 0.1001977587343441
+      }
+    },
+    "by_error_type": {
+      "exception_drop": {
+        "n": 6,
+        "pearson": 0.6879452694889604,
+        "spearman": 0.648074069840786,
+        "rmse": 1.9683637290543563,
+        "mae": 1.8411458333333333,
+        "over_rate": 0.6666666666666666,
+        "mean_error": 1.1236979166666667,
+        "decision_acc": 0.5,
+        "decision_macro_f1": 0.4857142857142857
+      },
+      "modality": {
+        "n": 4,
+        "pearson": 0.17650028396262651,
+        "spearman": -0.2581988897471611,
+        "rmse": 3.396785360801226,
+        "mae": 3.3447265625,
+        "over_rate": 1.0,
+        "mean_error": 3.3447265625,
+        "decision_acc": 0.0,
+        "decision_macro_f1": 0.0
+      },
+      "negation": {
+        "n": 15,
+        "pearson": 0.5184298181338122,
+        "spearman": 0.4631303023876509,
+        "rmse": 4.962633404351926,
+        "mae": 4.875,
+        "over_rate": 1.0,
+        "mean_error": 4.875,
+        "decision_acc": 0.0,
+        "decision_macro_f1": 0.0
+      },
+      "number": {
+        "n": 7,
+        "pearson": NaN,
+        "spearman": NaN,
+        "rmse": 3.1900176889396348,
+        "mae": 3.1707589285714284,
+        "over_rate": 1.0,
+        "mean_error": 3.1707589285714284,
+        "decision_acc": 0.0,
+        "decision_macro_f1": 0.0
+      },
+      "scope": {
+        "n": 7,
+        "pearson": -0.8276515151515151,
+        "spearman": -0.6123724356957945,
+        "rmse": 3.5017334674109213,
+        "mae": 3.439732142857143,
+        "over_rate": 0.8571428571428571,
+        "mean_error": 2.90625,
+        "decision_acc": 0.14285714285714285,
+        "decision_macro_f1": 0.125
+      }
+    }
+  },
+  "holdout_identical": {
+    "n": 53,
+    "pass_rate": 0.8679245283018868,
+    "mean_pred": 9.963590801886792,
+    "threshold": ">= 9.9"
+  },
+  "holdout_unrelated": {
+    "n": 17,
+    "pass_rate": 0.11764705882352941,
+    "mean_pred": 2.7498851102941178,
+    "threshold": "<= 1.1"
+  }
+}
