@@ -85,6 +85,41 @@ def add_table(doc, rows: list[list[str]], size=8) -> None:
     table.style = "Table Grid"
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = True
+    ncols = len(rows[0])
+    if ncols >= 7:
+        # Many-column tables overflow a narrow IEEE column under autofit (LibreOffice ignores the column
+        # edge), so fix the widths to the column.
+        sec = doc.sections[-1]
+        width = (sec.page_width - sec.left_margin - sec.right_margin - Inches(0.25)) / 2
+        # Each column first gets room for its longest unbreakable word (so "0.552" never splits), then the
+        # rest is shared in proportion to how much longer its cells are (so labels get the slack).
+        char, pad = Inches(0.055), Inches(0.16)
+        words = [[w for row in rows[1:] for w in str(row[c]).split()] or [""] for c in range(ncols)]
+        head = [max(map(len, str(rows[0][c]).replace("+", "+ ").split()), default=0) for c in range(ncols)]
+        need = [pad + char * max(min(max(map(len, ws)), 10), min(h, 6)) for ws, h in zip(words, head)]
+        want = [pad + char * min(max(len(str(row[c])) for row in rows[1:]), 24) for c in range(ncols)]
+        slack = max(width - sum(need), 0)
+        extra = [w - n for w, n in zip(want, need)]
+        widths = [int(n + (slack * e / sum(extra) if sum(extra) else slack / ncols)) for n, e in zip(need, extra)]
+        if sum(widths) > width:                              # too many columns even at minimum: scale down
+            widths = [int(w * width / sum(widths)) for w in widths]
+        table.autofit = False
+        for r in range(len(rows)):
+            for c in range(ncols):
+                table.cell(r, c).width = widths[c]
+        # LibreOffice lays tables out from w:tblGrid and w:tblW, not the per-cell widths.
+        for col, w in zip(table._tbl.tblGrid.findall(qn("w:gridCol")), widths):
+            col.set(qn("w:w"), str(int(w / 635)))
+        tblPr = table._tbl.tblPr
+        for tag, attrs in (("w:tblW", {"w:w": str(int(sum(widths) / 635)), "w:type": "dxa"}),
+                           ("w:tblLayout", {"w:type": "fixed"})):
+            el = tblPr.find(qn(tag))
+            if el is None:
+                el = OxmlElement(tag)
+                tblPr.append(el)
+            for k, v in attrs.items():
+                el.set(qn(k), v)
+        size = min(size, 7)
     for r, row in enumerate(rows):
         for c, value in enumerate(row):
             cell = table.cell(r, c)
@@ -114,16 +149,19 @@ def e5_rows() -> list[list[str]]:
     table grows a column when a run lands rather than needing an edit here.
     """
     systems = e5.shown_systems()
-    header = ["#", "Provision", "Lang", "Variant", "Change", "Label", "Annot."]
+    header = ["Provision", "Variant", "Change", "Label", "Annot."]
     header += [_short_system(s) for s in systems]
     cases = e5.cases()
     if not cases:
         return [header, ["[TBD]"] * len(header)]
     rows = [header]
-    for i, case in enumerate(cases, 1):
-        row = [str(i), case["clause"], case["lang"], case["variant"],
-               case["error_type"] or case["main_change"],
-               case["label"], str(case["annotator_score"])]
+    short = {"perturbed": "pert.", "aggressive": "aggr.", "normal": "norm."}
+    for case in cases:
+        # Ten columns do not fit an IEEE column: language joins the provision, variants are abbreviated
+        # (pert./aggr./norm., explained in the caption) and change names may wrap at "_" and "/".
+        change = (case["error_type"] or case["main_change"] or "").replace("_", " ").replace("/", "/ ")
+        row = [f"{case['clause']} {case['lang']}", short.get(case["variant"], case["variant"]),
+               change, case["label"], str(case["annotator_score"])]
         row += [f"{case['preds'][s]:.1f}" if s in case["preds"] else "--" for s in systems]
         rows.append(row)
     return rows

@@ -222,5 +222,52 @@ def main():
     write("variant", var)
 
 
+def followup_tables():
+    """Generalisation follow-up (19 Nov evening) and legal-error type classification, from their own reports."""
+    gpath = ROOT / "reports" / "generalization_followup.json"
+    if gpath.exists():
+        fams = json.loads(gpath.read_text(encoding="utf-8"))["families"]
+        frj = ROOT / "modeling" / "runs_frj"
+        rows = [  # (system, label, FrJUDGE pre-training metrics file)
+            ("xlm-roberta-base-frjudge-da", "XLM-R, original pre-training (3 seeds)",
+             # E1 used the lmp-transfer pre-training (frjudge_s42_transfer), E2/E3 the lmp-e23-fixed one (frjudge_s42)
+             (frj / "xlm-roberta-base-frjudge-pretrain" / "frjudge_s42_transfer" / "metrics.json",
+              frj / "xlm-roberta-base-frjudge-pretrain" / "frjudge_s42" / "metrics.json")),
+            ("xlm-roberta-base-frjudge-5s-da", "XLM-R, re-run pre-training (5 seeds)",
+             frj / "xlm-roberta-base-frjudge-pretrain" / "frjudge_s42_5s" / "metrics.json"),
+            ("muril-base-cased-frjudge-5s-da", "MuRIL (5 seeds)",
+             frj / "muril-base-cased-frjudge-pretrain" / "frjudge_s42" / "metrics.json"),
+        ]
+        t = [["System (FrJUDGE→ours, DA)", "FrJUDGE", "E1", "E1 HI", "E2 EN", "E2 HI", "E3 C→R", "E3 R→C"]]
+        for sysname, label, mpath in rows:
+            paths = mpath if isinstance(mpath, tuple) else (mpath,)
+            pres = [json.loads(m.read_text(encoding="utf-8"))["test"]["overall"]["pearson"] for m in paths if m.exists()]
+            cell = lambda fam, key=None, g=None: (ms(group(fams[fam][sysname], key, g, "pearson")) if key else
+                                                  ms(overall(fams[fam][sysname], "pearson"))) \
+                if sysname in fams.get(fam, {}) else "n/a"
+            t.append([label, " / ".join(f"{x:.3f}" for x in pres) or "n/a", cell("random"), cell("random", "lang", "hi"),
+                      cell("bilingual", "lang", "en"), cell("bilingual", "lang", "hi"),
+                      cell("ood_cpa_to_rti"), cell("ood_rti_to_cpa")])
+        write("followup", t)
+    epath = ROOT / "reports" / "error_classification.json"
+    if epath.exists():
+        e = json.loads(epath.read_text(encoding="utf-8"))
+        order = [("rules", "Rules (no training)"), ("majority (none)", "Majority (\"none\")"),
+                 ("errcls-muril-base-cased", "MuRIL"), ("errcls-muril-base-cased-aug", "MuRIL + augmentation"),
+                 ("errcls-xlm-roberta-base-aug", "XLM-R + augmentation"),
+                 ("errcls-muril-base-cased-augcue", "MuRIL + augmentation + cues")]
+        t = [["System", "Macro-F1", "Acc.", "Mod.", "Neg.", "Num.", "Exc.", "Scope"]]
+        for key, label in order:
+            d = e.get(key)
+            if not d:
+                continue
+            pc = d["per_class_f1"]
+            t.append([label, f"{d['macro_f1'][0]:.3f} ± {d['macro_f1'][1]:.3f}",
+                      f"{d['accuracy'][0]:.3f}"] +
+                     [f"{pc[c][0]:.2f}" for c in ("modality", "negation", "number", "exception_drop", "scope")])
+        write("errcls_main", t)
+
+
 if __name__ == "__main__":
     main()
+    followup_tables()

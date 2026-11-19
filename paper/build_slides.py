@@ -101,6 +101,7 @@ def bullet_slide(prs, title, bullets, subtitle=None, note=None):
         p.level = 1 if indent else 0
     if note:
         nf = box(slide, Inches(0.8), Inches(6.5), Inches(11.7), Inches(0.6))
+        nf.word_wrap = True
         write(nf, note, size=12, color=FLAG, italic=True, first=True)
     return slide
 
@@ -139,6 +140,7 @@ def table_slide(prs, title, key, subtitle=None, note=None):
             cell.fill.fore_color.rgb = ACCENT if r == 0 else (BAND if r % 2 else PAPER)
     if note:
         nf = box(slide, Inches(0.9), Inches(6.5), Inches(11.5), Inches(0.6))
+        nf.word_wrap = True
         write(nf, note, size=12, color=FLAG, italic=True, first=True)
     return slide
 
@@ -303,13 +305,15 @@ def build(out_path: Path) -> list[str]:
 
     # ---- 14. demo
     bullet_slide(prs, "Demo", [
-        "python modeling/predict.py --model-dir modeling/checkpoints/demo_model --demo: paste an "
-        "original and a simplification, get the LMP score and the decision (≥ 7 Preserved / "
-        "2–6 Partially Preserved / < 2 Not Preserved).",
-        "Checkpoint: XLM-R pre-trained on FrJUDGE, fine-tuned on random_s42 without DA (Kaggle "
-        "'demo' run; test Pearson 0.479 on that split). Fetch it with kaggle_client.py fetch.",
-        "The decision uses the rubric's bracket thresholds on the regression output; it is a "
-        "prediction, not an annotation, and the model is not fit for legal use.",
+        "python modeling/app.py --model-dir modeling/checkpoints/muril/demo_model: paste an original "
+        "and a simplification (or pick a held-out test example) → LMP score, decision (≥ 7 Preserved / "
+        "2–6.9 Partially / < 2 Not Preserved), likely **error type** with a one-line explanation, and a "
+        "rule-based legal cue table.",
+        "Score model: MuRIL pre-trained on FrJUDGE, fine-tuned with DA on random_s42 (test Pearson "
+        "**0.682** on that split; the earlier XLM-R checkpoint: 0.479).",
+        "Error type: rules always; the MuRIL + augmentation classifier with --errcls-dir "
+        "(macro-F1 0.826 on random_s42).",
+        "A prediction, not an annotation; the banner states the model is not fit for legal use.",
     ])
 
     # ---- 14b. from-scratch fails
@@ -357,13 +361,27 @@ def build(out_path: Path) -> list[str]:
         "pairs only, FrJUDGE gives 0.869.",
     ])
 
+    # ---- 14d. follow-up: MuRIL, five seeds
+    table_slide(prs, "Follow-up: MuRIL generalises best (5 seeds)", "followup",
+                note="Post hoc: the principal system stays XLM-R. Re-running the same XLM-R FrJUDGE "
+                     "pre-training gave 0.691 instead of 0.873 on FrJUDGE, and its transfer dropped "
+                     "(0.486 with DA; 0.166 vs 0.586 without): single-run transfer is fragile.")
+    # ---- 14e. legal-error type
+    table_slide(prs, "Explaining the score: legal-error type (P/R/F1)", "errcls_main",
+                note="Objective targets (injected types). Augmentation injects errors into the "
+                     "training clauses only; it uses the same rules as the test errors, so this "
+                     "measures recognition of these five types, not natural errors.")
+
     # ---- 15. conclusion
     bullet_slide(prs, "Where this stands", [
         "Built: bilingual extraction from government PDFs with acceptance tests, three-variant "
         "design with a labelled error set, blinded workbooks, clause-grouped splits, baselines, "
         "training, evaluation and error analysis, one-command results (run_all.py).",
         "Result: FrJUDGE pre-training lifts the learned metric from 0.228 ± 0.288 to "
-        "0.576 ± 0.102 on our LLM labels, and makes it stable.",
+        "0.576 ± 0.102 on our LLM labels; MuRIL with the same recipe matches it (0.577 ± 0.068, "
+        "5 seeds) and generalises better (Hindi 0.466; RTI→CPA 0.251).",
+        "Explanation: a MuRIL error-type classifier with augmentation reaches macro-F1 **0.789** "
+        "(rules 0.509), so each score comes with the likely legal error.",
         "Limits: labels are disclosed LLM judgements, not human legal judgement; 30-pair human "
         "validation is prepared, not yet scored; E2 too small; the metric is not deployable.",
         "What the design buys: the diagnostic set and clause-grouped splits make weaknesses "
