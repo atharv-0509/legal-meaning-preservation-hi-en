@@ -21,6 +21,10 @@ As of 18 Nov 2026:
 - [x] (agent-written, disclosed) Choose the LLM used for simplifications and record its exact name.
 - [ ] Pilot annotation round (20 shared pairs) → update guidelines → main round.
 - [x] Training / evaluation code written (`modeling/`, see §8). Checked only on synthetic data with a tiny offline model; next check: reproduce FrJUDGE (`modeling/prepare_frjudge.py`).
+- [ ] FrJUDGE reproduction (week 1 check of `train.py`).
+  - 19 Nov 2026, after the tokenizer fix, CPU, camembertv2-base, no DA, seed 42, patience 5 (best epoch 11): test Pearson 0.617, Spearman 0.551, RMSE 1.979, MAE 1.645 (paper: 0.74 ± 0.02 / 1.72 over 10 seeds). One seed only.
+  - A 100-epoch keep-best run (released-code setting) reached dev MSE 1.72 at epoch 21 vs 2.24 with patience 5; it was stopped at epoch 47 with no test score. Next: all 10 seeds with `--patience 0` (Colab or Kaggle; `modeling/kaggle/`).
+  - Kaggle runs `lmp-frjudge-smoke` / `lmp-frjudge-reproduction` showed "running" for hours with no log; the API has no cancel, so stop them on kaggle.com. Debug with a tiny script kernel (e.g. print + exit) before relaunching.
 - [ ] IEEE paper, final slides, demo.
   - 18 Nov 2026: `paper/paper_draft.md` drafted (structure, dataset/method text from the design; every result is [TBD]; references to verify). Demo: `modeling/predict.py --demo` (Gradio).
   - `train.py` was checked with real PyTorch on a tiny offline BERT (dev MSE falls 39 → 6.5 in 40 epochs). Hugging Face was blocked in that cloud environment, so no pretrained backbone and no FrJUDGE run yet: do both on Colab first.
