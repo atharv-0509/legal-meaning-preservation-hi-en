@@ -106,7 +106,7 @@ def test_modeling():
 
         evaluate.main(["--runs-dir", str(runs), "--labeled", str(paths.labeled), "--out", str(reports / "results.md")])
         res = (reports / "results.md").read_text(encoding="utf-8")
-        assert "E1" in res and "E3" in res and "Human ceiling" in res and "sanity" in res
+        assert "E1" in res and "E3" in res and "Inter-annotator agreement" in res and "sanity" in res
         if trained:
             assert "E2" in res
         error_analysis.main(["--system", "rougeL-cal", "--runs-dir", str(runs), "--labeled", str(paths.labeled),

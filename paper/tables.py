@@ -49,6 +49,7 @@ EXPECTED_HEADERS = {
     "e4": ["System", "Identical >= 9.9 %", "Unrelated <= 1.1 %"],
     "diag": ["Injected error type", "n", "MAE LMP model", "MAE baseline", "MAE LLM judge"],
     "dataset": ["Act", "Lang", "Clauses", "Pairs", "Mean words", "Mean label"],
+    "variant": ["Variant", "n per test split", "Mean label", "MAE", "Mean signed error", "Within-variant Pearson"],
 }
 
 _missing: list[str] = []

@@ -173,7 +173,7 @@ def run_pipeline(tmp: Path):
         by_var[r["variant"]].append(r["label"])
     assert min(by_var["normal"]) > max(by_var["perturbed"]) - 3   # simulation sanity
     report = (paths.reports / "agreement.md").read_text(encoding="utf-8")
-    assert "Krippendorff" in report and "Human ceiling" in report
+    assert "Krippendorff" in report and "Inter-annotator agreement" in report
     anns = read_jsonl(paths.annotations)
     assert all(a["lmp"] == max(1, {"Accurate (7-10)": 10, "Imprecise (2-6)": 6, "Off-track (1)": 1}[a["bracket"]]
                                 - sum(a[c] for c in ERROR_COLS)) for a in anns)

@@ -33,7 +33,7 @@ BLIND_ANNOTATOR = "llm_claude_opus55_b"
 #: Systems whose prediction is shown beside the label, in preference order: the learned metric
 #: first, then the strongest generic baseline. `shown_systems()` falls back to whatever exists, so
 #: a renamed or added system still appears instead of silently leaving the columns out.
-PREFERRED_SYSTEMS = ["xlm-roberta-base-frjudge-da", "xlm-roberta-base-da", "labse"]
+PREFERRED_SYSTEMS = ["xlm-roberta-base-frjudge-da", "xlm-roberta-base-da", "labse-cal"]
 MAX_SHOWN_SYSTEMS = 3
 
 
@@ -44,13 +44,21 @@ def _read_jsonl(relative: str) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
+#: Provenance of every prediction shown in the case table (Codex review, finding 5): only the E1
+#: experiment (random clause-grouped splits random_s42/43/44), averaged over the seeds in which the
+#: pair fell in the test split. OOD and language-transfer runs are never mixed in.
+PREDICTION_SOURCE = "E1 random clause-grouped splits (random_s42/43/44), mean over the seeds where the pair is a test item"
+
+
 def _predictions() -> dict[str, dict[str, float]]:
-    """{pair_id: {system: prediction}} over whatever test predictions exist."""
+    """{pair_id: {system: mean prediction over the E1 random splits where the pair is in test}}."""
     root = next((r for r in tables.DATA_ROOTS if r and (r / "modeling" / "runs").exists()), None)
     if root is None:
         return {}
-    out: dict[str, dict[str, float]] = {}
-    for preds in sorted((root / "modeling" / "runs").glob("*/*/preds_test.jsonl")):
+    acc: dict[str, dict[str, list[float]]] = {}
+    for preds in sorted((root / "modeling" / "runs").glob("*/random_s*/preds_test.jsonl")):
+        if "__" in preds.parts[-2]:          # language-transfer variants of a random split
+            continue
         system = preds.parts[-3]
         for line in preds.read_text(encoding="utf-8").splitlines():
             if not line.strip():
@@ -58,8 +66,8 @@ def _predictions() -> dict[str, dict[str, float]]:
             row = json.loads(line)
             pid = row.get("pair_id")
             if pid is not None and row.get("pred") is not None:
-                out.setdefault(pid, {}).setdefault(system, float(row["pred"]))
-    return out
+                acc.setdefault(pid, {}).setdefault(system, []).append(float(row["pred"]))
+    return {pid: {s: sum(v) / len(v) for s, v in d.items()} for pid, d in acc.items()}
 
 
 def cases() -> list[dict]:

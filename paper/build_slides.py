@@ -202,7 +202,7 @@ def build(out_path: Path) -> list[str]:
 
     # ---- 6b. corpus size
     table_slide(prs, "What the corpus actually contains", "dataset",
-                subtitle="78 clauses → 113 clause-language items → 339 pairs "
+                subtitle="78 clauses → 113 clause-language items → 338 pairs "
                          "(RTI 38, of which 35 bilingual; CPA 40, English-only)",
                 note="Clause review was performed by a rule-based agent, not a human, and is "
                      "disclosed as such; the only text edits permitted were OCR number repairs.")
@@ -215,13 +215,13 @@ def build(out_path: Path) -> list[str]:
         "Actual, because of the deadline: **two disclosed LLM annotators**, both Claude Opus 5.5 "
         "instances — one model family, not two. One of them also wrote the simplifications, "
         "so it is not blind in practice.",
-        ("α = 0.610 interval / 0.503 bracket; LLM-annotator ceiling r = 0.723, never called a "
-         "human ceiling — vs. α = 0.10 between FrJUDGE's five law students. Two "
-         "instances of one model agreeing is the weaker result.", 16, 1),
-        "Blinding is mechanical: opaque pair ids, per-annotator shuffle, answer key in files the "
-        "annotators never read; the score is recomputed by our code from bracket + error counts.",
-        "The 30-pair human validation workbook exists and **was not scored**. No human validation "
-        "of these labels exists.",
+        ("α = 0.610 interval / 0.503 bracket; inter-LLM Pearson 0.723 (agreement, not a ceiling) "
+         "— vs. α = 0.10 between FrJUDGE's five law students. Two instances of one model agreeing "
+         "is the weaker result. Mean scores differ (8.1 vs 6.9); 68 disagreements unadjudicated.", 16, 1),
+        "Blinding is partial: opaque pair ids and per-annotator shuffle, but annotator 2 wrote "
+        "the simplifications; the score is recomputed by our code from bracket + error counts.",
+        "Human validation: 30-pair blind sheets for the three authors (results reported when scored). "
+        "The brief's 300 human-judged pairs are not met.",
     ], note=DISCLOSURE)
 
     # ---- 8. method
@@ -232,10 +232,11 @@ def build(out_path: Path) -> list[str]:
          "early stopping fired on noise and left the model at the label mean (r ≈ 0). "
          "We use lr 2e-5, batch 8, 30 epochs, no early stopping — disclosed, with the "
          "dev-set selection it implies.", 16, 1),
-        "Backbones: XLM-R, MuRIL, IndicBERT v2 — with and without data augmentation, "
-        "5 clause-grouped seeds.",
+        "Backbones: XLM-R and MuRIL (IndicBERT v2 planned, not run) — with and without data "
+        "augmentation, 3 clause-grouped seeds (42–44).",
+        "Principal system fixed in advance: XLM-R pre-trained on FrJUDGE, fine-tuned with DA.",
         "Baselines: ROUGE-L and BLEU (Devanagari-aware tokeniser), LaBSE cosine, multilingual "
-        "BERTScore F1, and an LLM judge given the identical rubric.",
+        "BERTScore F1. No LLM judge: it would be scored against LLM labels (circular).",
         "Every baseline mapped to 1–10 twice: naive and train-calibrated.",
         "Report Pearson, Spearman, RMSE, MAE and the over-scoring rate — the dangerous failure "
         "is flattering a simplification that lost a condition.",
@@ -243,9 +244,11 @@ def build(out_path: Path) -> list[str]:
 
     # ---- 9. experiments
     bullet_slide(prs, "Experiments E1–E5", [
-        "E1  Generic similarity baselines + LLM judge vs. the trained LMP model.",
-        "E2  English vs. Hindi, and zero-shot transfer EN→HI and HI→EN (RTI only).",
-        "E3  Cross-act generalisation: train on one act, test on the other.",
+        "E1  Generic similarity baselines vs. the trained LMP models.",
+        "E2  English vs. Hindi on the 35 RTI clauses present in both languages, and zero-shot "
+        "EN→HI / HI→EN.",
+        "E3  Cross-act generalisation: train on one act, test on the other (no test-act text in "
+        "training, including augmentation partners).",
         "E4  Sanity checks on disjoint holdouts: identical pairs ≥ 9.9, unrelated ≤ 1.1.",
         "E5  ≥ 15 legally difficult cases, grouped by injected error type and recorded change.",
         "One command regenerates every table in the paper from the run files.",
@@ -267,18 +270,18 @@ def build(out_path: Path) -> list[str]:
          "mean (train MSE ≈ label variance; test r ≈ −0.25). Nothing errored.", 16, 1),
         "The Hindi extraction failure above: two extractors, two silent corruptions.",
         "Both are now detected in code, and we report them because neither announces itself.",
-        "FrJUDGE reproduction as an end-to-end check of the training code: [TBD] vs. published "
-        "0.74 ± 0.02 Pearson / 1.72 RMSE.",
+        "FrJUDGE reproduction as an end-to-end check of the training code: 0.707 ± 0.042 Pearson / "
+        "1.79 RMSE over 10 seeds vs. published 0.74 ± 0.02 / 1.72.",
     ])
 
     # ---- 14. demo
     bullet_slide(prs, "Demo", [
-        "modeling/predict.py --demo: paste an original and a simplification, get the LMP score, "
-        "the decision (Preserved / Partially Preserved / Not Preserved), and the nearest "
-        "rubric bracket.",
-        "Same scoring function as the annotation workbooks, so the demo and the dataset cannot "
-        "disagree.",
-        "[TBD: screenshot once a trained checkpoint is in place.]",
+        "modeling/predict.py --model-dir <checkpoint> --demo: paste an original and a simplification, "
+        "get the LMP score and the decision (≥ 7 Preserved / 2–6 Partially Preserved / < 2 Not "
+        "Preserved).",
+        "Checkpoint: the FrJUDGE→ours model saved by the Kaggle 'demo' run (random_s42).",
+        "The decision uses the rubric's bracket thresholds on the regression output; it is a "
+        "prediction, not an annotation.",
     ])
 
     # ---- 14b. from-scratch fails
