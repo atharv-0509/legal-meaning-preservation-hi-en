@@ -11,7 +11,7 @@ Bennett University, Greater Noida, India
 
 ## Abstract
 
-Plain-language versions of statutes can widen access to the law, but a simplification that drops a condition, turns an obligation into a permission or alters a time limit misleads the reader while still looking fluent. JUDGEBERT [1] introduced a learned metric for legal meaning preservation (LMP) on French insurance text. We extend that line of work to Indian statutory law in two languages. From the official texts of the Right to Information Act, 2005 and the Consumer Protection Act, 2019 we build a corpus of original-simplification pairs in three deliberately contrasting styles: a standard zero-shot simplification, an aggressive "explain to a twelve-year-old" simplification, and a simplification carrying exactly one rule-injected legal error of a known type. Each pair is scored on JUDGEBERT's 1-10 rubric; for this version of the work the scores are produced by two disclosed large-language-model annotators rather than by humans, which is a deviation from our original human-judgement protocol and is reported as such throughout. We train multilingual cross-encoders on clause-grouped splits and compare them against generic similarity metrics and an LLM judge given the same rubric. [TBD: headline result.] We additionally report zero-shot transfer between English and Hindi, transfer across the two acts, sanity checks on identical and unrelated pairs, and a qualitative analysis of at least fifteen legally difficult cases. We also document two reproducibility traps that silently destroy such experiments: a character-level tokenizer fallback that collapses cross-encoder training, and legacy-font Hindi PDF text layers that lose characters without raising any error.
+Plain-language versions of statutes can widen access to the law, but a simplification that drops a condition, turns an obligation into a permission or alters a time limit misleads the reader while still looking fluent. JUDGEBERT [1] introduced a learned metric for legal meaning preservation (LMP) on French insurance text. We extend that line of work to Indian statutory law in two languages. From the official texts of the Right to Information Act, 2005 and the Consumer Protection Act, 2019 we build a corpus of original-simplification pairs in three deliberately contrasting styles: a standard zero-shot simplification, an aggressive "explain to a twelve-year-old" simplification, and a simplification carrying exactly one rule-injected legal error of a known type. Each pair is scored on JUDGEBERT's 1-10 rubric; for this version of the work the scores are produced by two disclosed large-language-model annotators rather than by humans, which is a deviation from our original human-judgement protocol and is reported as such throughout. We train multilingual cross-encoders on clause-grouped splits and compare them against generic similarity metrics and an LLM judge given the same rubric. The headline result is negative and we report it as such: at this corpus size the learned metric reaches Pearson 0.228 with a standard deviation of 0.288 across seeds, which is not distinguishable from the best generic baseline at 0.101 and far from the 0.723 agreement between our own annotators, while the same code reproduces 0.707 on FrJUDGE. The diagnostic set nevertheless behaves exactly as designed: a single inserted negation, which moves the legal meaning from one end of the rubric to the other, is the hardest case for every system, which is the clearest argument for a purpose-built metric. We additionally report zero-shot transfer between English and Hindi, transfer across the two acts, sanity checks on identical and unrelated pairs, and a qualitative analysis of at least fifteen legally difficult cases. We also document two reproducibility traps that silently destroy such experiments: a character-level tokenizer fallback that collapses cross-encoder training, and legacy-font Hindi PDF text layers that lose characters without raising any error.
 
 **Keywords—** legal NLP, text simplification, meaning preservation, evaluation metrics, Hindi, multilingual transformers, cross-encoder regression
 
@@ -143,54 +143,75 @@ The whole chain from labelled pairs to the tables below is a single reproducible
 
 | System | Pearson | Spearman | RMSE | MAE | Over-score % |
 |---|---|---|---|---|---|
-| labse | 0.101 ± 0.026 | 0.224 ± 0.066 | 2.811 ± 0.157 | 2.110 ± 0.121 | 41.0 ± 3.6 |
+| xlm-roberta-base-da | 0.228 ± 0.288 | 0.259 ± 0.280 | 2.464 ± 0.224 | 2.020 ± 0.469 | 47.9 ± 12.1 |
 | labse-cal | 0.101 ± 0.026 | 0.224 ± 0.066 | 2.417 ± 0.124 | 2.184 ± 0.090 | 44.4 ± 4.8 |
-| bertscore | 0.055 ± 0.040 | 0.115 ± 0.033 | 2.974 ± 0.235 | 2.180 ± 0.232 | 59.2 ± 1.6 |
+| labse | 0.101 ± 0.026 | 0.224 ± 0.066 | 2.811 ± 0.157 | 2.110 ± 0.121 | 41.0 ± 3.6 |
+| muril-base-cased-da | 0.067 ± 0.097 | 0.097 ± 0.060 | 2.607 ± 0.180 | 2.365 ± 0.135 | 41.7 ± 6.6 |
 | bertscore-cal | 0.055 ± 0.040 | 0.115 ± 0.033 | 2.427 ± 0.120 | 2.206 ± 0.088 | 44.7 ± 4.9 |
+| bertscore | 0.055 ± 0.040 | 0.115 ± 0.033 | 2.974 ± 0.235 | 2.180 ± 0.232 | 59.2 ± 1.6 |
 | bleu | 0.018 ± 0.021 | 0.088 ± 0.042 | 5.512 ± 0.238 | 4.977 ± 0.316 | 6.4 ± 1.3 |
 | bleu-cal | 0.018 ± 0.021 | 0.088 ± 0.042 | 2.433 ± 0.120 | 2.212 ± 0.087 | 45.4 ± 5.8 |
 | rougeL | 0.010 ± 0.033 | 0.071 ± 0.040 | 4.041 ± 0.159 | 3.563 ± 0.169 | 21.2 ± 1.8 |
 | rougeL-cal | 0.010 ± 0.033 | 0.071 ± 0.040 | 2.430 ± 0.119 | 2.217 ± 0.090 | 45.4 ± 5.8 |
+| xlm-roberta-base | -0.030 ± 0.048 | -0.020 ± 0.044 | 2.444 ± 0.090 | 2.245 ± 0.079 | 45.8 ± 5.6 |
+| muril-base-cased | -0.042 ± 0.014 | -0.034 ± 0.028 | 4.443 ± 0.058 | 3.876 ± 0.084 | 6.4 ± 2.1 |
 
 **TABLE IV. E2: results by language, and zero-shot transfer**
 
 | Setting | Pearson | RMSE | Over-score % |
 |---|---|---|---|
-| [TBD] | [TBD] | [TBD] | [TBD] |
+| xlm-roberta-base-da: test EN (trained on EN+HI) | 0.297 ± 0.308 | 2.413 ± 0.316 | 47.8 ± 13.0 |
+| xlm-roberta-base-da: test HI (trained on EN+HI) | 0.010 ± 0.210 | 2.582 ± 0.045 | 48.2 ± 9.9 |
+| xlm-roberta-base-da: train EN → test HI (zero-shot) | 0.057 ± 0.158 | 2.639 ± 0.441 | 42.6 ± 8.1 |
+| xlm-roberta-base-da: train HI → test EN (zero-shot) | -0.017 ± 0.079 | 2.918 ± 0.715 | 38.6 ± 12.3 |
 
 **TABLE V. E3: cross-act generalisation**
 
 | Split | Pearson | RMSE | MAE |
 |---|---|---|---|
-| CPA → RTI | 0.087 | 2.860 | 2.111 |
-| RTI → CPA | 0.043 | 3.193 | 2.334 |
+| CPA → RTI | 0.144 ± 0.084 | 2.648 ± 0.224 | 2.189 ± 0.076 |
+| RTI → CPA | 0.040 ± 0.082 | 2.823 ± 0.291 | 2.285 ± 0.143 |
 
 **TABLE VI. E4: sanity checks on disjoint holdouts**
 
 | System | Identical >= 9.9 % | Unrelated <= 1.1 % |
 |---|---|---|
-| labse | 100.0 ± 0.0 | 0.0 ± 0.0 |
+| xlm-roberta-base-da | 33.3 ± 57.7 | 31.4 ± 27.8 |
 | labse-cal | 0.0 ± 0.0 | 0.0 ± 0.0 |
-| bertscore | 100.0 ± 0.0 | 0.0 ± 0.0 |
+| labse | 100.0 ± 0.0 | 0.0 ± 0.0 |
+| muril-base-cased-da | 0.0 ± 0.0 | 62.7 ± 54.7 |
 | bertscore-cal | 0.0 ± 0.0 | 0.0 ± 0.0 |
+| bertscore | 100.0 ± 0.0 | 0.0 ± 0.0 |
 | bleu | 100.0 ± 0.0 | 11.8 ± 0.0 |
 | bleu-cal | 0.0 ± 0.0 | 0.0 ± 0.0 |
 | rougeL | 100.0 ± 0.0 | 0.0 ± 0.0 |
 | rougeL-cal | 0.0 ± 0.0 | 0.0 ± 0.0 |
+| xlm-roberta-base | 0.0 ± 0.0 | 0.0 ± 0.0 |
+| muril-base-cased | 0.0 ± 0.0 | 0.0 ± 0.0 |
 
 **TABLE VII. Mean absolute error on perturbed pairs by injected error type**
 
 | Injected error type | n | MAE LMP model | MAE baseline | MAE LLM judge |
 |---|---|---|---|---|
-| exception_drop | n/a | n/a | 3.022 ± 0.910 (labse) | not run (labels are LLM-produced; circular) |
-| modality | n/a | n/a | 3.531 ± 0.653 (labse) | not run (labels are LLM-produced; circular) |
-| negation | n/a | n/a | 5.896 ± 0.372 (labse) | not run (labels are LLM-produced; circular) |
-| number | n/a | n/a | 3.987 ± 0.178 (labse) | not run (labels are LLM-produced; circular) |
-| scope | n/a | n/a | 3.917 ± 0.619 (labse) | not run (labels are LLM-produced; circular) |
+| exception_drop | 4 ± 2 | 2.251 ± 0.212 | 2.254 ± 0.466 (labse-cal) | not run (labels are LLM-produced; circular) |
+| modality | 9 ± 2 | 3.006 ± 0.890 | 2.496 ± 0.334 (labse-cal) | not run (labels are LLM-produced; circular) |
+| negation | 8 ± 2 | 4.317 ± 1.172 | 4.629 ± 0.531 (labse-cal) | not run (labels are LLM-produced; circular) |
+| number | 5 ± 2 | 2.499 ± 0.927 | 2.722 ± 0.172 (labse-cal) | not run (labels are LLM-produced; circular) |
+| scope | 7 ± 2 | 2.510 ± 0.760 | 2.672 ± 0.208 (labse-cal) | not run (labels are LLM-produced; circular) |
 
-The baselines are in and the trained cross-encoder is still running, so the comparison that defines E1 is incomplete; what the baselines alone already show is worth stating. Every generic metric is close to useless on this corpus: LaBSE reaches Pearson 0.101 +/- 0.026, multilingual BERTScore 0.055 +/- 0.040, BLEU 0.018 +/- 0.021 and ROUGE-L 0.010 +/- 0.033. These are far below the 0.46 that BERTScore achieves on FrJUDGE, and the difference is a property of our corpus rather than of the metrics. A third of our pairs carry a single injected legal error, so the simplification is lexically and semantically almost identical to a faithful one while meaning the opposite; an overlap or embedding metric cannot see the difference by construction. The diagnostic table makes this explicit: LaBSE's error is largest exactly where the change is smallest on the surface, 5.896 +/- 0.372 mean absolute error on negation reversals against 3.022 +/- 0.910 on dropped exceptions. We note the alternative reading honestly, namely that correlations this low could indicate a baseline implementation fault; against that, the same code reproduces BERTScore's published behaviour on FrJUDGE, the four metrics fail in the same direction, and their ranking tracks surface sensitivity as theory predicts.
+We state the headline before the detail, because the headline is a negative result and burying it would be worse than reporting it. At this corpus size the JUDGEBERT-style cross-encoder does not reliably beat generic similarity. The best configuration, XLM-R with augmentation, averages Pearson 0.228 with a standard deviation of 0.288 across seeds, the individual seeds running 0.56, 0.21 and about -0.08. A standard deviation larger than the mean is the whole finding: over three seeds that is roughly 1.4 standard errors from zero, so the model is not distinguishable from no correlation at all, let alone from LaBSE's 0.101, and it is nowhere near the LLM-annotator ceiling of 0.723. Without augmentation XLM-R sits at -0.030; MuRIL with augmentation reaches 0.067 and without it collapses outright to an RMSE of 4.4. The brief asks us to compare generic baselines against a learned metric, and the answer our data supports is that roughly 200 training pairs are not enough to learn this target, not that the target cannot be learned. The reproduction in Section VII is the control for that claim: the same code reaches 0.707 on FrJUDGE, which has a comparable number of training pairs but a far narrower label distribution and a single language.
 
-The sanity checks add a caution about calibration that we had not anticipated. In their naive mapping all four baselines score 100% of identical holdout pairs at or above 9.9, but none places unrelated pairs at or below 1.1 (BLEU manages 11.8%), so every generic metric fails the second check. After the train-fitted linear calibration that makes their RMSE competitive, they fail both checks at 0%: the fit compresses predictions towards the label mean, which improves RMSE while destroying exactly the two endpoints a meaning-preservation metric must get right. Calibrated RMSE for these systems should therefore be read as a scaling artefact, not as evidence of fitness, and this is why we report both mappings. [TBD: the trained LMP model's rows, the E1 and E2 comparisons, and the cross-act results once the GPU runs complete.]
+The per-language split is where the corpus size bites hardest and it bears directly on our central contribution. English test pairs reach 0.297 while Hindi reaches 0.010, so the Hindi half of the corpus carries essentially no signal for the model even though its labels are no less consistent than the English ones. Zero-shot transfer is absent in both directions, 0.057 for English to Hindi and -0.017 for Hindi to English. Three explanations are available and we cannot separate them with 105 Hindi pairs: the Hindi text is OCR output and carries residual noise, the Hindi subset is the smaller one, and XLM-R's Devanagari representation may simply be weaker for statutory register. Cross-act generalisation is equally thin, 0.144 from the Consumer Protection Act to the Right to Information Act and 0.040 in the reverse direction. We report these as measurements, not as evidence that cross-lingual or cross-domain transfer of legal meaning preservation is impossible.
+
+What the baselines show is worth stating alongside that. Every generic metric is close to useless on this corpus: LaBSE reaches Pearson 0.101 +/- 0.026, multilingual BERTScore 0.055 +/- 0.040, BLEU 0.018 +/- 0.021 and ROUGE-L 0.010 +/- 0.033. These are far below the 0.46 that BERTScore achieves on FrJUDGE, and the difference is a property of our corpus rather than of the metrics. A third of our pairs carry a single injected legal error, so the simplification is lexically and semantically almost identical to a faithful one while meaning the opposite; an overlap or embedding metric cannot see the difference by construction. The diagnostic table makes this explicit: LaBSE's error is largest exactly where the change is smallest on the surface, 5.896 +/- 0.372 mean absolute error on negation reversals against 3.022 +/- 0.910 on dropped exceptions. We note the alternative reading honestly, namely that correlations this low could indicate a baseline implementation fault; against that, the same code reproduces BERTScore's published behaviour on FrJUDGE, the four metrics fail in the same direction, and their ranking tracks surface sensitivity as theory predicts.
+
+The sanity checks add a caution about calibration that we had not anticipated. In their naive mapping all four baselines score 100% of identical holdout pairs at or above 9.9, but none places unrelated pairs at or below 1.1 (BLEU manages 11.8%), so every generic metric fails the second check. After the train-fitted linear calibration that makes their RMSE competitive, they fail both checks at 0%: the fit compresses predictions towards the label mean, which improves RMSE while destroying exactly the two endpoints a meaning-preservation metric must get right. Calibrated RMSE for these systems should therefore be read as a scaling artefact, not as evidence of fitness, and this is why we report both mappings. The trained model does not rescue the picture: XLM-R with augmentation places 33% of identical holdout pairs at or above 9.9 and 31% of unrelated pairs at or below 1.1, so it fails both checks as well, where JUDGEBERT-DA passed both. No system we tested passes both sanity checks, and we say so rather than reporting the one check each system happens to pass.
+
+The diagnostic set is the one place where the results behave exactly as the design predicted. Negation is the hardest injected error for every system, with a mean absolute error of 4.3 for the trained model and 4.6 for LaBSE, while errors that change more of the surface are easier. A single inserted "not" moves the legal meaning from one end of the rubric to the other and moves the sentence embedding almost not at all. This is the result that most directly supports building a metric for legal meaning preservation rather than reusing a similarity metric, and it holds even though our trained model is too weak to exploit it.
+
+### A. Transfer from FrJUDGE
+
+Because the limiting factor is the number of training pairs rather than the method, we add an experiment the original work does not have: train the cross-encoder on FrJUDGE first, which is the same task and rubric in French insurance text and where our code reaches 0.707, then fine-tune on our Indian splits. If legal meaning preservation is substantially language-independent, the French corpus should supply the scale our own corpus lacks, and the transfer should show up most clearly in Hindi, where we have fewest pairs. We report the transferred systems alongside the from-scratch rows rather than replacing them, so that the contribution of the transfer is visible. [TBD: the transferred results for E1, E2 and E3.]
 
 ## VI. Error Analysis
 
@@ -269,7 +290,9 @@ A partial augmented run (two seeds so far) is also informative about the headlin
 
 ## IX. Conclusion
 
-[TBD: written once the results tables are filled.]
+We built a bilingual corpus of Indian statutory simplifications designed to make the weaknesses of the predecessor work measurable: three contrasting simplification styles including a diagnostic set with one injected legal error of a known type, clause-grouped splits verified disjoint, and sanity checks on provisions used nowhere else. We then failed to train a useful metric on it. The learned cross-encoder reaches Pearson 0.228 with a standard deviation of 0.288 and is not distinguishable from a generic sentence-embedding baseline, while the same code reproduces 0.707 on FrJUDGE. The limiting factor is scale, not method: roughly 200 training pairs with a bimodal label distribution are not enough to fit this target, and the Hindi subset, at 105 pairs of OCR-recovered text, carries almost no signal at all.
+
+Three results survive that negative headline and are worth carrying forward. The diagnostic set works: negation reversals are the hardest case for every system tested, exactly as a metric built on surface or embedding similarity must predict, which is the strongest available argument for learning legal meaning preservation rather than approximating it. The sanity checks discriminate: no system we tested passes both, and the train-fitted calibration that makes a baseline's RMSE look competitive is what destroys its endpoints. And the measurement apparatus is sound, since the same code reproduces the published FrJUDGE number in the released setting while showing that the setting described in the paper's prose is unstable. The obvious next step, which we begin here by transferring from FrJUDGE, is to stop treating each legal corpus as its own small problem and borrow scale across languages and jurisdictions; the second is to replace our disclosed model annotations with human legal judgement, without which the central claim of this line of work remains untested.
 
 ## References
 

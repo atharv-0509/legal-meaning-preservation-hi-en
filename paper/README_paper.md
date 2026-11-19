@@ -55,3 +55,8 @@ numbers in running prose do not justify a table in a two-column layout. They com
 `reports/agreement.md`, produced by `src/agreement.py`. **If agreement is recomputed, update that
 one paragraph in `content.py`.** To make it automatic instead, have the results pipeline emit
 `reports/tables/agreement.tsv` (`Metric | Value`) and add an `agreement` key to `tables.py`.
+
+Section V's narrative necessarily quotes figures that also appear in the generated tables (the
+0.228, the per-language 0.297 and 0.010, the sanity percentages). The tables are authoritative; if
+a rerun changes them, reread that section's prose against the new `reports/tables/*.tsv`. Everything
+else in the paper is either generated or `[TBD]`.
