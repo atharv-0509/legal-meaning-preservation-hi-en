@@ -226,6 +226,42 @@ CROSSREF_WORDS = ("sub-section", "sub-sections", "subsection", "section", "secti
 SUB_TERMINATORS = (".", "।", ":", ";", DASH, "–", "-", ")")
 
 
+def ocr_number_variants(n: int) -> set[str]:
+    """How Tesseract's Hindi model renders the number n when it drops or misreads the digit 1
+    (observed on the DoPT RTI Hindi PDF: 12 -> "2", 13 -> "03", 1 -> "")."""
+    s = str(n)
+    out = {s, s.replace("1", ""), s.replace("1", "0")}
+    out |= {s[:i] + s[i + 1:] for i, c in enumerate(s) if c == "1"}
+    out |= {s[:i] + "0" + s[i + 1:] for i, c in enumerate(s) if c == "1"}
+    return out
+
+
+_OCR_SECTION_HEAD = re.compile(
+    rf"(?m)^(?P<lead>[ \t]*)(?P<num>\d*)(?P<sep>[ \t]*\.[ \t]+)(?=[^\n{DASH}]{{2,220}}?(?:{DASH}|–|--|:-|\.-))")
+
+
+def repair_ocr_numbering(text: str) -> str:
+    """Restore section numbers that OCR lost, using the fact that sections are numbered in sequence.
+    A header number is rewritten only when it equals the expected next number with a dropped or
+    misread "1" (see ocr_number_variants); anything else is left untouched. Also maps "(I)", "(l)",
+    "(|)" to "(1)". Only used for OCR output."""
+    text = re.sub(r"\((?:I|l|\||!)\)", "(1)", text)
+    expected, pieces, pos = 1, [], 0
+    for m in _OCR_SECTION_HEAD.finditer(text):
+        num = m.group("num")
+        if num.isdigit() and int(num) == expected:
+            expected += 1
+            continue
+        if num in ocr_number_variants(expected):
+            pieces += [text[pos:m.start("num")], str(expected)]
+            pos = m.end("num")
+            expected += 1
+        elif num.isdigit() and (expected == 1 or expected < int(num) <= expected + 3):
+            expected = int(num) + 1      # first header seen, or omitted sections in between
+    pieces.append(text[pos:])
+    return "".join(pieces)
+
+
 def parse_sections(text: str, lang: str) -> list[dict]:
     """Find numbered sections. The table of contents is skipped because its entries have no dash
     after the heading; if a number still repeats, the occurrence with the longest body wins."""
@@ -250,15 +286,20 @@ def parse_sections(text: str, lang: str) -> list[dict]:
     return [found[k] for k in sorted(found, key=sort_key)]
 
 
-def split_subsections(body: str) -> list[tuple[str, str]]:
+def split_subsections(body: str, ocr: bool = False) -> list[tuple[str, str]]:
     """Split a section body at "(1)", "(2)", ... Only sequential numbers that start a sentence
     count; "(3)" right after "sub-section"/"section"/"उपधारा"/"धारा"/"and"/"or" is a cross-reference.
+    With ocr=True a sub-section number may also be the expected number with a dropped/misread "1"
+    ("()" for (1), "(2)" for (12)); it is then recorded as the expected number.
     Returns [(subsection_number, text)], or [("", body)] when the section has no sub-sections."""
-    cands = list(re.finditer(rf"\(({_NUM}[A-Z]?)\)", body))
+    num_pat = r"[\d०-९]*" if ocr else rf"{_NUM}[A-Z]?"
+    cands = list(re.finditer(rf"\(({num_pat})\)", body))
     starts: list[tuple[int, int, str]] = []
     expected = 1
     for m in cands:
         num = m.group(1).translate(DEV_DIGITS)
+        if ocr and num != str(expected) and num in ocr_number_variants(expected):
+            num = str(expected)
         digits = re.match(r"\d+", num)
         if not digits or int(digits.group()) != expected or num != digits.group():
             continue
@@ -281,12 +322,14 @@ def split_subsections(body: str) -> list[tuple[str, str]]:
     return out
 
 
-def units_from_pages(pages: list[str], act_id: str, lang: str) -> list[dict]:
+def units_from_pages(pages: list[str], act_id: str, lang: str, ocr: bool = False) -> list[dict]:
     cleaned = clean_pages(pages, lang)
     text = "\n".join(cleaned)
+    if ocr:
+        text = repair_ocr_numbering(text)
     units = []
     for sec in parse_sections(text, lang):
-        for sub, t in split_subsections(sec["body"]):
+        for sub, t in split_subsections(sec["body"], ocr=ocr):
             t = t.strip()
             if not t or re.fullmatch(r"(?:Omitted|\[?Omitted\.?\]?|लोप किया गया)\W*", t, re.I):
                 continue
@@ -320,10 +363,11 @@ def extract_one(act: dict, lang: str, backend: str, paths, args) -> list[dict]:
                 pages = None
             else:
                 print(msg)
-    if pages is None:
+    used_ocr = pages is None
+    if used_ocr:
         pages = pdf_ocr_pages(pdf, lang, args.dpi, args.tessdata_dir, paths.data / "ocr_cache")
         print(f"  OCR: {text_quality(pages, lang)}")
-    units = units_from_pages(pages, act["act_id"], lang)
+    units = units_from_pages(pages, act["act_id"], lang, ocr=used_ocr)
     out = units_path(paths, act["act_id"], lang)
     write_jsonl(out, units)
     n_sec = len({u["section"] for u in units})

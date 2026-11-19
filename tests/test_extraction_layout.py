@@ -88,3 +88,29 @@ def test_mojibake_flag_per_row():
     assert "mojibake" in select_clauses.auto_flags("Every public authority shall maintain records.", damaged, 6, 3)
     assert "mojibake" not in select_clauses.auto_flags("Every public authority shall maintain records.", "सूचना का अधिकार", 6, 3)
     assert select_clauses.auto_flags("Text with � damage.", "", 4, 0) == ["mojibake", "no_hi"]
+
+
+def test_ocr_number_variants_cover_dropped_and_misread_ones():
+    assert "" in extract.ocr_number_variants(1)
+    assert {"2", "02"} <= extract.ocr_number_variants(12)
+    assert "03" in extract.ocr_number_variants(13)
+    assert "5" not in extract.ocr_number_variants(4)
+
+
+def test_repair_ocr_numbering_restores_sequence_only():
+    text = ("1. संक्षिप्त नाम--यह अधिनियम है।\n"
+            ". परिभाषाएं--इस अधिनियम में।\n"          # "2." would be wrong: expected is 2, "" is not a variant of 2
+            "2. सूचना का अधिकार--सभी नागरिकों को।\n")
+    out = extract.repair_ocr_numbering(text)
+    assert out.splitlines()[1].startswith(". परिभाषाएं")   # not a 1-drop of 2, so untouched
+    seq = ("9. पहला शीर्षक--पाठ।\n10. दूसरा शीर्षक--पाठ।\n. तीसरा शीर्षक--पाठ।\n"
+           "2. चौथा शीर्षक--पाठ।\n03. पांचवां शीर्षक--पाठ।")
+    fixed = extract.repair_ocr_numbering(seq).splitlines()
+    assert [l.split(".")[0] for l in fixed] == ["9", "10", "11", "12", "13"]
+    assert extract.repair_ocr_numbering("उपधारा (I) में") == "उपधारा (1) में"
+
+
+def test_split_subsections_ocr_tolerates_dropped_one():
+    body = "() पहला उपबंध है। (2) दूसरा उपबंध है। (3) तीसरा।"
+    assert [n for n, _ in extract.split_subsections(body, ocr=True)] == ["1", "2", "3"]
+    assert extract.split_subsections(body)[0][0] == ""        # without ocr=True nothing changes
