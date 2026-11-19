@@ -13,6 +13,7 @@ Team: [names / roll numbers]. The project should also work as a resume piece and
 ## 1. Current status (update this section as work moves)
 
 As of 18 Nov 2026:
+- 19 Nov 2026: Windows Python 3.12.6 environment installed; full pytest baseline passes (33 passed, 0 failed, 0 skipped). Reset the fake-server request counter between tests; setup commands are in `modeling/README.md`.
 - [x] Project chosen (PID-08) and Milestone 1 presented on 14 Oct 2026 (10-slide deck: problem, related work, gaps, feasibility, objectives, method, techniques, experiments + timeline).
 - [x] Dataset pipeline (`legal-lmp-dataset/`) written and tested end to end on **synthetic** text (`tests/`).
   - 18 Nov 2026: the earlier code was not available in the cloud workspace, so the pipeline was rebuilt from this spec. The parser is unit-tested on synthetic page text (`tests/fixtures.py`), and the pdftotext route was checked once on Chromium-rendered EN/HI PDFs of those pages (clean units, Hindi "करे गा ।" repaired). The OCR route is untested (no tesseract in that environment), and nothing has been run on the real India Code PDFs yet. Step 2b now ends with `select_clauses.py --finalize`. The rubric lives in `src/rubric.py`. Identical provisions are deduplicated at selection and excluded from the holdouts.
