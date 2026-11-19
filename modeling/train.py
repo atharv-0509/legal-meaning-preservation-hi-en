@@ -88,6 +88,8 @@ def main(argv=None):
     ap.add_argument("--patience", type=int, default=5, help="0 = no early stopping (released JUDGEBERT code)")
     ap.add_argument("--max-len", type=int, default=256)
     ap.add_argument("--weight-decay", type=float, default=0.0)
+    ap.add_argument("--max-grad-norm", type=float, default=1.0,
+                    help="gradient clipping (1.0 = Hugging Face Trainer default, which JUDGEBERT used); 0 = off")
     ap.add_argument("--clip-min", type=float, default=1.0, help="predictions are clipped to [clip-min, 10]")
     ap.add_argument("--fp16", action="store_true")
     ap.add_argument("--save-model", default=None, help="directory to save the best model + tokenizer")
@@ -140,6 +142,9 @@ def main(argv=None):
                 loss = loss_fn(pred.float(), y)
             opt.zero_grad()
             scaler.scale(loss).backward()
+            if args.max_grad_norm:
+                scaler.unscale_(opt)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
             scaler.step(opt)
             scaler.update()
             sched.step()
