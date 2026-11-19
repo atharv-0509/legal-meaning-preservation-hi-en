@@ -46,3 +46,12 @@ paper also serves as a blinded annotator and must never see the pair-level answe
 `pip install -r paper/requirements-paper.txt` (python-docx, python-pptx). The PDF step uses the
 installed Microsoft Word through COM automation, inside a job with a 300 s timeout, so a missing or
 stuck Word degrades to "PDF not produced" instead of hanging the build; `-SkipPdf` skips it.
+
+## The one exception to "no number by hand"
+
+The agreement paragraph in `content.py` (Krippendorff's alpha, the LLM-annotator ceiling, the
+adjudication count) states its figures inline instead of reading them from a TSV, because three
+numbers in running prose do not justify a table in a two-column layout. They come from
+`reports/agreement.md`, produced by `src/agreement.py`. **If agreement is recomputed, update that
+one paragraph in `content.py`.** To make it automatic instead, have the results pipeline emit
+`reports/tables/agreement.tsv` (`Metric | Value`) and add an `agreement` key to `tables.py`.
