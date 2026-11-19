@@ -37,6 +37,10 @@ KERNELS = {                       # slug -> "backbone=plan;..." run in ONE GPU s
     # FrJUDGE-trained encoder, MuRIL; two saved checkpoints for the demo app
     # demo checkpoint of the MuRIL transfer model with DA (best on Hindi and cross-act in the 5-seed follow-up)
     "lmp-muril-demo": "google/muril-base-cased=frj-demo-da",
+    # error classifier with injected-error augmentation from the training clauses, and the rule-cue hybrid
+    "lmp-errcls-aug": ("google/muril-base-cased=errcls-aug;google/muril-base-cased=errcls-augcue;"
+                       "xlm-roberta-base=errcls-aug;xlm-roberta-base=errcls-augcue;"
+                       "google/muril-base-cased=errcls-augcue-demo"),
     "lmp-errcls": ("xlm-roberta-base=errcls;xlm-roberta-base=frj-errcls;google/muril-base-cased=errcls;"
                    "xlm-roberta-base=errcls-demo;xlm-roberta-base=frj-errcls-demo"),
 }
@@ -44,6 +48,7 @@ KERNEL_SETS = {                   # extra placeholder values per kernel (see lmp
     "lmp-muril-frj": {"__SEEDS__": "42 43 44 45 46", "__TAG__": "-5s"},
     "lmp-xlmr-5seeds": {"__SEEDS__": "42 43 44 45 46", "__TAG__": "-5s"},
     "lmp-errcls": {"__SEEDS__": "42 43 44 45 46"},
+    "lmp-errcls-aug": {"__SEEDS__": "42 43 44 45 46"},
 }
 LOGS = ROOT / "modeling" / "kaggle_logs"
 # Early stopping on our ~35-pair dev set fires on noise: XLM-R stopped after a few epochs at the
