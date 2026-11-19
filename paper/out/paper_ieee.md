@@ -88,7 +88,10 @@ The resulting corpus is 78 clauses: 38 from the Right to Information Act, of whi
 
 | Act | Lang | Clauses | Pairs | Mean words | Mean label |
 |---|---|---|---|---|---|
-| [TBD] | [TBD] | [TBD] | [TBD] | [TBD] | [TBD] |
+| CPA | EN | 40 | 119 | 50.2 | n/a |
+| RTI | EN | 38 | 114 | 53.0 | n/a |
+| RTI | HI | 35 | 105 | 52.5 | n/a |
+| All |  | 78 | 338 | 51.9 | n/a |
 
 ### E. Simplifications
 
@@ -102,7 +105,9 @@ This is the point at which the present version of the work departs from our prot
 
 The blinding is real and mechanical rather than a matter of trust. Each annotator receives only an opaque pair identifier, in an order shuffled per annotator with items from the same clause separated; the variant name, the injected error type and the answer key are in files the annotators never read, and neither annotator sees the other's workbook. The score is not entered directly: the annotator chooses a bracket and counts errors by type, and the score is recomputed from those entries by our own code, so a rubric change cannot be lost in a spreadsheet formula. Two further constraints follow from using models as annotators. Model families overlap between generation and annotation, so any annotator that also generated the text it scores cannot be called blind, and we disclose that overlap rather than assuming it away. And an LLM judge may not be evaluated against labels from its own model, since that measures self-consistency and not meaning preservation; our judge baseline therefore uses a different model from either annotator.
 
-Agreement between the two model annotators is reported as LLM-annotator agreement and never as human agreement. With only two annotators a leave-one-out human ceiling cannot be computed, so the ceiling we would compare models against is simply unavailable in this version. To keep a path to the original claim open, a separate 30-pair validation workbook is prepared for human legal annotators; if it is scored we report the correlation between the model labels and the human scores on it, and if it is not we report its absence as a limitation. [TBD: alpha between the two model annotators, label distribution, and the human validation outcome.]
+Three further caveats belong here rather than in a footnote, because they bound what the agreement number can mean. First, both annotators are instances of the same model, Claude Opus 5.5, so their agreement is between two instances of one model family and not between two independent judges; it is an upper bound flattered by shared pretraining. Second, the two annotators are not equally blind. The first was given only the opaque identifiers and the text, and knew the corpus design in the abstract but not which items carried an injected error. The second also wrote the simplifications, so although its workbook hides the variant labels it may recognise its own output and infer which copies were perturbed; it is therefore not blind in practice, and we say so. We consequently report results against the first annotator's labels alone as a robustness check alongside the two-annotator mean. Third, with only two annotators a leave-one-out ceiling cannot be computed, so the ceiling we would ordinarily compare models against is unavailable in this version.
+
+Agreement between the two model annotators is reported as LLM-annotator agreement and never as human agreement. To keep a path to the original claim open, a separate 30-pair validation workbook is prepared for human legal annotators; if it is scored we report the correlation between the model labels and the human scores on it, and if it is not we report its absence as a limitation. [TBD: alpha between the two model annotators, label distribution, and the human validation outcome.]
 
 ### G. Augmentation, sanity holdouts and splits
 
@@ -179,7 +184,7 @@ As an end-to-end check of the training code against a published result, we conve
 ## VIII. Limitations and Ethics
 
 - The LMP labels in this version are disclosed model judgements, not human legal judgements. The central claim of the predecessor work, agreement with human legal judgement, is therefore not tested here, and the planned 30-pair human validation set is the minimum needed to begin testing it.
-- Two model annotators give no leave-one-out ceiling, and their agreement may reflect shared pretraining rather than a well-defined construct. Model-family overlap between the generator and an annotator is disclosed where it occurs.
+- Two model annotators give no leave-one-out ceiling, and because both are instances of the same model their agreement may reflect shared pretraining rather than a well-defined construct. One of the two also wrote the simplifications and so is not blind in practice; results against the blinded annotator's labels alone are reported alongside the mean.
 - The corpus covers two acts and, for Hindi, one act only, because the official Hindi text of the Consumer Protection Act was unavailable. The two Right to Information editions differ, and the Hindi text had to be recovered by OCR; both are documented and flagged, and affected provisions are dropped rather than edited.
 - The clause review that gates the corpus was performed by a rule-based agent rather than a human, and the simplifications were written by an agent rather than sampled from an API at a recorded temperature. Both are disclosed above. A human pass over the kept clauses and over a sample of simplifications is the first thing we would add.
 - The Hindi text is OCR output. Although it passes our acceptance tests and its numbering was repaired from the sequence, OCR error in legal vocabulary cannot be excluded, and a Hindi legal reader has not yet verified the kept clauses.

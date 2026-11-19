@@ -216,6 +216,9 @@ def build(out_path: Path) -> list[str]:
         "simplifications were agent-written, not API-sampled, so temperature/top-p are null "
         "rather than invented.",
         ("Reported as LLM-annotator agreement, never as human agreement.", 16, 1),
+        ("Both annotators are Claude Opus 5.5 instances — one model family, not two.", 16, 1),
+        ("One of them also wrote the simplifications, so it is not blind in practice; we also "
+         "report against the blinded annotator's labels alone.", 16, 1),
         ("With two annotators there is no leave-one-out human ceiling.", 16, 1),
         "Blinding is mechanical: opaque pair ids, per-annotator shuffle, answer key in files the "
         "annotators never read; the score is recomputed by our code from bracket + error counts.",
