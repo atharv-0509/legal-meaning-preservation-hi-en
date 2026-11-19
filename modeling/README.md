@@ -15,6 +15,20 @@ so models, baselines and the LLM judge are evaluated identically.
 | `prepare_frjudge.py` | convert the released FrJUDGE splits so `train.py` can be checked against the paper |
 | `run_experiments.sh` | E1–E5 for one backbone |
 
+## Local setup (Windows)
+
+From the repository root in PowerShell (tested with Python 3.12.6):
+
+```powershell
+python -m venv .venv
+.venv/Scripts/python.exe -m pip install -r requirements.txt -r modeling/requirements.txt pytest
+.venv/Scripts/python.exe -m pytest -q
+```
+
+Keep `.venv/` in `.git/info/exclude`. Calling the environment's Python directly avoids
+PowerShell activation-policy restrictions. The tests use synthetic data and a tiny offline
+BERT on CPU; they do not validate pretrained model quality or the external OCR tools.
+
 ## Setup on Colab (T4)
 
 `data/` is git-ignored, so copy the splits in yourself (e.g. zip `data/splits` and upload it, or mount Drive):

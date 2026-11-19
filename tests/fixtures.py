@@ -162,6 +162,7 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 def start_fake_llm() -> tuple[HTTPServer, str]:
+    _Handler.calls = 0
     srv = HTTPServer(("127.0.0.1", 0), _Handler)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     return srv, f"http://127.0.0.1:{srv.server_address[1]}/v1"
