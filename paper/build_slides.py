@@ -123,7 +123,7 @@ def table_slide(prs, title, key, subtitle=None, note=None):
     return slide
 
 
-DISCLOSURE = ("Labels in this version are disclosed LLM judgements (Claude Opus 5.5, GPT-6 Astra) "
+DISCLOSURE = ("Labels in this version are disclosed LLM judgements (two Claude Opus 5.5 instances) "
               "under the human rubric — not human legal judgement.")
 
 
@@ -212,19 +212,16 @@ def build(out_path: Path) -> list[str]:
         "Rubric unchanged from JUDGEBERT: bracket (Accurate 7–10 / Imprecise 2–6 / "
         "Off-track 1), minus one point per error, floor 1.",
         "Intended: 3 human annotators per pair after a calibration round.",
-        "Actual, because of the deadline: two disclosed LLM annotators under the same rubric; "
-        "simplifications were agent-written, not API-sampled, so temperature/top-p are null "
-        "rather than invented.",
-        ("Reported as LLM-annotator agreement, never as human agreement.", 16, 1),
-        ("Both annotators are Claude Opus 5.5 instances — one model family, not two.", 16, 1),
-        ("One of them also wrote the simplifications, so it is not blind in practice.", 16, 1),
-        ("α = 0.610 interval / 0.503 bracket; LLM-annotator ceiling r = 0.723 "
-         "(never called a human ceiling) — vs. α = 0.10 between FrJUDGE's five law "
-         "students. Two instances of one model agreeing is the weaker result.", 16, 1),
+        "Actual, because of the deadline: **two disclosed LLM annotators**, both Claude Opus 5.5 "
+        "instances — one model family, not two. One of them also wrote the simplifications, "
+        "so it is not blind in practice.",
+        ("α = 0.610 interval / 0.503 bracket; LLM-annotator ceiling r = 0.723, never called a "
+         "human ceiling — vs. α = 0.10 between FrJUDGE's five law students. Two "
+         "instances of one model agreeing is the weaker result.", 16, 1),
         "Blinding is mechanical: opaque pair ids, per-annotator shuffle, answer key in files the "
         "annotators never read; the score is recomputed by our code from bracket + error counts.",
-        "A 30-pair human validation workbook is prepared; if unscored, that is reported as a "
-        "limitation.",
+        "The 30-pair human validation workbook exists and **was not scored**. No human validation "
+        "of these labels exists.",
     ], note=DISCLOSURE)
 
     # ---- 8. method
@@ -306,19 +303,28 @@ def build(out_path: Path) -> list[str]:
         "scratch and 0.101 for LaBSE. Roughly four-fifths of the 0.723 annotator ceiling.",
         ("The change in kind matters more than the level: from-scratch seeds ranged 0.56 to "
          "−0.08 and could not be relied on; every transferred seed lands in a narrow band.", 16, 1),
-        "Per language: EN 0.297 → **0.675**, HI 0.010 → **0.308**. The gain is largest "
-        "where we had fewest pairs — which is what a scarcity explanation predicts.",
-        "Cross-act too: CPA→RTI 0.144 → **0.384**, RTI→CPA 0.040 → **0.319**. "
-        "But zero-shot EN↔HI stays at zero (0.064 / 0.085): supervised adaptation is doing the "
-        "work, not cross-lingual representation.",
         "So legal meaning preservation **transfers across a language and a legal system**: the "
         "rubric's categories are not jurisdiction-specific.",
         "And it reframes what a small legal corpus is for — 338 pairs cannot fit this target "
-        "but can adapt a model that already has it. That is a cheap recipe for any other "
-        "jurisdiction.",
+        "but can adapt a model that already has it. A cheap recipe for any other jurisdiction.",
     ], subtitle="French insurance forms → Indian statutes in English and Hindi",
        note="Still short of the ceiling, that ceiling is two instances of one model, and the "
-            "reversal failure on the next slide is unfixed. Not deployable.")
+            "reversal failure two slides on is unfixed. Not deployable.")
+
+    # ---- 14b3. where the transfer helps
+    bullet_slide(prs, "Where the transfer helps, and where it does not", [
+        "**Per language:** EN 0.297 → **0.675**, HI 0.010 → **0.308**. The gain is "
+        "proportionally largest exactly where we had fewest pairs — what a scarcity "
+        "explanation predicts, and a representation-quality explanation does not.",
+        "**Across acts:** CPA→RTI 0.144 → **0.384**, RTI→CPA 0.040 → **0.319**. "
+        "Carried across a jurisdiction, it also carries across legal domains.",
+        "**Zero-shot EN↔HI stays at zero:** 0.064 and 0.085, barely moved by pre-training.",
+        ("Notable, because the two languages hold the *very same provisions* — nothing but the "
+         "language differs. Supervised adaptation in the target language is doing work that "
+         "cross-lingual representation alone does not.", 16, 1),
+        "Hindi remains the weaker language by a wide margin, and with 105 OCR-recovered pairs we "
+        "cannot separate OCR noise from subset size from Devanagari representation.",
+    ])
 
     # ---- 14c. what else holds
     bullet_slide(prs, "What else holds, regardless of the correlation", [
