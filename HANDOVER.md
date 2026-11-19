@@ -101,7 +101,11 @@ powershell -File paper\build.ps1                 # paper + slides only
    FrJUDGE, fine-tuned on `random_s42`, no DA; ~1.1 GB, not in git). Fetch it (Kaggle token needed, see §0):
    `python modeling/kaggle/kaggle_client.py fetch --user atharvarora05 --slug lmp-e23-fixed --prefix demo_model/`
    → `modeling/checkpoints/demo_model`, or download `demo_model/` from that kernel's Output tab in a browser.
-   Run: `python modeling/predict.py --model-dir modeling/checkpoints/demo_model --demo` (needs `pip install gradio`).
+   Run: `python modeling/app.py --model-dir modeling/checkpoints/demo_model` (needs `pip install gradio`; `--share`
+   for a public link). The app (`modeling/app.py`, 19 Nov) has held-out test examples with reference labels, a
+   colour-coded score, a rule-based legal cue check (negation, shall/may, exceptions, numbers; labelled as
+   heuristic, not the model), input validation, and an optional "Generate simplification" button when
+   `LLM_API_KEY` + `LLM_MODEL` are set. `predict.py --demo` launches the same app.
    **Verified 19 Nov** by Kaggle kernel `lmp-demo-check` (`modeling/kaggle/demo_check.py`): loaded through
    `predict.py` it reproduces the run's test Pearson exactly (0.479 on the 96 `random_s42` test pairs).
 5. Improve zero-shot EN↔HI transfer (e.g. MuRIL/IndicBERT with FrJUDGE pre-training, more seeds).

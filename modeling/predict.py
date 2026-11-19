@@ -58,17 +58,12 @@ def main(argv=None):
                  "  python modeling/kaggle/kaggle_client.py fetch --user atharvarora05 --slug lmp-e23-fixed --prefix demo_model/\n"
                  "then run with --model-dir modeling/checkpoints/demo_model, or download demo_model/ from the Output tab of\n"
                  "https://www.kaggle.com/code/atharvarora05/lmp-e23-fixed (HANDOVER.md section 4, item 4).")
-    scorer = LMPScorer(args.model_dir)
-    if args.demo:
-        import gradio as gr
-
-        def fn(o, s):
-            r = scorer.score([o], [s])[0]
-            return r["lmp_score"], r["decision"]
-        gr.Interface(fn, [gr.Textbox(label="Original legal text", lines=5), gr.Textbox(label="Simplification", lines=5)],
-                     [gr.Number(label="LMP score (1-10)"), gr.Textbox(label="Decision")],
-                     title="Legal Meaning Preservation (English / Hindi)").launch()
+    if args.demo:                       # the full demo UI lives in modeling/app.py
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import app
+        app.main(["--model-dir", args.model_dir])
         return
+    scorer = LMPScorer(args.model_dir)
     if args.input:
         rows = [json.loads(line) for line in open(args.input, encoding="utf-8") if line.strip()]
         res = scorer.score([r["original"] for r in rows], [r["simplification"] for r in rows])
