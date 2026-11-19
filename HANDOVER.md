@@ -99,7 +99,10 @@ powershell -File paper\build.ps1                 # paper + slides only
    → simplify (CPA HI) → annotate → `run_all.py all`. Makes E2 cover both acts.
 4. **Demo**: the checkpoint now exists in the output of Kaggle kernel `lmp-e23-fixed` (`demo_model/`:
    XLM-R pre-trained on FrJUDGE, fine-tuned on `random_s42`, no DA). Download it from kaggle.com → that
-   kernel → Output (it is ~1 GB, not in git), then `python modeling/predict.py --model-dir demo_model --demo`.
+   kernel → Output (it is ~1 GB, not in git), then `python modeling/predict.py --model-dir demo_model --demo`
+   (needs `pip install gradio`). **Verified 19 Nov** by Kaggle kernel `lmp-demo-check`
+   (`modeling/kaggle/demo_check.py`): loaded through `predict.py`, it reproduces the run's test Pearson exactly
+   (0.479 on the 96 `random_s42` test pairs) and outputs score + decision per pair.
 5. Improve zero-shot EN↔HI transfer (e.g. MuRIL/IndicBERT with FrJUDGE pre-training, more seeds).
 6. Slides: check timing/visuals for the presentation; paper: final read-through.
 7. **Verify a Hindi reader on the OCR'd clauses.** The corpus rests on OCR that no Hindi reader has
