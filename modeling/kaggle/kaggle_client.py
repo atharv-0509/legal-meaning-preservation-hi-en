@@ -26,13 +26,40 @@ import urllib.request
 API = "https://www.kaggle.com/api/v1"
 
 
+def _env(name: str) -> str | None:
+    """Environment variable, falling back to the Windows *user* environment (HKCU\\Environment), so a
+    terminal opened before the variable was set still sees it."""
+    v = os.environ.get(name)
+    if v or sys.platform != "win32":
+        return v
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as k:
+            return winreg.QueryValueEx(k, name)[0] or None
+    except OSError:
+        return None
+
+
+def auth_header() -> str | None:
+    """New-style Kaggle API tokens ("KGAT_...", or KAGGLE_API_TOKEN) use Bearer auth; legacy
+    kaggle.json keys use HTTP basic auth with the username."""
+    token = _env("KAGGLE_API_TOKEN")
+    key = _env("KAGGLE_KEY")
+    if token or (key and key.startswith("KGAT_")):
+        return f"Bearer {token or key}"
+    user = _env("KAGGLE_USERNAME")
+    if user and key:
+        return "Basic " + base64.b64encode(f"{user}:{key}".encode()).decode()
+    return None
+
+
 def call(method: str, path: str, body: dict | None = None, params: dict | None = None) -> dict:
     url = API + path + ("?" + urllib.parse.urlencode(params) if params else "")
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(url, data=data, method=method, headers={"Content-Type": "application/json"})
-    if os.environ.get("KAGGLE_USERNAME") and os.environ.get("KAGGLE_KEY"):
-        tok = base64.b64encode(f"{os.environ['KAGGLE_USERNAME']}:{os.environ['KAGGLE_KEY']}".encode()).decode()
-        req.add_header("Authorization", f"Basic {tok}")
+    hdr = auth_header()
+    if hdr:
+        req.add_header("Authorization", hdr)
     try:
         with urllib.request.urlopen(req, timeout=120) as r:
             return json.loads(r.read().decode() or "{}")
@@ -45,6 +72,9 @@ def push(args):
     for kv in args.set or []:
         k, v = kv.split("=", 1)
         text = text.replace(k, v)
+    for kv in args.set_file or []:          # large values (e.g. an embedded data bundle) come from a file
+        k, path = kv.split("=", 1)
+        text = text.replace(k, open(path, encoding="utf-8").read().strip())
     body = {
         "slug": f"{args.user}/{args.slug}", "newTitle": args.title or args.slug, "text": text,
         "language": "python", "kernelType": "script", "isPrivate": True,
@@ -97,6 +127,7 @@ def main(argv=None):
     p.add_argument("--title")
     p.add_argument("--script", required=True)
     p.add_argument("--set", action="append", help="PLACEHOLDER=value substitutions in the script")
+    p.add_argument("--set-file", action="append", help="PLACEHOLDER=path: substitute the file's contents")
     p.add_argument("--machine", default="NvidiaTeslaT4", help="Kaggle machine shape (GPU)")
     p.add_argument("--cpu", action="store_true")
     p.set_defaults(fn=push)
