@@ -8,6 +8,7 @@ imported from `content.py`, so the deck cannot contradict the paper.
 """
 from __future__ import annotations
 
+import re
 import argparse
 import sys
 from pathlib import Path
@@ -46,13 +47,20 @@ def write(frame, text, size=18, bold=False, color=INK, align=PP_ALIGN.LEFT, spac
     p = frame.paragraphs[0] if first else frame.add_paragraph()
     p.alignment = align
     p.space_after = Pt(space_after)
-    run = p.add_run()
-    run.text = text
-    run.font.size = Pt(size)
-    run.font.bold = bold
-    run.font.italic = italic
-    run.font.color.rgb = color
-    run.font.name = FONT
+    # "**bold**" and "*italic*" markup in the slide text become formatted runs (python-pptx has no
+    # markdown; without this the asterisks were printed literally on the slides).
+    for part in re.split(r"(\*\*[^*]+?\*\*|\*[^*\s][^*]*?\*)", text):
+        if not part:
+            continue
+        run = p.add_run()
+        is_b = part.startswith("**") and part.endswith("**") and len(part) > 4
+        is_i = not is_b and part.startswith("*") and part.endswith("*") and len(part) > 2
+        run.text = part[2:-2] if is_b else part[1:-1] if is_i else part
+        run.font.size = Pt(size)
+        run.font.bold = bold or is_b
+        run.font.italic = italic or is_i
+        run.font.color.rgb = color
+        run.font.name = FONT
     return p
 
 
@@ -291,8 +299,8 @@ def build(out_path: Path) -> list[str]:
         ("≈ 1.4 standard errors from zero: not distinguishable from no correlation, nor from "
          "LaBSE at 0.101, and far from our 0.723 annotator ceiling.", 16, 1),
         "Without DA: −0.030. MuRIL + DA: 0.067; MuRIL without DA collapses (RMSE 4.4).",
-        "E2: EN 0.297 vs HI 0.010; zero-shot EN→HI 0.057, HI→EN −0.017. "
-        "E3: CPA→RTI 0.144, RTI→CPA 0.040.",
+        "E2 (matched RTI provisions): EN −0.059, HI −0.058; zero-shot EN→HI −0.059, HI→EN 0.028. "
+        "E3: CPA→RTI 0.186, RTI→CPA 0.056.",
         "E4: no system passes both sanity checks — XLM-R-DA 33% / 31%; JUDGEBERT-DA passed "
         "both. The transferred models get much closer but still fail one each.",
         "But the same code reaches **0.707 on FrJUDGE**. So the limit is scale, not method.",
@@ -306,41 +314,39 @@ def build(out_path: Path) -> list[str]:
         "scratch and 0.101 for LaBSE. Roughly four-fifths of the 0.723 annotator ceiling.",
         ("The change in kind matters more than the level: from-scratch seeds ranged 0.56 to "
          "−0.08 and could not be relied on; every transferred seed lands in a narrow band.", 16, 1),
-        "So legal meaning preservation **transfers across a language and a legal system**: the "
-        "rubric's categories are not jurisdiction-specific.",
+        "So legal meaning preservation **transfers across a legal system**: the rubric's "
+        "categories are not jurisdiction-specific (clearest on the Consumer Protection Act).",
         "And it reframes what a small legal corpus is for — 338 pairs cannot fit this target "
         "but can adapt a model that already has it. A cheap recipe for any other jurisdiction.",
-    ], subtitle="French insurance forms → Indian statutes in English and Hindi",
+    ], subtitle="French insurance forms → Indian statutes",
        note="Still short of the ceiling, that ceiling is two instances of one model, and the "
             "reversal failure two slides on is unfixed. Not deployable.")
 
     # ---- 14b3. where the transfer helps
     bullet_slide(prs, "Where the transfer helps, and where it does not", [
-        "**Per language:** EN 0.297 → **0.675**, HI 0.010 → **0.308**. The gain is "
-        "proportionally largest exactly where we had fewest pairs — what a scarcity "
-        "explanation predicts, and a representation-quality explanation does not.",
-        "**Across acts:** CPA→RTI 0.144 → **0.384**, RTI→CPA 0.040 → **0.319**. "
-        "Carried across a jurisdiction, it also carries across legal domains.",
-        "**Zero-shot EN↔HI stays at zero:** 0.064 and 0.085, barely moved by pre-training.",
-        ("Notable, because the two languages hold the *very same provisions* — nothing but the "
-         "language differs. Supervised adaptation in the target language is doing work that "
-         "cross-lingual representation alone does not.", 16, 1),
-        "Hindi remains the weaker language by a wide margin, and with 105 OCR-recovered pairs we "
-        "cannot separate OCR noise from subset size from Devanagari representation.",
+        "**Pooled by language (E1 runs):** EN 0.675, HI 0.308 — but confounded by act: the same "
+        "runs score CPA 0.669 vs RTI 0.485, and EN pools both acts.",
+        "**Matched RTI provisions (E2):** EN **0.165**, HI **−0.041** (from scratch −0.059 / "
+        "−0.058). Neither language is learned: the data do not show the transfer helps Hindi.",
+        "**Zero-shot EN↔HI stays at zero:** 0.035 and 0.131, though both languages hold the "
+        "*very same provisions*.",
+        "**Across acts (E3), asymmetric:** CPA→RTI 0.186 → **0.388**; RTI→CPA 0.056 → **0.119**. "
+        "No target-act text in training either way.",
+        ("With 105 OCR-recovered Hindi pairs we cannot separate OCR noise from subset size from "
+         "Devanagari representation.", 16, 1),
     ])
 
     # ---- 14c. what else holds
     bullet_slide(prs, "What else holds, regardless of the correlation", [
         "**The diagnostic set separates learned from generic.** Negation is by far the baseline's "
         "hardest injected error (MAE **4.63** vs ~2.3–2.7 elsewhere) — one \"not\" flips "
-        "the law and barely moves an embedding. The transferred model handles it (**1.88**); its "
-        "own weak point is modality, shall→may (**3.13**).",
+        "the law and barely moves an embedding. The transferred model handles it (**1.90**); its "
+        "own weak point is modality, shall→may (**3.16**).",
         ("That is the clearest argument in the project for a purpose-built metric: it detects "
          "precisely what similarity cannot.", 16, 1),
-        "**But a good average is not safety.** On the two cases where an inserted \"not\" reverses "
-        "the provision (label 2.5), the transferred model still predicts **9.0 and 8.3**, and the "
-        "from-scratch model **9.4 and 10.0** — all calling the corpus's most dangerous "
-        "simplification excellent.",
+        "**But a good average is not safety.** On negation reversals (label ≤ 3) the transferred "
+        "model averages **4.0** in domain vs 7.6 from scratch, yet single reversals still get "
+        "**10.0**; on an unseen act it averages **7.3**, no better than LaBSE (7.7).",
         "**The sanity checks discriminate.** Train-fitted calibration improves baseline RMSE "
         "(2.81 → 2.42) while making all four fail both checks at 0%.",
         "**The apparatus is sound.** We reproduce FrJUDGE at 0.707 in the released setting, and "
@@ -355,8 +361,9 @@ def build(out_path: Path) -> list[str]:
         "Built: bilingual extraction from real government PDFs with quantitative acceptance tests, "
         "three-variant simplification design, blinded workbooks, clause-grouped splits, "
         "training / baselines / LLM judge / evaluation / error analysis, one-command results.",
-        "Main result: legal meaning preservation transfers across language and jurisdiction "
-        "(FrJUDGE → Indian EN/HI, 0.228 → ~0.586 and stable).",
+        "Main result: legal meaning preservation transfers across jurisdiction "
+        "(FrJUDGE → Indian statutes, 0.228 → ~0.586 and stable); on matched bilingual RTI "
+        "provisions neither language is learned yet.",
         "Honest status: labels are disclosed LLM judgements, not human legal judgement; human "
         "validation is prepared but not scored; the metric is not deployable.",
         "What the design buys: the perturbed diagnostic set and the clause-grouped splits make the "
