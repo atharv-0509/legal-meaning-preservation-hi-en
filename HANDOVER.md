@@ -94,7 +94,7 @@ powershell -File paper\build.ps1                 # paper + slides only
    2–3 team members score the 30-pair workbook in `data/annotation/pilot/` (rubric:
    `guidelines/annotation_guidelines.md`), then report LLM-vs-human correlation in the paper. Ideally
    score more pairs and re-label.
-2. **Merge `handover` into `main`** on GitHub.
+2. ~~Merge `handover` into `main`~~ — done 19 Nov (fast-forward); clone `main` from now on.
 3. **Hindi CPA PDF** (retried 19 Nov: not obtainable from the cloud machine; see `sources.json` → `cpa.hi_source_attempts`). Fastest route: open WIPO Lex 23153 in a browser and download the Hindi PDF (a consolidation up to Act 33 of 2021: drop sections that differ from the 2019 English Gazette), or India Code → `data/raw/cpa_hi.pdf`, re-run extract → select
    → simplify (CPA HI) → annotate → `run_all.py all`. Makes E2 cover both acts.
 4. **Demo**: the checkpoint now exists in the output of Kaggle kernel `lmp-e23-fixed` (`demo_model/`:
