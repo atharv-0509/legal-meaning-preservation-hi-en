@@ -1,8 +1,8 @@
 # Results
 
-All numbers are computed from prediction files on **human-annotated test pairs only** (mean ± std over seeds where there are several runs). Predictions are clipped to [1, 10]. Decisions: ≥ 7 Preserved, ≥ 2 Partially Preserved, < 2 Not Preserved.
+All numbers are computed from prediction files on **annotated test pairs only** (labels: mean of the annotators in data/annotation/; LLM-produced in this release) (mean ± std over seeds where there are several runs). Predictions are clipped to [1, 10]. Decisions: ≥ 7 Preserved, ≥ 2 Partially Preserved, < 2 Not Preserved.
 
-**Human ceiling** (mean leave-one-out Pearson of annotators): 0.723
+**Inter-annotator agreement** (mean leave-one-out Pearson; not an upper bound): 0.723
 
 ## E1 — random clause-grouped splits
 
@@ -10,6 +10,7 @@ All numbers are computed from prediction files on **human-annotated test pairs o
 |---|---|---|---|---|---|---|---|
 | xlm-roberta-base-frjudge | 3 | 0.586 ± 0.098 | 0.553 ± 0.101 | 2.037 ± 0.110 | 1.525 ± 0.042 | 46 ± 7 | 0.703 ± 0.008 |
 | xlm-roberta-base-frjudge-da | 3 | 0.576 ± 0.102 | 0.544 ± 0.106 | 2.037 ± 0.142 | 1.474 ± 0.213 | 39 ± 4 | 0.543 ± 0.136 |
+| xlm-roberta-base-frjudge-demo | 1 | 0.479 | 0.406 | 2.142 | 1.656 | 39 ± 0 | 0.422 |
 | xlm-roberta-base-da | 3 | 0.228 ± 0.288 | 0.259 ± 0.280 | 2.464 ± 0.224 | 2.020 ± 0.469 | 48 ± 12 | 0.541 ± 0.097 |
 | labse-cal | 3 | 0.101 ± 0.026 | 0.224 ± 0.066 | 2.417 ± 0.124 | 2.184 ± 0.090 | 44 ± 5 | 0.438 ± 0.088 |
 | labse | 3 | 0.101 ± 0.026 | 0.224 ± 0.066 | 2.811 ± 0.157 | 2.110 ± 0.121 | 41 ± 4 | 0.496 ± 0.019 |
@@ -41,6 +42,7 @@ All numbers are computed from prediction files on **human-annotated test pairs o
 | xlm-roberta-base-da | 0.297 ± 0.308 | 2.413 ± 0.316 | 0.010 ± 0.210 | 2.582 ± 0.045 |
 | xlm-roberta-base-frjudge | 0.687 ± 0.078 | 1.822 ± 0.055 | 0.322 ± 0.188 | 2.451 ± 0.256 |
 | xlm-roberta-base-frjudge-da | 0.675 ± 0.104 | 1.802 ± 0.165 | 0.308 ± 0.115 | 2.472 ± 0.292 |
+| xlm-roberta-base-frjudge-demo | 0.556 | 2.030 | 0.324 | 2.404 |
 
 ### By act
 
@@ -60,6 +62,7 @@ All numbers are computed from prediction files on **human-annotated test pairs o
 | xlm-roberta-base-da | 0.316 ± 0.336 | 2.507 ± 0.374 | 0.165 ± 0.224 | 2.439 ± 0.138 |
 | xlm-roberta-base-frjudge | 0.693 ± 0.065 | 1.986 ± 0.200 | 0.490 ± 0.149 | 2.064 ± 0.167 |
 | xlm-roberta-base-frjudge-da | 0.669 ± 0.069 | 1.998 ± 0.120 | 0.485 ± 0.144 | 2.059 ± 0.163 |
+| xlm-roberta-base-frjudge-demo | 0.638 | 2.110 | 0.375 | 2.161 |
 
 ### By variant (MAE and mean signed error; Pearson within a variant has little spread)
 
@@ -79,6 +82,7 @@ All numbers are computed from prediction files on **human-annotated test pairs o
 | xlm-roberta-base-da | 1.411 ± 0.214 | -0.388 ± 0.875 | 1.545 ± 1.254 | -1.537 ± 1.266 | 3.104 ± 0.743 | 2.836 ± 1.125 |
 | xlm-roberta-base-frjudge | 1.348 ± 0.175 | -0.222 ± 0.711 | 0.856 ± 0.203 | -0.837 ± 0.198 | 2.371 ± 0.210 | 2.209 ± 0.138 |
 | xlm-roberta-base-frjudge-da | 1.205 ± 0.134 | -0.683 ± 0.294 | 1.015 ± 0.630 | -0.995 ± 0.640 | 2.203 ± 0.057 | 1.961 ± 0.189 |
+| xlm-roberta-base-frjudge-demo | 1.072 | -0.692 | 1.367 | -1.361 | 2.530 | 2.269 |
 
 ### Perturbed pairs by injected error type
 
@@ -98,6 +102,7 @@ All numbers are computed from prediction files on **human-annotated test pairs o
 | xlm-roberta-base-da | 2.251 ± 0.212 | 1.623 ± 1.280 | 3.006 ± 0.890 | 2.613 ± 1.530 | 4.317 ± 1.172 | 4.317 ± 1.172 | 2.499 ± 0.927 | 2.499 ± 0.927 | 2.510 ± 0.760 | 2.063 ± 1.309 |
 | xlm-roberta-base-frjudge | 1.902 ± 0.084 | 1.902 ± 0.084 | 3.126 ± 0.423 | 3.030 ± 0.474 | 1.878 ± 0.744 | 1.860 ± 0.769 | 2.874 ± 0.817 | 2.874 ± 0.817 | 1.995 ± 0.834 | 1.356 ± 0.350 |
 | xlm-roberta-base-frjudge-da | 1.673 ± 0.474 | 1.659 ± 0.491 | 3.160 ± 0.878 | 2.966 ± 1.087 | 1.896 ± 0.533 | 1.542 ± 0.869 | 2.274 ± 0.466 | 2.274 ± 0.466 | 1.860 ± 0.517 | 1.496 ± 0.835 |
+| xlm-roberta-base-frjudge-demo | 1.230 | 1.230 | 2.956 | 2.436 | 1.649 | 1.214 | 3.581 | 3.581 | 3.403 | 3.403 |
 
 ### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
 
@@ -117,55 +122,35 @@ All numbers are computed from prediction files on **human-annotated test pairs o
 | xlm-roberta-base-da | 33 ± 58 | 8.491 ± 1.480 | 31 ± 28 | 3.155 ± 2.411 |
 | xlm-roberta-base-frjudge | 90 ± 5 | 9.968 ± 0.018 | 18 ± 10 | 5.572 ± 0.578 |
 | xlm-roberta-base-frjudge-da | 67 ± 58 | 9.937 ± 0.109 | 94 ± 6 | 1.086 ± 0.125 |
+| xlm-roberta-base-frjudge-demo | 98 ± 0 | 9.989 | 0 ± 0 | 5.347 |
 
-## E2 — language transfer: random__train-en_test-hi
+## bilingual
 
 | System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
 |---|---|---|---|---|---|---|---|
-| xlm-roberta-base-frjudge-da | 3 | 0.064 ± 0.214 | 0.126 ± 0.151 | 2.561 ± 0.162 | 2.137 ± 0.188 | 39 ± 5 | 0.508 ± 0.161 |
-| xlm-roberta-base-da | 3 | 0.057 ± 0.158 | 0.086 ± 0.135 | 2.639 ± 0.441 | 2.290 ± 0.235 | 43 ± 8 | 0.472 ± 0.028 |
+| xlm-roberta-base-frjudge-da | 3 | 0.064 ± 0.106 | 0.172 ± 0.063 | 2.514 ± 0.234 | 2.142 ± 0.148 | 41 ± 6 | 0.433 ± 0.165 |
+| xlm-roberta-base-da | 3 | -0.021 ± 0.147 | -0.001 ± 0.073 | 2.354 ± 0.124 | 2.184 ± 0.098 | 43 ± 5 | 0.384 ± 0.026 |
 
 ### By language
 
-| System | hi pearson | hi rmse |
-|---|---|---|
-| xlm-roberta-base-da | 0.057 ± 0.158 | 2.639 ± 0.441 |
-| xlm-roberta-base-frjudge-da | 0.064 ± 0.214 | 2.561 ± 0.162 |
+| System | en pearson | en rmse | hi pearson | hi rmse |
+|---|---|---|---|---|
+| xlm-roberta-base-da | -0.059 ± 0.197 | 2.391 ± 0.141 | -0.058 ± 0.108 | 2.314 ± 0.146 |
+| xlm-roberta-base-frjudge-da | 0.165 ± 0.063 | 2.380 ± 0.161 | -0.041 ± 0.144 | 2.638 ± 0.334 |
 
 ### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
 
 | System | identical pass % | identical mean pred | unrelated pass % | unrelated mean pred |
 |---|---|---|---|---|
-| xlm-roberta-base-da | 0 ± 0 | 9.503 ± 0.453 | n/a | n/a |
-| xlm-roberta-base-frjudge-da | 100 ± 0 | 10.000 | n/a | n/a |
-
-## E2 — language transfer: random__train-hi_test-en
-
-| System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
-|---|---|---|---|---|---|---|---|
-| xlm-roberta-base-frjudge-da | 3 | 0.085 ± 0.104 | 0.135 ± 0.080 | 2.569 ± 0.237 | 2.126 ± 0.229 | 45 ± 6 | 0.421 ± 0.067 |
-| xlm-roberta-base-da | 3 | -0.017 ± 0.079 | 0.019 ± 0.095 | 2.918 ± 0.715 | 2.643 ± 0.575 | 39 ± 12 | 0.372 ± 0.134 |
-
-### By language
-
-| System | en pearson | en rmse |
-|---|---|---|
-| xlm-roberta-base-da | -0.017 ± 0.079 | 2.918 ± 0.715 |
-| xlm-roberta-base-frjudge-da | 0.085 ± 0.104 | 2.569 ± 0.237 |
-
-### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
-
-| System | identical pass % | identical mean pred | unrelated pass % | unrelated mean pred |
-|---|---|---|---|---|
-| xlm-roberta-base-da | 0 ± 0 | 7.264 ± 0.116 | 2 ± 3 | 5.446 ± 3.025 |
-| xlm-roberta-base-frjudge-da | 100 ± 0 | 10.000 | 73 ± 12 | 1.965 ± 0.904 |
+| xlm-roberta-base-da | 0 ± 0 | 7.290 ± 0.185 | 0 ± 0 | 6.752 ± 0.564 |
+| xlm-roberta-base-frjudge-da | 45 ± 45 | 9.875 ± 0.100 | 88 ± 10 | 1.341 ± 0.107 |
 
 ## E3 — out-of-domain: cpa → rti
 
 | System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
 |---|---|---|---|---|---|---|---|
-| xlm-roberta-base-frjudge-da | 3 | 0.384 ± 0.021 | 0.400 ± 0.019 | 2.374 ± 0.052 | 1.765 ± 0.179 | 42 ± 6 | 0.436 ± 0.012 |
-| xlm-roberta-base-da | 3 | 0.144 ± 0.084 | 0.177 ± 0.064 | 2.648 ± 0.224 | 2.189 ± 0.076 | 36 ± 5 | 0.494 ± 0.121 |
+| xlm-roberta-base-frjudge-da | 3 | 0.388 ± 0.021 | 0.397 ± 0.034 | 2.391 ± 0.101 | 1.703 ± 0.031 | 47 ± 3 | 0.424 ± 0.017 |
+| xlm-roberta-base-da | 3 | 0.186 ± 0.053 | 0.197 ± 0.040 | 2.603 ± 0.163 | 2.042 ± 0.162 | 41 ± 4 | 0.442 ± 0.107 |
 | labse-cal | 1 | 0.119 | 0.233 | 2.327 | 2.142 | 46 ± 0 | 0.363 |
 | labse | 1 | 0.119 | 0.233 | 2.685 | 1.997 | 43 ± 0 | 0.499 |
 | bertscore | 1 | 0.087 | 0.148 | 2.860 | 2.111 | 59 ± 0 | 0.363 |
@@ -187,8 +172,8 @@ All numbers are computed from prediction files on **human-annotated test pairs o
 | labse-cal | 0.146 | 2.276 | 0.108 | 2.381 |
 | rougeL | 0.084 | 3.987 | -0.001 | 4.113 |
 | rougeL-cal | 0.084 | 2.297 | -0.001 | 2.391 |
-| xlm-roberta-base-da | 0.188 ± 0.103 | 2.603 ± 0.231 | 0.122 ± 0.052 | 2.693 ± 0.252 |
-| xlm-roberta-base-frjudge-da | 0.584 ± 0.013 | 1.987 ± 0.036 | 0.153 ± 0.043 | 2.733 ± 0.074 |
+| xlm-roberta-base-da | 0.235 ± 0.115 | 2.598 ± 0.401 | 0.175 ± 0.049 | 2.593 ± 0.110 |
+| xlm-roberta-base-frjudge-da | 0.520 ± 0.035 | 2.116 ± 0.084 | 0.241 ± 0.002 | 2.657 ± 0.135 |
 
 ### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
 
@@ -202,19 +187,19 @@ All numbers are computed from prediction files on **human-annotated test pairs o
 | labse-cal | 0 ± 0 | 7.689 | 0 ± 0 | 6.937 |
 | rougeL | 100 ± 0 | 10.000 | 0 ± 0 | 2.221 |
 | rougeL-cal | 0 ± 0 | 7.513 | 0 ± 0 | 7.415 |
-| xlm-roberta-base-da | 0 ± 0 | 8.987 ± 1.175 | 61 ± 53 | 2.458 ± 2.479 |
-| xlm-roberta-base-frjudge-da | 99 ± 2 | 9.996 ± 0.008 | 90 ± 3 | 1.319 ± 0.019 |
+| xlm-roberta-base-da | 0 ± 0 | 9.591 ± 0.201 | 82 ± 18 | 1.065 ± 0.065 |
+| xlm-roberta-base-frjudge-da | 100 ± 0 | 10.000 | 86 ± 3 | 1.344 ± 0.029 |
 
 ## E3 — out-of-domain: rti → cpa
 
 | System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
 |---|---|---|---|---|---|---|---|
-| xlm-roberta-base-frjudge-da | 3 | 0.319 ± 0.257 | 0.347 ± 0.174 | 2.523 ± 0.377 | 1.986 ± 0.344 | 47 ± 5 | 0.487 ± 0.165 |
+| xlm-roberta-base-frjudge-da | 3 | 0.119 ± 0.051 | 0.142 ± 0.028 | 2.629 ± 0.068 | 2.212 ± 0.041 | 46 ± 3 | 0.478 ± 0.100 |
 | labse-cal | 1 | 0.084 | 0.209 | 2.555 | 2.272 | 48 ± 0 | 0.468 |
 | labse | 1 | 0.084 | 0.209 | 3.014 | 2.328 | 39 ± 0 | 0.531 |
+| xlm-roberta-base-da | 3 | 0.056 ± 0.110 | 0.071 ± 0.115 | 2.589 ± 0.036 | 2.299 ± 0.069 | 47 ± 3 | 0.453 ± 0.122 |
 | bertscore | 1 | 0.043 | 0.105 | 3.193 | 2.334 | 59 ± 0 | 0.343 |
 | bertscore-cal | 1 | 0.043 | 0.105 | 2.572 | 2.306 | 49 ± 0 | 0.362 |
-| xlm-roberta-base-da | 3 | 0.040 ± 0.082 | 0.071 ± 0.080 | 2.823 ± 0.291 | 2.285 ± 0.143 | 48 ± 1 | 0.446 ± 0.098 |
 | bleu | 1 | 0.025 | 0.090 | 5.388 | 4.788 | 8 ± 0 | 0.165 |
 | bleu-cal | 1 | 0.025 | 0.090 | 2.570 | 2.321 | 49 ± 0 | 0.343 |
 | rougeL | 1 | 0.015 | 0.057 | 3.987 | 3.559 | 24 ± 0 | 0.278 |
@@ -232,8 +217,8 @@ All numbers are computed from prediction files on **human-annotated test pairs o
 | labse-cal | 0.084 | 2.555 |
 | rougeL | 0.015 | 3.987 |
 | rougeL-cal | 0.015 | 2.568 |
-| xlm-roberta-base-da | 0.040 ± 0.082 | 2.823 ± 0.291 |
-| xlm-roberta-base-frjudge-da | 0.319 ± 0.257 | 2.523 ± 0.377 |
+| xlm-roberta-base-da | 0.056 ± 0.110 | 2.589 ± 0.036 |
+| xlm-roberta-base-frjudge-da | 0.119 ± 0.051 | 2.629 ± 0.068 |
 
 ### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
 
@@ -247,6 +232,48 @@ All numbers are computed from prediction files on **human-annotated test pairs o
 | labse-cal | 0 ± 0 | 7.993 | 0 ± 0 | 6.552 |
 | rougeL | 100 ± 0 | 10.000 | 0 ± 0 | 2.221 |
 | rougeL-cal | 0 ± 0 | 8.067 | 0 ± 0 | 7.429 |
-| xlm-roberta-base-da | 60 ± 53 | 9.151 ± 1.406 | 67 ± 58 | 3.141 ± 3.703 |
-| xlm-roberta-base-frjudge-da | 98 ± 2 | 9.994 ± 0.007 | 98 ± 3 | 1.020 ± 0.019 |
+| xlm-roberta-base-da | 0 ± 0 | 8.177 ± 1.021 | 12 ± 20 | 5.810 ± 3.087 |
+| xlm-roberta-base-frjudge-da | 75 ± 44 | 9.935 ± 0.112 | 53 ± 16 | 1.817 ± 0.259 |
+
+## E2 — language transfer: bilingual__train-en_test-hi
+
+| System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
+|---|---|---|---|---|---|---|---|
+| xlm-roberta-base-frjudge-da | 3 | 0.035 ± 0.027 | 0.112 ± 0.125 | 2.564 ± 0.293 | 2.175 ± 0.255 | 42 ± 2 | 0.409 ± 0.067 |
+| xlm-roberta-base-da | 3 | -0.059 ± 0.086 | -0.096 ± 0.123 | 2.583 ± 0.315 | 2.267 ± 0.208 | 44 ± 4 | 0.359 ± 0.080 |
+
+### By language
+
+| System | hi pearson | hi rmse |
+|---|---|---|
+| xlm-roberta-base-da | -0.059 ± 0.086 | 2.583 ± 0.315 |
+| xlm-roberta-base-frjudge-da | 0.035 ± 0.027 | 2.564 ± 0.293 |
+
+### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
+
+| System | identical pass % | identical mean pred | unrelated pass % | unrelated mean pred |
+|---|---|---|---|---|
+| xlm-roberta-base-da | 0 ± 0 | 7.704 ± 1.573 | n/a | n/a |
+| xlm-roberta-base-frjudge-da | 100 ± 0 | 10.000 | n/a | n/a |
+
+## E2 — language transfer: bilingual__train-hi_test-en
+
+| System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
+|---|---|---|---|---|---|---|---|
+| xlm-roberta-base-frjudge-da | 3 | 0.131 ± 0.115 | 0.268 ± 0.032 | 2.519 ± 0.282 | 2.024 ± 0.265 | 31 ± 7 | 0.565 ± 0.086 |
+| xlm-roberta-base-da | 3 | 0.028 ± 0.027 | -0.030 ± 0.077 | 2.433 ± 0.074 | 2.264 ± 0.047 | 38 ± 7 | 0.423 ± 0.049 |
+
+### By language
+
+| System | en pearson | en rmse |
+|---|---|---|
+| xlm-roberta-base-da | 0.028 ± 0.027 | 2.433 ± 0.074 |
+| xlm-roberta-base-frjudge-da | 0.131 ± 0.115 | 2.519 ± 0.282 |
+
+### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
+
+| System | identical pass % | identical mean pred | unrelated pass % | unrelated mean pred |
+|---|---|---|---|---|
+| xlm-roberta-base-da | 0 ± 0 | 7.258 ± 0.150 | 0 ± 0 | 6.694 ± 0.994 |
+| xlm-roberta-base-frjudge-da | 100 ± 0 | 10.000 ± 0.000 | 90 ± 7 | 1.115 ± 0.064 |
 
