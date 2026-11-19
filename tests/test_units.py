@@ -227,6 +227,36 @@ def test_hi_scope():
     assert edits_text("सबसे पहले आवेदन करें।", "hi", "scope") == []      # सब inside सबसे is not touched
 
 
+def _tsv(words):
+    """Synthetic Tesseract TSV: words = [(block, line, left, top, width, text)]."""
+    head = "level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext"
+    rows = [f"5\t1\t{b}\t1\t{ln}\t{i}\t{left}\t{top}\t{w}\t40\t90\t{t}"
+            for i, (b, ln, left, top, w, t) in enumerate(words, 1)]
+    return "\n".join([head] + rows)
+
+
+def test_bill_page_split_separates_margins():
+    words = []
+    for k in range(6):                                   # six full body lines, x = 500..1900
+        words += [(1, k, 500 + 140 * j, 100 + 60 * k, 120, "शब्द") for j in range(10)]
+    # line 0 also carries a marginal heading at x = 100 (same OCR line) and a line number at x = 2050
+    words += [(1, 0, 100, 100, 150, "सूचना"), (1, 0, 260, 100, 100, "अधिकार"), (1, 0, 2050, 100, 40, "5")]
+    body, margin = extract.split_bill_page(_tsv(words))
+    assert len(body) == 6 and all(b["text"].split() == ["शब्द"] * 10 for b in body)
+    assert [m["text"] for m in margin] == ["सूचना अधिकार"]
+
+
+def test_bill_numbering_and_subsections():
+    assert {"5", "45", "15", "75"} <= extract.bill_number_variants(15)
+    assert "07" in extract.bill_number_variants(101) and "" in extract.bill_number_variants(1)
+    subs = extract.split_subsections("(।) पहला उपबंध। (2) दूसरा उपबंध, जिसमें (क) एक ; (3) तीन।", ocr=True, bill=True)
+    assert [n for n, _ in subs] == ["1", "2"], subs          # "(3)" after ";" is a list item, not a sub-section
+    subs = extract.split_subsections("(1) पहला। (2) दो। (3) तीन। (4) चार। (5) पाँच। (6) छह। (7) सात। (8) आठ। "
+                                     "(9) नौ। थ्न्ध (0) दस।", ocr=True, bill=True)
+    assert subs[-1][0] == "10", subs                      # junk token before the OCR-damaged (10)
+    assert extract.fix_ocr_conjuncts("आयोग दुवारा और दूवारा, के विरुदध") == "आयोग द्वारा और द्वारा, के विरुद्ध"
+
+
 def test_perturb_changes_exactly_one_thing():
     rng = random.Random(0)
     t = "The officer must give the information within 30 days, unless it is exempt. All citizens may appeal."

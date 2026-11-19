@@ -39,7 +39,7 @@
         "en": "https://egazette.gov.in/WriteReadData/2019/210422.pdf",
         "hi": null
       },
-      "version_note": "Downloaded 2026-11-19: Gazette of India Extraordinary, Act No. 35 of 2019, 9 August 2019, https://egazette.gov.in/WriteReadData/2019/210422.pdf (40 pages). EN is the original Gazette enactment, not a verified current consolidation. HI source missing; English-only rows must not enter E2. Extract EN with --backend gazette.",
+      "version_note": "Downloaded 2026-11-19: EN = Gazette of India Extraordinary, Act No. 35 of 2019, 9 August 2019, https://egazette.gov.in/WriteReadData/2019/210422.pdf (40 pages), the original enactment, not a verified current consolidation; extract with --backend gazette. HI = the Hindi translation of the Consumer Protection Bill, 2019 (Bill No. 144 of 2019, as introduced in the Lok Sabha), supplied by a team member on 2026-11-19 as 'Hindi_THE_CONSUMER_PROTECTION_BILL_2019_Bill_Text.pdf' (77-page scan, OmniPage, no text layer; sha256 04cf5aeb0a9c7db33deb2c9402c550ebad8af55cc343955e36be407c0f745d0d). It is the Bill text, not the authoritative Hindi text of the enacted Act: any change made during passage would make a clause differ, so EN-HI clause pairs must be checked at review and mismatching ones dropped, never edited to match. Extract with --backend ocr-bill (Tesseract tessdata_best hin). Not yet used in the corpus, splits or results.",
       "hi_source_attempts": [
         "2026-11-19 retry: no Hindi text obtained. Checked sources:",
         "WIPO Lex https://www.wipo.int/wipolex/en/legislation/details/23153 lists a Hindi PDF (in210hi_1.pdf, 'amended up to Act No. 33 of 2021'); served only via a time-limited signed link, so download it in a browser.",
