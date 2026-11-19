@@ -51,6 +51,13 @@ def main(argv=None):
     ap.add_argument("--output")
     ap.add_argument("--demo", action="store_true")
     args = ap.parse_args(argv)
+    if not (Path(args.model_dir) / "config.json").is_file():
+        sys.exit(f"model folder not found: {Path(args.model_dir).resolve()}\n"
+                 "It must contain config.json, model.safetensors, tokenizer.json and tokenizer_config.json.\n"
+                 "The demo checkpoint is not in git (~1 GB). Fetch it with (needs your Kaggle API token):\n"
+                 "  python modeling/kaggle/kaggle_client.py fetch --user atharvarora05 --slug lmp-e23-fixed --prefix demo_model/\n"
+                 "then run with --model-dir modeling/checkpoints/demo_model, or download demo_model/ from the Output tab of\n"
+                 "https://www.kaggle.com/code/atharvarora05/lmp-e23-fixed (HANDOVER.md section 4, item 4).")
     scorer = LMPScorer(args.model_dir)
     if args.demo:
         import gradio as gr

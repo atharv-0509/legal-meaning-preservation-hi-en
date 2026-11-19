@@ -21,3 +21,6 @@ __pycache__/
 
 # downloaded model checkpoints (large; fetch with kaggle_client.py fetch)
 modeling/checkpoints/
+# demo checkpoint downloaded from Kaggle (~1 GB); never commit
+demo_model/
+kaggle_output/
