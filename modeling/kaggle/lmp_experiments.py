@@ -36,7 +36,9 @@ SPLITS_B64 = "__SPLITS_B64__"
 W = "/kaggle/working"
 R = f"{W}/lmp"
 RUNS = f"{W}/runs"
-SEEDS = [42, 43, 44]
+# seeds and a run-name tag can be set per kernel (run_all.KERNEL_SETS); defaults keep the deadline runs
+SEEDS = [int(x) for x in "__SEEDS__".split()] if "__SEEDS__" != "__" + "SEEDS__" else [42, 43, 44]
+TAG = "__TAG__" if "__TAG__" != "__" + "TAG__" else ""   # e.g. "-5s": new runs sit beside the old ones
 
 
 def sh(cmd, check=True):
@@ -71,6 +73,7 @@ for model, plan in plans:
     name = model.split("/")[-1]
     if plan.startswith("frj"):
         model, name, plan = FRJ, f"{name}-frjudge", (plan.split("-", 1)[1] if "-" in plan else "full")
+    name += TAG
     if plan == "smoke":
         jobs.append((model, f"{S}/random_s42", name, "--epochs 2", 42))
         continue

@@ -29,6 +29,14 @@ KERNELS = {                       # slug -> "backbone=plan;..." run in ONE GPU s
     # review fixes (19 Nov): E2 on RTI-bilingual splits and E3 without target-act DA partners, for the
     # transfer model and the from-scratch baseline, plus one saved checkpoint for the demo
     "lmp-e23-fixed": "xlm-roberta-base=frj-e23;xlm-roberta-base=e23;xlm-roberta-base=frj-demo",
+    # generalisation follow-up (19 Nov, evening): MuRIL with the same FrJUDGE pre-training, and XLM-R transfer
+    # over five seeds; tagged run names so the deadline results are not overwritten
+    "lmp-muril-frj": "google/muril-base-cased=frj-e1;google/muril-base-cased=frj-e23",
+    "lmp-xlmr-5seeds": "xlm-roberta-base=frj-e1;xlm-roberta-base=frj-e23",
+}
+KERNEL_SETS = {                   # extra placeholder values per kernel (see lmp_experiments.py)
+    "lmp-muril-frj": {"__SEEDS__": "42 43 44 45 46", "__TAG__": "-5s"},
+    "lmp-xlmr-5seeds": {"__SEEDS__": "42 43 44 45 46", "__TAG__": "-5s"},
 }
 LOGS = ROOT / "modeling" / "kaggle_logs"
 # Early stopping on our ~35-pair dev set fires on noise: XLM-R stopped after a few epochs at the
@@ -76,6 +84,7 @@ def push():
             out = run(PY, "modeling/kaggle/kaggle_client.py", "push", "--user", KAGGLE_USER, "--slug", slug,
                       "--script", "modeling/kaggle/lmp_experiments.py", "--set", f"__COMMIT__={sha}",
                       "--set", f"__TODO__={todo}", "--set", f"__EXTRA__={TRAIN_FLAGS}", "--set-file", f"__SPLITS_B64__={b64}",
+                      *[a for k, v in KERNEL_SETS.get(slug, {}).items() for a in ("--set", f"{k}={v}")],
                       capture=True, check=False)
             text = (out.stdout or "") + (out.stderr or "")
             print(text)
