@@ -76,12 +76,16 @@ def push():
             out = run(PY, "modeling/kaggle/kaggle_client.py", "push", "--user", KAGGLE_USER, "--slug", slug,
                       "--script", "modeling/kaggle/lmp_experiments.py", "--set", f"__COMMIT__={sha}",
                       "--set", f"__TODO__={todo}", "--set", f"__EXTRA__={TRAIN_FLAGS}", "--set-file", f"__SPLITS_B64__={b64}",
-                      capture=True, check=False).stdout
-            print(out)
-            if "session count" not in out:
-                break
-            print(f"{time.strftime('%H:%M')} no free Kaggle GPU session; retrying in 5 min", flush=True)
-            time.sleep(300)
+                      capture=True, check=False)
+            text = (out.stdout or "") + (out.stderr or "")
+            print(text)
+            if "session count" in text:
+                print(f"{time.strftime('%H:%M')} no free Kaggle GPU session; retrying in 5 min", flush=True)
+                time.sleep(300)
+                continue
+            if out.returncode != 0 or '"hasError": true' in text or "HTTP " in text:
+                sys.exit(f"push of {slug} failed (see the message above)")
+            break
 
 
 def status(slug: str) -> str:
@@ -96,10 +100,16 @@ def status(slug: str) -> str:
 def collect(poll_min: float = 5.0, max_hours: float = 8.0):
     LOGS.mkdir(parents=True, exist_ok=True)
     pending = set(ONLY or KERNELS)
+    unknown: dict[str, int] = {}
     deadline = time.time() + max_hours * 3600
     while pending and time.time() < deadline:
         for slug in sorted(pending):
             st = status(slug)
+            unknown[slug] = unknown.get(slug, 0) + 1 if st == "unknown" else 0
+            if unknown[slug] >= 3:
+                FAILURES.append(f"{slug}: kernel not found on Kaggle (was the push successful?)")
+                pending.discard(slug)
+                continue
             print(f"{time.strftime('%H:%M')} {slug}: {st}", flush=True)
             if st in ("complete", "error", "cancelAcknowledged"):
                 log = LOGS / f"{slug}.log"
