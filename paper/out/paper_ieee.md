@@ -11,7 +11,7 @@ Bennett University, Greater Noida, India
 
 ## Abstract
 
-Plain-language versions of statutes can widen access to the law, but a simplification that drops a condition, turns an obligation into a permission or alters a time limit misleads the reader while still looking fluent. JUDGEBERT (Beauchemin et al., 2025) introduced a learned metric for legal meaning preservation (LMP) on French insurance text. We extend that line of work to Indian statutory law in two languages. From the official texts of the Right to Information Act, 2005 and the Consumer Protection Act, 2019 we build a corpus of original-simplification pairs in three deliberately contrasting styles: a standard zero-shot simplification, an aggressive "explain to a twelve-year-old" simplification, and a simplification carrying exactly one rule-injected legal error of a known type. Each pair is scored on JUDGEBERT's 1-10 rubric; for this version of the work the scores are produced by two disclosed large-language-model annotators rather than by humans, which is a deviation from our original human-judgement protocol and is reported as such throughout. We train multilingual cross-encoders on clause-grouped splits and compare them against generic similarity metrics and an LLM judge given the same rubric. [TBD: headline result.] We additionally report zero-shot transfer between English and Hindi, transfer across the two acts, sanity checks on identical and unrelated pairs, and a qualitative analysis of at least fifteen legally difficult cases. We also document two reproducibility traps that silently destroy such experiments: a character-level tokenizer fallback that collapses cross-encoder training, and legacy-font Hindi PDF text layers that lose characters without raising any error.
+Plain-language versions of statutes can widen access to the law, but a simplification that drops a condition, turns an obligation into a permission or alters a time limit misleads the reader while still looking fluent. JUDGEBERT [1] introduced a learned metric for legal meaning preservation (LMP) on French insurance text. We extend that line of work to Indian statutory law in two languages. From the official texts of the Right to Information Act, 2005 and the Consumer Protection Act, 2019 we build a corpus of original-simplification pairs in three deliberately contrasting styles: a standard zero-shot simplification, an aggressive "explain to a twelve-year-old" simplification, and a simplification carrying exactly one rule-injected legal error of a known type. Each pair is scored on JUDGEBERT's 1-10 rubric; for this version of the work the scores are produced by two disclosed large-language-model annotators rather than by humans, which is a deviation from our original human-judgement protocol and is reported as such throughout. We train multilingual cross-encoders on clause-grouped splits and compare them against generic similarity metrics and an LLM judge given the same rubric. [TBD: headline result.] We additionally report zero-shot transfer between English and Hindi, transfer across the two acts, sanity checks on identical and unrelated pairs, and a qualitative analysis of at least fifteen legally difficult cases. We also document two reproducibility traps that silently destroy such experiments: a character-level tokenizer fallback that collapses cross-encoder training, and legacy-font Hindi PDF text layers that lose characters without raising any error.
 
 **Keywords—** legal NLP, text simplification, meaning preservation, evaluation metrics, Hindi, multilingual transformers, cross-encoder regression
 
@@ -19,11 +19,11 @@ Plain-language versions of statutes can widen access to the law, but a simplific
 
 Indian statutes are drafted in long, heavily qualified sentences, and the official Hindi versions are no easier to read than the English. Large language models can rewrite such text into plain language, and doing so at scale is attractive for access to justice. The risk is that the rewriting is judged by the wrong yardstick. Generic similarity metrics reward lexical and semantic overlap, so a simplification that preserves almost every word but deletes a proviso scores well, even though the legal consequence has changed.
 
-JUDGEBERT made this concrete. On FrJUDGE, a corpus of 297 French insurance sentence blocks scored by five law students, BERTScore correlates with human LMP judgements at Pearson 0.46 and SBERT at 0.13, while a CamemBERT-v2 cross-encoder trained directly on the rubric reaches 0.74. BERTScore and MeaningBERT over-score the human label on 82% of test pairs; the learned metric does so on none. The lesson is that legal meaning preservation is a distinct target that has to be learned, not approximated by similarity.
+JUDGEBERT [1] made this concrete. On FrJUDGE, a corpus of 297 French insurance sentence blocks scored by five law students, BERTScore correlates with human LMP judgements at Pearson 0.46 and SBERT at 0.13, while a CamemBERT-v2 cross-encoder trained directly on the rubric reaches 0.74. BERTScore and MeaningBERT over-score the human label on 82% of test pairs; the learned metric does so on none. The lesson is that legal meaning preservation is a distinct target that has to be learned, not approximated by similarity.
 
 We ask whether that result carries to a different legal system, a different pair of languages and a different kind of statutory text, and we attack the specific weaknesses of the original study. Each gap below maps to a contribution of this paper.
 
-- JUDGEBERT covers French and a single domain. We cover English and Hindi across two Indian central acts. Because the Hindi statute is an official translation of the same provision, the language comparison is controlled rather than confounded by content.
+- JUDGEBERT covers French and a single domain. We cover two Indian central acts from different domains, and English and Hindi within one of them, the Right to Information Act, because the official Hindi text of the other could not be obtained (Section III-A). Where both languages exist, the Hindi statute is an official translation of the very same provision, so the language comparison is controlled rather than confounded by content.
 - FrJUDGE contains one simplification style, so its label distribution is narrow. We add aggressive simplifications, which tend to drop conditions, and perturbed simplifications carrying exactly one injected legal error of a known type. The latter is a labelled diagnostic set: it tells us which legal error types a metric is blind to.
 - Krippendorff's alpha on FrJUDGE LMP was 0.10, with annotators splitting into a lenient and a strict group. We therefore treat agreement as a first-class result rather than a footnote, and we report it for whichever annotator population we actually used.
 - FrJUDGE splits are pair-level, so a test original can reappear in training as an identical augmentation pair, and the headline 0.97 Pearson of the augmented model is measured on a test set that contains trivial identical and unrelated pairs. Our splits are grouped by source clause and verified disjoint at clause and text level, and sanity checks are reported separately on holdout provisions used nowhere else.
@@ -35,19 +35,19 @@ Our contributions are therefore: (i) a bilingual legal LMP corpus with a documen
 
 ### A. Evaluating simplification
 
-Simplification quality is usually decomposed into simplicity, fluency and meaning preservation. Meaning preservation is commonly measured by n-gram overlap, by contextual embedding similarity such as BERTScore, by sentence-embedding cosine similarity, or by learned or question-based metrics such as QuestEval, LENS and MeaningBERT. BLESS benchmarks large language models as sentence simplifiers with zero-shot prompts; we reuse its prompt so that our normal variant is comparable to established practice.
+Simplification quality is usually decomposed into simplicity, fluency and meaning preservation. Meaning preservation is commonly measured by n-gram overlap, by contextual embedding similarity such as BERTScore [3], by sentence-embedding cosine similarity, or by learned or question-based metrics such as QuestEval [9], LENS [10] and MeaningBERT [11]. BLESS [2] benchmarks large language models as sentence simplifiers with zero-shot prompts; we reuse its prompt so that our normal variant is comparable to established practice.
 
 ### B. Legal meaning preservation
 
-JUDGEBERT is the direct predecessor of this work. Its rubric, which we adopt unchanged, first places a simplification in a bracket (Accurate 7-10, Imprecise 2-6, Off-track 1) and then subtracts one point per identified error, with a floor of 1; the error types are omission, hallucination, consistency issue and confusion. Its model is a cross-encoder regression over the concatenated sentence pair. Its augmentation adds identical pairs labelled 10 and unrelated pairs labelled 0, the latter mined from Quebec legal texts with ROUGE below 0.25 and BLEU below 25.
+JUDGEBERT [1] is the direct predecessor of this work. Its rubric, which we adopt unchanged, first places a simplification in a bracket (Accurate 7-10, Imprecise 2-6, Off-track 1) and then subtracts one point per identified error, with a floor of 1; the error types are omission, hallucination, consistency issue and confusion. Its model is a cross-encoder regression over the concatenated sentence pair. Its augmentation adds identical pairs labelled 10 and unrelated pairs labelled 0, the latter mined from Quebec legal texts with ROUGE below 0.25 and BLEU below 25.
 
 ### C. Indian legal NLP
 
-Work on Indian legal text has concentrated on judgments: domain-adapted encoders such as InLegalBERT, and benchmarks such as IL-TUR, target tasks like judgment prediction, rhetorical-role labelling and summarisation. Statutory simplification, and the question of whether a simplification is legally faithful, is comparatively unexplored for Indian law, and we are not aware of a Hindi resource for it.
+Work on Indian legal text has concentrated on judgments: domain-adapted encoders such as InLegalBERT [12], and benchmarks such as IL-TUR [13], target tasks like judgment prediction, rhetorical-role labelling and summarisation. Statutory simplification, and the question of whether a simplification is legally faithful, is comparatively unexplored for Indian law, and we are not aware of a Hindi resource for it.
 
 ### D. Multilingual encoders
 
-For the backbone we consider XLM-R, which is multilingual but not Indic-focused, and MuRIL and IndicBERT v2, which are trained with Indian languages and transliteration in mind. LaBSE provides a strong language-agnostic sentence embedding and serves as one of our baselines.
+For the backbone we consider XLM-R [5], which is multilingual but not Indic-focused, and MuRIL [6] and IndicBERT v2 [7], which are trained with Indian languages and transliteration in mind. LaBSE [4] provides a strong language-agnostic sentence embedding and serves as one of our baselines.
 
 ## III. Dataset
 
@@ -107,7 +107,7 @@ The blinding is real and mechanical rather than a matter of trust. Each annotato
 
 Three further caveats belong here rather than in a footnote, because they bound what the agreement number can mean. First, both annotators are instances of the same model, Claude Opus 5.5, so their agreement is between two instances of one model family and not between two independent judges; it is an upper bound flattered by shared pretraining. Second, the two annotators are not equally blind. The first was given only the opaque identifiers and the text, and knew the corpus design in the abstract but not which items carried an injected error. The second also wrote the simplifications, so although its workbook hides the variant labels it may recognise its own output and infer which copies were perturbed; it is therefore not blind in practice, and we say so. Third, with two annotators the leave-one-out ceiling degenerates into the correlation between the two of them, so what it measures is how well one instance of a model predicts another, not a ceiling set by human legal judgement.
 
-On those terms the agreement is as follows. Krippendorff's alpha on the interval LMP scores is 0.610 and on the nominal brackets 0.503; the leave-one-out ceiling, which we call the LLM-annotator ceiling and never a human ceiling, is a Pearson correlation of 0.723, and 68 of the 338 pairs fall on the adjudication list. These figures are far above the 0.10 that JUDGEBERT reports between its five law students, and the comparison must be read with that asymmetry in mind: two instances of one model agreeing is a much weaker result than five people agreeing, and the gap is evidence about model consistency rather than about the construct being well defined. The label distribution is bimodal, with mass at 10 and a tail between 1 and 5 and nothing at 6 or 7; that is an arithmetic consequence of the rubric itself, since a score is a bracket maximum of 10, 6 or 1 minus one point per error, and it matters for RMSE. One convention differed between the annotators and we state it rather than smoothing it over: where an inserted or dropped negation reverses an entire operative provision, one annotator scored Off-track, the other Imprecise with a confusion. The label is the mean of the two, as in FrJUDGE, and the adjudication list records every such divergence.
+On those terms the agreement is as follows. Krippendorff's alpha [8] on the interval LMP scores is 0.610 and on the nominal brackets 0.503; the leave-one-out ceiling, which we call the LLM-annotator ceiling and never a human ceiling, is a Pearson correlation of 0.723, and 68 of the 338 pairs fall on the adjudication list. These figures are far above the 0.10 that JUDGEBERT reports between its five law students, and the comparison must be read with that asymmetry in mind: two instances of one model agreeing is a much weaker result than five people agreeing, and the gap is evidence about model consistency rather than about the construct being well defined. The label distribution is bimodal, with mass at 10 and a tail between 1 and 5 and nothing at 6 or 7; that is an arithmetic consequence of the rubric itself, since a score is a bracket maximum of 10, 6 or 1 minus one point per error, and it matters for RMSE. One convention differed between the annotators and we state it rather than smoothing it over: where an inserted or dropped negation reverses an entire operative provision, one annotator scored Off-track, the other Imprecise with a confusion. The label is the mean of the two, as in FrJUDGE, and the adjudication list records every such divergence.
 
 To keep a path to the original claim open, a separate 30-pair validation workbook is prepared for human legal annotators; if it is scored we report the correlation between the model labels and the human scores on it, and if it is not we report its absence as a limitation. [TBD: human validation outcome.]
 
@@ -125,7 +125,7 @@ The model follows JUDGEBERT: the pair is encoded as original, separator, simplif
 
 ### B. Baselines
 
-We compare against four reference points of increasing sophistication. ROUGE-L and BLEU, computed with our Devanagari-aware tokenizer, represent pure overlap. LaBSE cosine similarity represents language-agnostic sentence semantics. Multilingual BERTScore F1 represents contextual token matching and is the strongest generic metric in the original study. Finally an LLM judge receives the annotators' rubric verbatim, at temperature 0, and returns a bracket and error counts from which the score is recomputed by the same function used for the annotators; this is the most interesting comparison, because it asks whether a general model with the rubric in its prompt can replace a model trained on the rubric. Every baseline is mapped onto the 1-10 scale twice, once naively and once by a linear calibration fitted on the training split only, and both are reported, since an uncalibrated metric can correlate well while having a meaningless RMSE.
+We compare against four reference points of increasing sophistication. ROUGE-L and BLEU, computed with our Devanagari-aware tokenizer, represent pure overlap. LaBSE [4] cosine similarity represents language-agnostic sentence semantics. Multilingual BERTScore [3] F1 represents contextual token matching and is the strongest generic metric in the original study. Finally an LLM judge receives the annotators' rubric verbatim, at temperature 0, and returns a bracket and error counts from which the score is recomputed by the same function used for the annotators; this is the most interesting comparison, because it asks whether a general model with the rubric in its prompt can replace a model trained on the rubric. Every baseline is mapped onto the 1-10 scale twice, once naively and once by a linear calibration fitted on the training split only, and both are reported, since an uncalibrated metric can correlate well while having a meaningless RMSE.
 
 ### C. Decisions and reporting
 
@@ -141,31 +141,49 @@ The whole chain from labelled pairs to the tables below is a single reproducible
 
 | System | Pearson | Spearman | RMSE | MAE | Over-score % |
 |---|---|---|---|---|---|
-| [TBD] | [TBD] | [TBD] | [TBD] | [TBD] | [TBD] |
+| labse | 0.101 ± 0.026 | 0.224 ± 0.066 | 2.811 ± 0.157 | 2.110 ± 0.121 | 41.0 ± 3.6 |
+| labse-cal | 0.101 ± 0.026 | 0.224 ± 0.066 | 2.417 ± 0.124 | 2.184 ± 0.090 | 44.4 ± 4.8 |
+| bertscore | 0.055 ± 0.040 | 0.115 ± 0.033 | 2.974 ± 0.235 | 2.180 ± 0.232 | 59.2 ± 1.6 |
+| bertscore-cal | 0.055 ± 0.040 | 0.115 ± 0.033 | 2.427 ± 0.120 | 2.206 ± 0.088 | 44.7 ± 4.9 |
+| bleu | 0.018 ± 0.021 | 0.088 ± 0.042 | 5.512 ± 0.238 | 4.977 ± 0.316 | 6.4 ± 1.3 |
+| bleu-cal | 0.018 ± 0.021 | 0.088 ± 0.042 | 2.433 ± 0.120 | 2.212 ± 0.087 | 45.4 ± 5.8 |
+| rougeL | 0.010 ± 0.033 | 0.071 ± 0.040 | 4.041 ± 0.159 | 3.563 ± 0.169 | 21.2 ± 1.8 |
+| rougeL-cal | 0.010 ± 0.033 | 0.071 ± 0.040 | 2.430 ± 0.119 | 2.217 ± 0.090 | 45.4 ± 5.8 |
 
 **TABLE IV. E2: results by language, and zero-shot transfer**
 
 | Setting | Pearson | RMSE | Over-score % |
 |---|---|---|---|
-| [TBD] | [TBD] | [TBD] | [TBD] |
 
 **TABLE V. E3: cross-act generalisation**
 
 | Split | Pearson | RMSE | MAE |
 |---|---|---|---|
-| [TBD] | [TBD] | [TBD] | [TBD] |
+| CPA → RTI | 0.087 | 2.860 | 2.111 |
+| RTI → CPA | 0.043 | 3.193 | 2.334 |
 
 **TABLE VI. E4: sanity checks on disjoint holdouts**
 
 | System | Identical >= 9.9 % | Unrelated <= 1.1 % |
 |---|---|---|
-| [TBD] | [TBD] | [TBD] |
+| labse | 100.0 ± 0.0 | 0.0 ± 0.0 |
+| labse-cal | 0.0 ± 0.0 | 0.0 ± 0.0 |
+| bertscore | 100.0 ± 0.0 | 0.0 ± 0.0 |
+| bertscore-cal | 0.0 ± 0.0 | 0.0 ± 0.0 |
+| bleu | 100.0 ± 0.0 | 11.8 ± 0.0 |
+| bleu-cal | 0.0 ± 0.0 | 0.0 ± 0.0 |
+| rougeL | 100.0 ± 0.0 | 0.0 ± 0.0 |
+| rougeL-cal | 0.0 ± 0.0 | 0.0 ± 0.0 |
 
 **TABLE VII. Mean absolute error on perturbed pairs by injected error type**
 
 | Injected error type | n | MAE LMP model | MAE baseline | MAE LLM judge |
 |---|---|---|---|---|
-| [TBD] | [TBD] | [TBD] | [TBD] | [TBD] |
+| exception_drop | n/a | n/a | 3.022 ± 0.910 (labse) | not run (labels are LLM-produced; circular) |
+| modality | n/a | n/a | 3.531 ± 0.653 (labse) | not run (labels are LLM-produced; circular) |
+| negation | n/a | n/a | 5.896 ± 0.372 (labse) | not run (labels are LLM-produced; circular) |
+| number | n/a | n/a | 3.987 ± 0.178 (labse) | not run (labels are LLM-produced; circular) |
+| scope | n/a | n/a | 3.917 ± 0.619 (labse) | not run (labels are LLM-produced; circular) |
 
 [TBD: narrative reading of the tables once the runs are complete.]
 
