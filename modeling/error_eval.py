@@ -40,6 +40,8 @@ def collect(splits_root: Path, runs_err: Path, family: str = "random") -> dict:
         res["majority (none)"][d.name] = (gold, ["none"] * len(gold), langs)
         res["rules"][d.name] = (gold, [rule_error_type(r["original"], r["simplification"])[0] for r in test], langs)
     for f in sorted(runs_err.glob(f"*/{family}_s*/errcls_preds_test.jsonl")):
+        if f.parent.parent.name.endswith("-demo"):      # single saved demo runs are not part of the comparison
+            continue
         rows = [json.loads(l) for l in f.read_text(encoding="utf-8").splitlines() if l.strip()]
         res[f.parent.parent.name][f.parent.name] = ([r["gold"] for r in rows], [r["pred"] for r in rows],
                                                     [r["lang"] for r in rows])
@@ -115,6 +117,19 @@ def main(argv=None):
         for g in ERROR_CLASSES:
             if g in conf:
                 L.append(f"| {g} | " + " | ".join(str(conf[g].get(p, 0)) for p in ERROR_CLASSES) + " |")
+    L += ["", "## Findings (19 Nov 2026)", "",
+          "- The trained cross-encoder classifiers do **not** beat the rule baseline. With about 130 training pairs per "
+          "split spread over six classes (15-20 per error type), the models do not learn the types reliably; "
+          "class-weighted training also pushes them away from \"none\", so accuracy falls below the majority baseline.",
+          "- MuRIL is the best trained classifier and matches the rules on negation, number and scope, but fails on "
+          "exception_drop and on \"none\".",
+          "- The rule baseline has an unfair advantage: its cues mirror the rules that injected the errors "
+          "(`src/perturb.py`), so it is an upper-bound-style reference for these error types, not evidence that "
+          "rules would find natural errors in real simplifications.",
+          "- Consequence for the system: the demo app and `predict.py` report the rule-based error type and "
+          "explanation; the trained classifier is optional (`--errcls-dir`) and not recommended at this data size.",
+          "- What would help: more perturbed pairs per type (the perturbation step can generate them cheaply), "
+          "a two-stage model (error vs none, then type), or training on rule features plus the encoder."]
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text("\n".join(L) + "\n", encoding="utf-8")
     tables = Path(args.tables)
