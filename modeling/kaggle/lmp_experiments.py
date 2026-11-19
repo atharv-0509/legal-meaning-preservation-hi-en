@@ -4,8 +4,8 @@ Pushed as a Kaggle "script" kernel (GPU T4, internet on) with modeling/kaggle/ka
 
     python modeling/kaggle/pack_splits.py > /tmp/splits.b64          # data/splits -> base64 tar.gz
     python modeling/kaggle/kaggle_client.py push --user <u> --slug lmp-experiments-xlmr \
-        --script modeling/kaggle/lmp_experiments.py --set __COMMIT__=<sha on GitHub> \
-        --set __MODEL__=xlm-roberta-base --set __PLAN__=full --set-file __SPLITS_B64__=/tmp/splits.b64
+        --script modeling/kaggle/lmp_experiments.py --set <COMMIT placeholder>=<sha on GitHub> \
+        --set __MODEL__=xlm-roberta-base --set __PLAN__=full --set-file <SPLITS placeholder>=/tmp/splits.b64
 
 Why the splits are embedded: the training code is on GitHub, but the generated dataset is git-ignored
 (CLAUDE.md §7), so the kernel receives `data/splits/` inside the script itself. Labels in those splits are
