@@ -6,6 +6,8 @@
 Backends:
   text  pdftotext (poppler) text layer, preserving physical line breaks.
   gazette  PyMuPDF extraction for the CPA 2019 Gazette's marginal headings.
+  ocr-bill  OCR for a scanned Bill as introduced (marginal headings + line-number margins); see
+        pdf_ocr_bill_pages. Used for the Hindi CPA 2019 Bill text.
   ocr   pdftoppm -> tesseract. Needed for scanned or legacy-font Hindi PDFs.
         Use the tessdata_best `hin.traineddata` (the fast model misreads legal words);
         point --tessdata-dir at it if it is not the system default.
@@ -116,6 +118,209 @@ def pdf_ocr_pages(pdf: Path, lang: str, dpi: int = 300, tessdata_dir: str | None
     return pages
 
 
+BILL_BODY_START = re.compile(r"अधिनियमित\s*हो|BE\s+it\s+enacted", re.I)
+BILL_BODY_END = re.compile(r"उद्देश्यों\s*और\s*कारणों\s*का\s*कथन|STATEMENT\s+OF\s+OBJECTS\s+AND\s+REASONS", re.I)
+_BILL_START = re.compile(r"^\s*(?P<num>\d{0,3})\s*\.\s+(?=\S)")
+# OCR variants: "52," for "52.", or one short junk token before the number ("दर 87. (1)"); only with
+# digits present, and only accepted when the number is the next in sequence.
+_BILL_START_LOOSE = re.compile(r"^\s*(?:\S{1,3}\s+)?(?P<num>\d{1,3})\s*[.,]\s+(?=\S)")
+_MARGIN_CITATION = re.compile(r"^[\d\s]+(?:का|of)\s+[\d\s]+$")       # "1860 का 21": an Act cited in the margin
+
+
+# Systematic misreadings of the conjuncts द्व / द्ध by the Hindi model on the scanned CPA Bill. Only whole
+# words that do not exist in Hindi are replaced; every replacement is counted and printed.
+OCR_CONJUNCT_FIXES = [
+    (re.compile(r"द[ुूृ]वारा"), "द्वारा"),
+    (re.compile(r"विरुद[ुूृ]?ध"), "विरुद्ध"),
+    (re.compile(r"पद[ुूृ][धच]ति"), "पद्धति"),
+]
+
+
+def fix_ocr_conjuncts(text: str, counts: Counter | None = None) -> str:
+    for pat, repl in OCR_CONJUNCT_FIXES:
+        text, n = pat.subn(repl, text)
+        if counts is not None and n:
+            counts[repl] += n
+    return text
+
+
+def bill_number_variants(n: int) -> set[str]:
+    """Like ocr_number_variants, plus the digit 1 misread as 4 or 7 (observed on the scanned Hindi
+    CPA Bill: 15 -> "45", 51 -> "57", 101 -> "07"). Only used where the sequence check also applies."""
+    from itertools import product
+    s = str(n)
+    options = [("1", "", "0", "4", "7") if c == "1" else (c,) for c in s]
+    return {"".join(p) for p in product(*options)} | ocr_number_variants(n)
+
+
+def _tsv_lines(tsv: str) -> list[dict]:
+    """Tesseract TSV -> lines, each with its words' boxes: {top, left, right, words: [(left, right, text)]}."""
+    import csv
+    import io
+    lines: dict[tuple, dict] = {}
+    for r in csv.DictReader(io.StringIO(tsv), delimiter="\t", quoting=csv.QUOTE_NONE):
+        if r.get("level") != "5" or not (r.get("text") or "").strip():
+            continue
+        left, top, w = int(r["left"]), int(r["top"]), int(r["width"])
+        k = (int(r["block_num"]), int(r["par_num"]), int(r["line_num"]))
+        ln = lines.setdefault(k, {"top": top, "words": []})
+        ln["top"] = min(ln["top"], top)
+        ln["words"].append((left, left + w, r["text"]))
+    out = list(lines.values())
+    for ln in out:
+        ln["left"], ln["right"] = min(w[0] for w in ln["words"]), max(w[1] for w in ln["words"])
+    return out
+
+
+def _segments(words: list[tuple], gap: int) -> list[list[tuple]]:
+    """Split a line's words where the horizontal gap exceeds `gap` pixels (margin note | body | line no.)."""
+    words = sorted(words)
+    segs = [[words[0]]]
+    for w in words[1:]:
+        if w[0] - segs[-1][-1][1] > gap:
+            segs.append([])
+        segs[-1].append(w)
+    return segs
+
+
+def split_bill_page(tsv: str, gap: int = 60) -> tuple[list[dict], list[dict]]:
+    """Separate a Bill page into body lines (the main text column) and margin notes (marginal headings).
+    Tesseract sometimes reads a margin note and the body line beside it as one line, so each line is
+    split at wide gaps (body word spacing is ~15-25 px at 300 dpi; the margin gutter is >100 px). The
+    column is the span of the longest segments of full lines (low-percentile left, modal right edge);
+    a segment wholly outside it is margin. Line numbers, page numbers and Act citations are dropped."""
+    lines = _tsv_lines(tsv)
+    if not lines:
+        return [], []
+    for ln in lines:
+        ln["segs"] = _segments(ln["words"], gap)
+    mains = [max(ln["segs"], key=len) for ln in lines]
+    full = [m for m in mains if len(m) >= 5] or mains
+    # Justified text: most lines end at the same x, so the right edge is the most common line end (20 px
+    # bins); a high percentile would land on the line numbers, which one line in five carries.
+    def mode_edge(xs: list[int]) -> int:
+        bins = Counter(x // 20 for x in xs)
+        b = max(k for k, v in bins.items() if v == max(bins.values()))
+        return max(x for x in xs if x // 20 == b)
+    col_l = sorted(m[0][0] for m in full)[len(full) // 10]    # left: indents vary, so a low percentile
+    col_r = mode_edge([m[-1][1] for m in full])
+    body, margin = [], []
+    for ln in lines:
+        inside = []
+        for seg in ln["segs"]:
+            text = " ".join(w[2] for w in seg)
+            if seg[-1][1] < col_l - 10 or seg[0][0] > col_r + 10:
+                if (re.search(r"[ऀ-ॿ]{2}|[A-Za-z]{3}", text)
+                        and not _MARGIN_CITATION.match(text.translate(DEV_DIGITS))):
+                    margin.append({"top": ln["top"], "text": text})
+            else:
+                inside += [w for w in seg if not (re.fullmatch(r"[\W\d०-९lIoO]{1,4}", w[2])
+                                                   and not col_l <= (w[0] + w[1]) / 2 <= col_r)]
+        text = " ".join(w[2] for w in inside)
+        if inside and not re.fullmatch(r"[\W\d०-९\[\]]{0,4}", text.replace(" ", "")):   # page numbers "[6"
+            body.append({"top": ln["top"], "left": inside[0][0], "text": text})
+    body.sort(key=lambda x: (x["top"], x["left"]))
+    return body, sorted(margin, key=lambda m: m["top"])
+
+
+def pdf_ocr_bill_pages(pdf: Path, lang: str, dpi: int = 300, tessdata_dir: str | None = None,
+                       cache_dir: Path | None = None) -> list[str]:
+    """OCR for a Bill as introduced (two margins: marginal headings on one side, line numbers on the
+    other, alternating by page). Uses Tesseract's page layout analysis (--psm 3) so that margin notes
+    come out as separate blocks, keeps the text column, and rewrites each section start as
+    "N. <marginal heading>—..." so that parse_sections reads it like an Act. Section numbers are
+    accepted only in sequence (the digit 1 is often dropped or misread). Only the enacted text
+    between the enacting formula and the Statement of Objects and Reasons is kept."""
+    if not shutil.which("tesseract"):
+        sys.exit("tesseract not found: OCR needs poppler-utils and tesseract-ocr.")
+    # Hindi only: with hin+eng, about half of the CPA Bill units got Latin junk for Hindi words
+    # ("gan"/"gar" for द्वारा); the Bill has no English text in the body.
+    tlang = "hin" if lang == "hi" else "eng"
+    cache = cache_dir / f"{pdf.stem}_{tlang}_{dpi}_bill" if cache_dir else None
+    tsvs: list[str] = []
+    if cache and cache.exists() and sorted(cache.glob("page-*.tsv")):
+        print(f"  using OCR cache {cache}")
+        tsvs = [f.read_text(encoding="utf-8") for f in sorted(cache.glob("page-*.tsv"))]
+    else:
+        with tempfile.TemporaryDirectory() as tmp:
+            subprocess.run(["pdftoppm", "-r", str(dpi), "-png", str(pdf), f"{tmp}/page"], check=True)
+            images = sorted(Path(tmp).glob("page-*.png"))
+            for i, img in enumerate(images, 1):
+                cmd = ["tesseract", str(img), f"{tmp}/out", "-l", tlang, "--psm", "3",
+                       "-c", "tessedit_create_tsv=1", "-c", "tessedit_create_txt=0"]
+                if tessdata_dir:
+                    cmd += ["--tessdata-dir", tessdata_dir]
+                subprocess.run(cmd, capture_output=True, check=True)
+                tsvs.append(Path(f"{tmp}/out.tsv").read_text(encoding="utf-8"))
+                print(f"  OCR page {i}/{len(images)}", end="\r")
+            print()
+        if cache:
+            cache.mkdir(parents=True, exist_ok=True)
+            for i, t in enumerate(tsvs, 1):
+                (cache / f"page-{i:04d}.tsv").write_text(t, encoding="utf-8")
+    pages = [split_bill_page(t) for t in tsvs]
+    # Body = from the enacting formula to the Statement of Objects and Reasons.
+    started, ended, kept = False, False, []
+    for body, margin in pages:
+        if ended:
+            break
+        lines = []
+        for ln in body:
+            if not started:
+                if BILL_BODY_START.search(ln["text"]):
+                    started = True
+                continue
+            if BILL_BODY_END.search(ln["text"]):
+                ended = True
+                break
+            lines.append(ln)
+        if lines:
+            kept.append((lines, margin))
+    if not started:
+        raise ValueError("enacting formula not found: is this a Bill?")
+    expected, out_pages, n_fallback = 1, [], 0
+    for lines, margin in kept:
+        starts = []
+        for idx, ln in enumerate(lines):
+            m = _BILL_START.match(ln["text"])
+            loose = _BILL_START_LOOSE.match(ln["text"])
+            if loose and (not m or loose.group("num") == str(expected)):
+                if loose.group("num") == str(expected) or loose.group("num") in bill_number_variants(expected):
+                    m = loose
+            if not m:
+                continue
+            num = m.group("num")
+            if num == str(expected) or num in bill_number_variants(expected):
+                starts.append((idx, expected, m.end()))
+                expected += 1
+            elif num.isdigit() and expected < int(num) <= expected + 3:    # a start was missed: resync
+                print(f"  bill layout: no start found for section(s) {expected}..{int(num) - 1}")
+                starts.append((idx, int(num), m.end()))
+                expected = int(num) + 1
+        start_at = {idx: (num, cut) for idx, num, cut in starts}
+        tops = [lines[idx]["top"] for idx, _, _ in starts] + [10 ** 9]
+        text_lines = []
+        for idx, ln in enumerate(lines):
+            if idx not in start_at:
+                text_lines.append(ln["text"])
+                continue
+            num, cut = start_at[idx]
+            k = [i for i, _, _ in starts].index(idx)
+            lo, hi = ln["top"] - 25, tops[k + 1] - 25
+            heading = " ".join(m["text"] for m in margin if lo <= m["top"] < hi).strip(" ।|.")
+            heading = heading.replace(DASH, " ").replace("--", " ")
+            if len(heading) < 2:
+                heading, n_fallback = f"खंड {num}" if lang == "hi" else f"Clause {num}", n_fallback + 1
+            text_lines.append(f"{num}. {heading}{DASH}{ln['text'][cut:]}")
+        out_pages.append("\n".join(text_lines))
+    print(f"  bill layout: {expected - 1} sections in sequence, {n_fallback} without a marginal heading")
+    if lang == "hi":
+        fixes: Counter = Counter()
+        out_pages = [fix_ocr_conjuncts(p, fixes) for p in out_pages]
+        print(f"  OCR conjunct repairs: {dict(fixes)}")
+    return out_pages
+
+
 # --------------------------------------------------------------------------- quality checks
 def bad_matra_ratio(text: str) -> float:
     """Share of Devanagari words that START with a dependent vowel sign or virama.
@@ -174,8 +379,10 @@ def strip_amendment_markers(text: str) -> str:
     return t
 
 
-def clean_pages(pages: list[str], lang: str) -> list[str]:
-    """Remove running headers/footers, page numbers, chapter lines, bottom-of-page footnotes."""
+def clean_pages(pages: list[str], lang: str, footnotes: bool = True) -> list[str]:
+    """Remove running headers/footers, page numbers, chapter lines, bottom-of-page footnotes
+    (footnotes=False for a Bill, which has no amendment footnotes; the Hindi footnote pattern would
+    otherwise match the repeal section "... इसके द्वारा निरसित ...")."""
     lines_per_page = [[ln.strip() for ln in normalize_text(p).split("\n")] for p in pages]
     # Lines repeated on many pages are running headers/footers.
     freq = Counter(ln for page in lines_per_page for ln in set(page) if ln)
@@ -191,7 +398,7 @@ def clean_pages(pages: list[str], lang: str) -> list[str]:
                 continue
             # Footnotes sit at the bottom of a page: drop from the first footnote line onwards
             # when it occurs in the lower part of the page.
-            if footnote.match(ln) and i >= 0.4 * n:
+            if footnotes and footnote.match(ln) and i >= 0.4 * n:
                 break
             if re.fullmatch(r"_{3,}|-{5,}", ln):
                 continue
@@ -286,19 +493,32 @@ def parse_sections(text: str, lang: str) -> list[dict]:
     return [found[k] for k in sorted(found, key=sort_key)]
 
 
-def split_subsections(body: str, ocr: bool = False) -> list[tuple[str, str]]:
+BILL_SUB_TERMINATORS = (".", "।", ":", DASH, "–", "-")
+
+
+def split_subsections(body: str, ocr: bool = False, bill: bool = False) -> list[tuple[str, str]]:
     """Split a section body at "(1)", "(2)", ... Only sequential numbers that start a sentence
     count; "(3)" right after "sub-section"/"section"/"उपधारा"/"धारा"/"and"/"or" is a cross-reference.
     With ocr=True a sub-section number may also be the expected number with a dropped/misread "1"
     ("()" for (1), "(2)" for (12)); it is then recorded as the expected number.
+    With bill=True (scanned Bill text, see pdf_ocr_bill_pages) the digit 1 may also read as 4 or 7 or a
+    danda/bar ("(7)", "(।)", "(॥)"), a sub-section must follow ".", "।", ":" or a dash (not ";", which
+    ends list items, where OCR can turn "(ण)" into "(3)"), and one short junk token after the terminator
+    is tolerated (stray margin marks).
     Returns [(subsection_number, text)], or [("", body)] when the section has no sub-sections."""
     num_pat = r"[\d०-९]*" if ocr else rf"{_NUM}[A-Z]?"
+    if bill:
+        num_pat = r"[\d०-९।॥|\]Il]*"
     cands = list(re.finditer(rf"\(({num_pat})\)", body))
+    variants = bill_number_variants if bill else ocr_number_variants
+    terminators = BILL_SUB_TERMINATORS if bill else SUB_TERMINATORS
     starts: list[tuple[int, int, str]] = []
     expected = 1
     for m in cands:
         num = m.group(1).translate(DEV_DIGITS)
-        if ocr and num != str(expected) and num in ocr_number_variants(expected):
+        if bill and expected == 1 and num in ("।", "॥", "|", "]", "I", "l", "7", "4"):
+            num = "1"
+        if ocr and num != str(expected) and num in variants(expected):
             num = str(expected)
         digits = re.match(r"\d+", num)
         if not digits or int(digits.group()) != expected or num != digits.group():
@@ -307,7 +527,10 @@ def split_subsections(body: str, ocr: bool = False) -> list[tuple[str, str]]:
         prev_word = re.findall(r"[\w\-ऀ-ॿ]+", before[-30:].lower())
         if prev_word and prev_word[-1] in CROSSREF_WORDS:
             continue
-        if before and not before.endswith(SUB_TERMINATORS):
+        verb_semicolon = bill and re.search(r"(?:गा|गी|गे|है|हैं)\s*;$", before)   # "... दंडनीय होगा ; (2)"
+        if bill and before and not before.endswith(terminators) and not verb_semicolon:
+            before = re.sub(r"\s+\S{1,6}$", "", before)          # one stray junk token
+        if before and not before.endswith(terminators) and not verb_semicolon:
             continue
         if expected == 1 and len(before) > 5:   # (1) must open the section body
             continue
@@ -322,14 +545,14 @@ def split_subsections(body: str, ocr: bool = False) -> list[tuple[str, str]]:
     return out
 
 
-def units_from_pages(pages: list[str], act_id: str, lang: str, ocr: bool = False) -> list[dict]:
-    cleaned = clean_pages(pages, lang)
+def units_from_pages(pages: list[str], act_id: str, lang: str, ocr: bool = False, bill: bool = False) -> list[dict]:
+    cleaned = clean_pages(pages, lang, footnotes=not bill)
     text = "\n".join(cleaned)
     if ocr:
         text = repair_ocr_numbering(text)
     units = []
     for sec in parse_sections(text, lang):
-        for sub, t in split_subsections(sec["body"], ocr=ocr):
+        for sub, t in split_subsections(sec["body"], ocr=ocr, bill=bill):
             t = t.strip()
             if not t or re.fullmatch(r"(?:Omitted|\[?Omitted\.?\]?|लोप किया गया)\W*", t, re.I):
                 continue
@@ -351,6 +574,9 @@ def extract_one(act: dict, lang: str, backend: str, paths, args) -> list[dict]:
         return []
     print(f"[{act['act_id']}/{lang}] {pdf.name} backend={backend}")
     pages = pdf_gazette_pages(pdf) if backend == "gazette" else None
+    if backend == "ocr-bill":
+        pages = pdf_ocr_bill_pages(pdf, lang, args.dpi, args.tessdata_dir, paths.data / "ocr_cache")
+        print(f"  OCR: {text_quality(pages, lang)}")
     if backend in ("text", "auto"):
         pages = pdf_text_pages(pdf)
         q = text_quality(pages, lang)
@@ -363,11 +589,11 @@ def extract_one(act: dict, lang: str, backend: str, paths, args) -> list[dict]:
                 pages = None
             else:
                 print(msg)
-    used_ocr = pages is None
-    if used_ocr:
+    used_ocr = pages is None or backend == "ocr-bill"
+    if pages is None:
         pages = pdf_ocr_pages(pdf, lang, args.dpi, args.tessdata_dir, paths.data / "ocr_cache")
         print(f"  OCR: {text_quality(pages, lang)}")
-    units = units_from_pages(pages, act["act_id"], lang, ocr=used_ocr)
+    units = units_from_pages(pages, act["act_id"], lang, ocr=used_ocr, bill=backend == "ocr-bill")
     out = units_path(paths, act["act_id"], lang)
     write_jsonl(out, units)
     n_sec = len({u["section"] for u in units})
@@ -382,7 +608,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--act", help="act_id from sources.json (default: all)")
     ap.add_argument("--lang", choices=["en", "hi"], help="default: both")
-    ap.add_argument("--backend", choices=["auto", "text", "gazette", "ocr"], default="auto")
+    ap.add_argument("--backend", choices=["auto", "text", "gazette", "ocr", "ocr-bill"], default="auto")
     ap.add_argument("--dpi", type=int, default=300)
     ap.add_argument("--tessdata-dir", help="directory holding tessdata_best hin.traineddata / eng.traineddata")
     ap.add_argument("--sources", default=None)
