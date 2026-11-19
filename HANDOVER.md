@@ -114,6 +114,11 @@ powershell -File paper\build.ps1                 # paper + slides only
    `LLM_API_KEY` + `LLM_MODEL` are set. `predict.py --demo` launches the same app.
    **Verified 19 Nov** by Kaggle kernel `lmp-demo-check` (`modeling/kaggle/demo_check.py`): loaded through
    `predict.py` it reproduces the run's test Pearson exactly (0.479 on the 96 `random_s42` test pairs).
+4b. **Legal-error type (brief's optional output)** — `reports/error_classification.md`: rule baseline macro-F1
+   0.509 ± 0.074 vs trained classifiers (MuRIL 0.362 ± 0.174, XLM-R 0.270, XLM-R+FrJUDGE 0.277; majority 0.111)
+   over 5 clause-grouped seeds; targets are objective (injected error types). The app and `predict.py` use the
+   rules (type + explanation); the trained classifier is optional (`--errcls-dir`) and not recommended at this data size.
+   Generalisation follow-up (MuRIL, 5 seeds): `reports/generalization_summary.md`.
 5. Improve zero-shot EN↔HI transfer (e.g. MuRIL/IndicBERT with FrJUDGE pre-training, more seeds).
 6. Slides: check timing/visuals for the presentation; paper: final read-through.
 7. **Verify a Hindi reader on the OCR'd clauses** (ready: `reports/ocr_spotcheck_hi.md` + `.csv`, 8 sampled clauses; DoPT blocks cloud machines, so do it from India). The corpus rests on OCR that no Hindi reader has

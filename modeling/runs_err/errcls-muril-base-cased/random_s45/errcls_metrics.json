@@ -1,0 +1,193 @@
+{
+  "test": {
+    "n": 66,
+    "accuracy": 0.42424242424242425,
+    "macro_f1": 0.48937198067632853,
+    "per_class": {
+      "none": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 33
+      },
+      "modality": {
+        "precision": 0.25,
+        "recall": 1.0,
+        "f1": 0.4,
+        "support": 11
+      },
+      "negation": {
+        "precision": 0.7692307692307693,
+        "recall": 1.0,
+        "f1": 0.8695652173913044,
+        "support": 10
+      },
+      "number": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5
+      },
+      "exception_drop": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 4
+      },
+      "scope": {
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "f1": 0.6666666666666666,
+        "support": 3
+      }
+    },
+    "confusion": {
+      "exception_drop": {
+        "modality": 3,
+        "none": 1
+      },
+      "modality": {
+        "modality": 11
+      },
+      "negation": {
+        "negation": 10
+      },
+      "none": {
+        "modality": 29,
+        "negation": 3,
+        "scope": 1
+      },
+      "number": {
+        "number": 5
+      },
+      "scope": {
+        "scope": 2,
+        "modality": 1
+      }
+    }
+  },
+  "by_lang": {
+    "en": {
+      "n": 46,
+      "accuracy": 0.41304347826086957,
+      "macro_f1": 0.4866741741741742,
+      "per_class": {
+        "none": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 23
+        },
+        "modality": {
+          "precision": 0.23333333333333334,
+          "recall": 1.0,
+          "f1": 0.37837837837837834,
+          "support": 7
+        },
+        "negation": {
+          "precision": 0.7777777777777778,
+          "recall": 1.0,
+          "f1": 0.8750000000000001,
+          "support": 7
+        },
+        "number": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 3
+        },
+        "exception_drop": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 3
+        },
+        "scope": {
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "f1": 0.6666666666666666,
+          "support": 3
+        }
+      },
+      "confusion": {
+        "exception_drop": {
+          "modality": 2,
+          "none": 1
+        },
+        "modality": {
+          "modality": 7
+        },
+        "negation": {
+          "negation": 7
+        },
+        "none": {
+          "modality": 20,
+          "negation": 2,
+          "scope": 1
+        },
+        "number": {
+          "number": 3
+        },
+        "scope": {
+          "scope": 2,
+          "modality": 1
+        }
+      }
+    },
+    "hi": {
+      "n": 20,
+      "accuracy": 0.45,
+      "macro_f1": 0.4603174603174603,
+      "per_class": {
+        "none": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 10
+        },
+        "modality": {
+          "precision": 0.2857142857142857,
+          "recall": 1.0,
+          "f1": 0.4444444444444445,
+          "support": 4
+        },
+        "negation": {
+          "precision": 0.75,
+          "recall": 1.0,
+          "f1": 0.8571428571428571,
+          "support": 3
+        },
+        "number": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 2
+        },
+        "exception_drop": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        }
+      },
+      "confusion": {
+        "exception_drop": {
+          "modality": 1
+        },
+        "modality": {
+          "modality": 4
+        },
+        "negation": {
+          "negation": 3
+        },
+        "none": {
+          "modality": 9,
+          "negation": 1
+        },
+        "number": {
+          "number": 2
+        }
+      }
+    }
+  }
+}

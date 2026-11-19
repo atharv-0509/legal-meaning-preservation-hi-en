@@ -44,6 +44,8 @@ As of 18 Nov 2026:
 
 - 19 Nov 2026 (14:30 UTC): collected Kaggle `lmp-e23-fixed` (corrected E2 on RTI-bilingual splits, E3 without target-act DA partners, demo checkpoint). **E2 matched RTI: EN 0.165, HI −0.041 (transfer model); E3 CPA→RTI 0.388, RTI→CPA 0.119.** The old 0.675/0.308 were E1 runs split by language, confounded by act. Paper, slides, HANDOVER rebuilt and corrected; E5 now uses in-domain predictions (transferred model: reversals mean 4.0 in domain, still up to 10.0; 7.3 across acts). Slides now render **bold**/*italic* markup. PDF exported with LibreOffice here; re-export with Word via `paper/build.ps1`.
 
+- 19 Nov 2026 (evening): generalisation follow-up (`reports/generalization_summary.md`): **MuRIL + FrJUDGE + DA** 0.577 ± 0.068 over 5 seeds, best on Hindi (0.466), matched RTI (EN 0.269 / HI 0.182) and RTI→CPA (0.251); a fresh XLM-R FrJUDGE pre-training scored 0.691 (vs 0.873) and its transfer fell to 0.486 (DA) / 0.166 (no DA): the pre-training is unstable. MuRIL demo checkpoint (kernel `lmp-muril-demo`, test 0.682). Legal-error type classification (`reports/error_classification.md`): rules 0.509 macro-F1 beat trained classifiers (best MuRIL 0.362); app/predict use the rules. Demo app `modeling/app.py`. Paper not yet updated with these (decision pending).
+
 When you (Claude) finish a step, tick it here and add one line saying what changed.
 
 19 Nov 2026 decision: the deadline version uses disclosed LLM annotations, not human labels
