@@ -41,6 +41,8 @@ As of 18 Nov 2026:
   - FrJUDGE reproduction (`reports/frjudge_repro.md`): released-code setting 0.707 ± 0.042 vs paper 0.74.
   - Open: score the human validation pilot; get the Hindi CPA PDF; push branches to GitHub; demo needs a saved checkpoint.
 
+- 19 Nov 2026 (14:30 UTC): collected Kaggle `lmp-e23-fixed` (corrected E2 on RTI-bilingual splits, E3 without target-act DA partners, demo checkpoint). **E2 matched RTI: EN 0.165, HI −0.041 (transfer model); E3 CPA→RTI 0.388, RTI→CPA 0.119.** The old 0.675/0.308 were E1 runs split by language, confounded by act. Paper, slides, HANDOVER rebuilt and corrected; E5 now uses in-domain predictions (transferred model: reversals mean 4.0 in domain, still up to 10.0; 7.3 across acts). Slides now render **bold**/*italic* markup. PDF exported with LibreOffice here; re-export with Word via `paper/build.ps1`.
+
 When you (Claude) finish a step, tick it here and add one line saying what changed.
 
 19 Nov 2026 decision: the deadline version uses disclosed LLM annotations, not human labels
