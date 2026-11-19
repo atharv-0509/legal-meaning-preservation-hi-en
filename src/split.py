@@ -125,6 +125,29 @@ def main(argv=None):
         write_split(paths.splits / f"random_s{seed}", split, {"type": "random", "seed": seed, "ratios": args.ratios})
         print(f"random_s{seed}: " + ", ".join(f"{n}={len(v)}" for n, v in split.items()))
 
+    # E2 (language): only the RTI clauses that exist in BOTH languages, so that language is the only factor
+    # that differs between the EN and HI subsets (the CPA Hindi text was unavailable).
+    langs_of = defaultdict(set)
+    for r in human:
+        langs_of[r["clause_id"]].add(r["lang"])
+    bilingual = {c for c, ls in langs_of.items() if {"en", "hi"} <= ls}
+    human_bi = [r for r in human if r["clause_id"] in bilingual]
+    da_bi = [r for r in da if r["clause_id"] in bilingual]
+    by_act_bi = defaultdict(set)
+    for r in human_bi:
+        by_act_bi[r["act_id"]].add(r["clause_id"])
+    print(f"bilingual clauses: {len(bilingual)} ({dict((a, len(c)) for a, c in by_act_bi.items())})")
+    for seed in args.seeds:
+        assign = grouped_split(by_act_bi, args.ratios, random.Random(seed))
+        split = materialise(assign, human_bi, da_bi)
+        check_disjoint(split, holdouts)
+        for n in ("train", "dev", "test"):
+            assert {r["clause_id"] for r in split[n] if r["lang"] == "en"} == \
+                   {r["clause_id"] for r in split[n] if r["lang"] == "hi"}, f"EN/HI clause sets differ in {n}"
+        write_split(paths.splits / f"bilingual_s{seed}", split,
+                    {"type": "bilingual", "seed": seed, "ratios": args.ratios, "clauses": len(bilingual)})
+        print(f"bilingual_s{seed}: " + ", ".join(f"{n}={len(v)}" for n, v in split.items()))
+
     acts = sorted(by_act)
     for a in acts:
         for b in acts:
@@ -135,8 +158,17 @@ def main(argv=None):
             rng.shuffle(src)
             n_dev = max(1, round(args.ood_dev * len(src)))
             assign = {"train": set(src[n_dev:]), "dev": set(src[:n_dev]), "test": set(by_act[b])}
-            split = materialise(assign, human, da)
+            # unseen-act protocol: an unrelated DA partner drawn from the test act would expose the model to
+            # target-act text during training, so keep only DA pairs whose partner is from the training act
+            da_a = [r for r in da if r.get("variant") != "da_unrelated" or str(r.get("partner", "")).startswith(f"{a}-")]
+            split = materialise(assign, human, da_a)
             check_disjoint(split, holdouts)
+            target_texts = {one_line(r["original"]) for r in human if r["act_id"] == b}
+            for n in ("train_da", "dev_da"):
+                assert not any(r["act_id"] == b for r in split[n]), f"{b} pair in {n}"
+                assert not any(one_line(r["simplification"]) in target_texts for r in split[n]
+                               if r.get("variant") == "da_unrelated"), f"target-act partner text in {n}"
+            print(f"  ood_{a}_to_{b}: dropped {len(da) - len(da_a)} DA pairs with a {b} partner")
             write_split(paths.splits / f"ood_{a}_to_{b}", split, {"type": "ood", "train_act": a, "test_act": b})
             print(f"ood_{a}_to_{b}: " + ", ".join(f"{n}={len(v)}" for n, v in split.items()))
 
