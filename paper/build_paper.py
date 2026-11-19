@@ -108,16 +108,33 @@ def _clip(text: str, limit: int = 180) -> str:
 
 
 def e5_rows() -> list[list[str]]:
-    """The E5 case table: one row per case, built from `e5.cases()`."""
-    rows = [["#", "Provision", "Lang", "Variant", "Change", "Label", "Annot."]]
+    """The E5 case table: one row per case, built from `e5.cases()`.
+
+    Predicted columns appear only for systems that actually produced test predictions, so the
+    table grows a column when a run lands rather than needing an edit here.
+    """
+    systems = e5.shown_systems()
+    header = ["#", "Provision", "Lang", "Variant", "Change", "Label", "Annot."]
+    header += [_short_system(s) for s in systems]
     cases = e5.cases()
     if not cases:
-        return rows + [["[TBD]"] * 7]
+        return [header, ["[TBD]"] * len(header)]
+    rows = [header]
     for i, case in enumerate(cases, 1):
-        rows.append([str(i), case["clause"], case["lang"], case["variant"],
-                     case["error_type"] or case["main_change"],
-                     case["label"], str(case["annotator_score"])])
+        row = [str(i), case["clause"], case["lang"], case["variant"],
+               case["error_type"] or case["main_change"],
+               case["label"], str(case["annotator_score"])]
+        row += [f"{case['preds'][s]:.1f}" if s in case["preds"] else "--" for s in systems]
+        rows.append(row)
     return rows
+
+
+def _short_system(name: str) -> str:
+    """Column headings have to fit a 3.5in column, so shorten the long checkpoint names."""
+    return (name.replace("xlm-roberta-base", "XLM-R")
+                .replace("muril-base-cased", "MuRIL")
+                .replace("-frjudge", "+fr").replace("-da", "+DA")
+                .replace("labse", "LaBSE").replace("bertscore", "BERTSc"))
 
 
 def add_bullets(doc, items: list[str]) -> None:

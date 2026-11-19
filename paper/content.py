@@ -264,14 +264,15 @@ BODY: list[tuple] = [
      "string and a timestamp are stored with every generation, and the temperature and top-p fields "
      "are null rather than invented. Our simplifications are consequently likely to be more "
      "conservative than temperature-1.0 samples, which plausibly shifts the label distribution "
-     "upward relative to FrJUDGE. [TBD: number truncated.]"),
+     "upward relative to FrJUDGE. In the event no generation hit the cap: all 226 simplifications "
+     "terminated normally, so nothing in the corpus is a truncated output."),
     ("h2", "Scoring protocol and its deviation from human judgement"),
     ("p",
      "This is the point at which the present version of the work departs from our protocol, and we "
      "state it plainly rather than in a footnote. The intended design was three human annotators "
      "per pair after a shared calibration round. Because of the project deadline, the LMP scores "
-     "used here were produced by two disclosed large-language-model annotators, Claude Opus 5.5 and "
-     "GPT-6 Astra, each filling its own blinded workbook under the same rubric and conventions "
+     "used here were produced by two disclosed large-language-model annotators, both instances of "
+     "Claude Opus 5.5, each filling its own blinded workbook under the same rubric and conventions "
      "written for the human annotators. This does not satisfy the requirement of agreement with "
      "human legal judgement, and no claim in this paper should be read as establishing it."),
     ("p",
@@ -285,8 +286,11 @@ BODY: list[tuple] = [
      "families overlap between generation and annotation, so any annotator that also generated the "
      "text it scores cannot be called blind, and we disclose that overlap rather than assuming it "
      "away. And an LLM judge may not be evaluated against labels from its own model, since that "
-     "measures self-consistency and not meaning preservation; our judge baseline therefore uses a "
-     "different model from either annotator."),
+     "measures self-consistency and not meaning preservation. Because both of our annotators are "
+     "the same model, that rule removed the LLM-judge baseline entirely: any judge we had access to "
+     "would have been scored against its own family's labels. We therefore report no LLM-judge "
+     "result, and record its absence as a consequence of the labelling decision rather than quietly "
+     "dropping a planned comparison. It is the first experiment to run once human labels exist."),
     ("p",
      "Three further caveats belong here rather than in a footnote, because they bound what the "
      "agreement number can mean. First, both annotators are instances of the same model, Claude "
@@ -367,11 +371,13 @@ BODY: list[tuple] = [
      "computed with our Devanagari-aware tokenizer, represent pure overlap. LaBSE [4] cosine "
      "similarity "
      "represents language-agnostic sentence semantics. Multilingual BERTScore [3] F1 represents "
-     "contextual token matching and is the strongest generic metric in the original study. Finally "
-     "an LLM judge receives the annotators' rubric verbatim, at temperature 0, and returns a bracket "
-     "and error counts from which the score is recomputed by the same function used for the "
-     "annotators; this is the most interesting comparison, because it asks whether a general model "
-     "with the rubric in its prompt can replace a model trained on the rubric. Every baseline is "
+     "contextual token matching and is the strongest generic metric in the original study. A fourth "
+     "reference point was designed and then deliberately not run: an LLM judge receiving the "
+     "annotators' rubric verbatim at temperature 0, which would have asked whether a general model "
+     "with the rubric in its prompt can replace a model trained on it. Section III-F explains why "
+     "it is unusable here, namely that our labels come from the same model family, so the "
+     "comparison would have measured self-consistency. The implementation exists and is reported as "
+     "not run rather than removed. Every remaining baseline is "
      "mapped onto the 1-10 scale twice, once naively and once by a linear calibration fitted on the "
      "training split only, and both are reported, since an uncalibrated metric can correlate well "
      "while having a meaningless RMSE."),
@@ -504,7 +510,8 @@ BODY: list[tuple] = [
      "annotator's own workbook comments, taking the injected-error pairs first so that the error "
      "type is known rather than inferred, and capping each group so that every error type appears "
      "before any repeats. For each case the table gives the provision, the language, the variant, "
-     "the kind of change, the label (the mean of the annotators) and the blinded annotator's own "
+     "the kind of change, the label (the mean of the annotators), the prediction of each system "
+     "with test predictions for that pair, and the blinded annotator's own "
      "score, so that annotator disagreement stays visible rather than being hidden inside the "
      "mean."),
     ("caption", "E5: legally difficult cases, with the change that was made"),
@@ -518,8 +525,19 @@ BODY: list[tuple] = [
      "contrast, the annotators agreed closely, because the error is easy to see once noticed. The "
      "practical implication for a deployed metric is that the cases needing the most reliable "
      "detection are exactly the ones on which human, or in our case model, annotators are least "
-     "consistent. [TBD: the trained model's predictions for these cases, once the GPU runs "
-     "complete, and a comparison against the baseline predictions already shown.]"),
+     "consistent."),
+    ("p",
+     "The predicted columns are the most damning thing in this paper and the clearest statement of "
+     "what remains to be solved. On the two cases where an inserted negation reverses the provision "
+     "outright, labelled 2.5, the trained cross-encoder predicts 9.4 and 10.0 and LaBSE predicts "
+     "8.6 and 8.9. Both systems look at a sentence announcing that the Central Government will "
+     "*not* establish the authority the section establishes, and call it an excellent "
+     "simplification. This is the over-scoring failure that JUDGEBERT identifies in generic metrics, "
+     "reproduced here by our own model, and at the top of the scale rather than merely in the "
+     "aggregate: a user relying on either system would be told that the most dangerous "
+     "simplification in the corpus preserves the law. It is also why we regard the diagnostic set, "
+     "rather than any correlation we report, as the contribution most likely to outlast this "
+     "paper."),
 
     ("h1", "Reproducibility Notes"),
     ("p",
@@ -548,7 +566,7 @@ BODY: list[tuple] = [
      "and 1.72. Our Pearson is 0.033 lower, which over ten seeds each is roughly two standard "
      "errors: close enough to confirm that the implementation is the same method in the same "
      "regime, not close enough to call an exact replication. The residual gap is most plausibly "
-     "explained by library versions (the tokenizer fallback of Section VII-A is itself a "
+     "explained by library versions (the tokenizer fallback described below is itself a "
      "transformers 5.x artefact), our 512-token maximum length, and seed-level nondeterminism on "
      "different hardware."),
     ("p",

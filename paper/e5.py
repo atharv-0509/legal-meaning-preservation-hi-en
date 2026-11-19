@@ -30,6 +30,12 @@ MAX_CASES = 18               # the brief asks for at least fifteen; more would c
 ANNOTATOR_ANSWERS = "data/annotation/llm_claude_opus55_b_answers.jsonl"
 BLIND_ANNOTATOR = "llm_claude_opus55_b"
 
+#: Systems whose prediction is shown beside the label, in preference order: the learned metric
+#: first, then the strongest generic baseline. `shown_systems()` falls back to whatever exists, so
+#: a renamed or added system still appears instead of silently leaving the columns out.
+PREFERRED_SYSTEMS = ["xlm-roberta-base-frjudge-da", "xlm-roberta-base-da", "labse"]
+MAX_SHOWN_SYSTEMS = 2
+
 
 def _read_jsonl(relative: str) -> list[dict]:
     path = tables._find(relative)
@@ -143,6 +149,19 @@ def _score_of(answer: dict) -> int | None:
     sys.path.insert(0, str(root / "src"))
     from rubric import lmp_score  # noqa: E402
     return lmp_score(answer.get("bracket"), answer)
+
+
+def shown_systems() -> list[str]:
+    """Which systems' predictions the case table shows, given what actually ran."""
+    rows = cases()
+    available = {system for row in rows for system in row["preds"]}
+    chosen = [s for s in PREFERRED_SYSTEMS if s in available]
+    for system in sorted(available):                 # keep the table populated if names change
+        if len(chosen) >= MAX_SHOWN_SYSTEMS:
+            break
+        if system not in chosen:
+            chosen.append(system)
+    return chosen[:MAX_SHOWN_SYSTEMS]
 
 
 def summary() -> dict:

@@ -303,6 +303,9 @@ def build(out_path: Path) -> list[str]:
         "**The diagnostic set works.** Negation is the hardest injected error for every system "
         "(MAE 4.3 model, 4.6 LaBSE). One inserted \"not\" flips the law and barely moves an "
         "embedding — the clearest argument for a purpose-built metric.",
+        "**And the failure is legible, not just low.** On the two cases where an inserted "
+        "\"not\" reverses the provision (label 2.5), XLM-R+DA predicts **9.4 and 10.0**, LaBSE "
+        "**8.6 and 8.9** — both call the most dangerous simplification in the corpus excellent.",
         "**The sanity checks discriminate.** Train-fitted calibration improves baseline RMSE "
         "(2.81 → 2.42) while making all four fail both checks at 0%.",
         "**The apparatus is sound.** We reproduce FrJUDGE at 0.707 in the released setting, and "
