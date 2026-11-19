@@ -105,7 +105,7 @@ powershell -File paper\build.ps1                 # paper + slides only
    (0.479 on the 96 `random_s42` test pairs) and outputs score + decision per pair.
 5. Improve zero-shot EN↔HI transfer (e.g. MuRIL/IndicBERT with FrJUDGE pre-training, more seeds).
 6. Slides: check timing/visuals for the presentation; paper: final read-through.
-7. **Verify a Hindi reader on the OCR'd clauses.** The corpus rests on OCR that no Hindi reader has
+7. **Verify a Hindi reader on the OCR'd clauses** (ready: `reports/ocr_spotcheck_hi.md` + `.csv`, 8 sampled clauses; DoPT blocks cloud machines, so do it from India). The corpus rests on OCR that no Hindi reader has
    checked; §5 of the paper says so, but a sample review would either remove that caveat or find a
    real problem. It is the cheapest remaining risk to retire.
 
