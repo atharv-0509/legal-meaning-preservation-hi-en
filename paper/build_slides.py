@@ -230,7 +230,11 @@ def build(out_path: Path) -> list[str]:
     # ---- 8. method
     bullet_slide(prs, "Method", [
         "LMP model: cross-encoder regression, original [SEP] simplification → score in 1–10, "
-        "MSE loss; lr 5e-5, batch 16, linear decay, grad clip 1.0, best dev checkpoint.",
+        "MSE loss; linear decay, grad clip 1.0, best dev checkpoint.",
+        ("We depart from JUDGEBERT's lr 5e-5 / batch 16 / patience 5: on our ~35-pair dev split "
+         "early stopping fired on noise and left the model at the label mean (r ≈ 0). "
+         "We use lr 2e-5, batch 8, 30 epochs, no early stopping — disclosed, with the "
+         "dev-set selection it implies.", 16, 1),
         "Backbones: XLM-R, MuRIL, IndicBERT v2 — with and without data augmentation, "
         "5 clause-grouped seeds.",
         "Baselines: ROUGE-L and BLEU (Devanagari-aware tokeniser), LaBSE cosine, multilingual "
