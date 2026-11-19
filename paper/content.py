@@ -45,20 +45,19 @@ ABSTRACT = (
     "while still reading fluently. JUDGEBERT introduced a learned metric for legal meaning "
     "preservation (LMP) on French insurance text. We extend it to Indian statutory law in English "
     "and Hindi. From the Right to Information Act, 2005 and the Consumer Protection Act, 2019 we "
-    "build 338 original-simplification pairs in three styles: a standard zero-shot simplification, "
-    "an aggressive one, and one carrying an additional rule-injected legal error of a known type. "
-    "Pairs are scored on JUDGEBERT's 1-10 rubric by two disclosed large-language-model annotators "
-    "rather than by humans, a deviation from the brief that we report throughout. Trained on this "
-    "corpus alone a cross-encoder is unstable, at Pearson 0.228 +/- 0.288 over three clause-grouped "
-    "seeds, and not reliably better than the best generic baseline (calibrated LaBSE, 0.101). "
-    "Pre-training on FrJUDGE before fine-tuning gives 0.576 +/- 0.102 for our principal system "
-    "(English 0.675, Hindi 0.308). Cross-act transfer is asymmetric (0.388 from consumer law to "
-    "information law, 0.119 in reverse), and on the 35-clause bilingual subset neither joint "
-    "training nor zero-shot English-Hindi transfer rises clearly above zero. The corpus encodes its "
-    "construction: a variant-mean lookup that uses the answer key reaches 0.831, so we also report "
-    "within-variant correlations (0.31 to 0.58). On the diagnostic set the transferred model handles "
-    "injected negations far better than embedding baselines but fails on obligation-to-permission "
-    "flips, and no system passes both sanity checks."
+    "build 338 original-simplification pairs in three styles, one carrying a rule-injected legal "
+    "error of a known type. Pairs are scored on JUDGEBERT's 1-10 rubric by two disclosed "
+    "large-language-model annotators rather than humans, a deviation we report throughout. Trained "
+    "on this corpus alone a cross-encoder is unstable (Pearson 0.228 +/- 0.288) and not reliably "
+    "better than the best generic baseline (calibrated LaBSE, 0.101). Pre-training on FrJUDGE first "
+    "gives 0.576 +/- 0.102 for our principal XLM-R system; a post-hoc MuRIL variant matches it "
+    "(0.577 +/- 0.068 over five seeds) and generalises better to Hindi and across acts, while a "
+    "re-run of the FrJUDGE pre-training shows the transfer depends on that run. Zero-shot "
+    "English-Hindi transfer stays near zero. A variant-mean lookup using the answer key reaches "
+    "0.831, so we also report within-variant correlations. For the optional legal-error type, a "
+    "MuRIL classifier trained with injected-error augmentation reaches macro-F1 0.789 against 0.509 "
+    "for rules. Injected negations are handled far better than by embedding baselines, "
+    "obligation-to-permission flips poorly, and no system passes both sanity checks."
 )
 
 # --------------------------------------------------------------------------- body
@@ -110,7 +109,8 @@ BODY: list[tuple] = [
      "JUDGEBERT-style multilingual cross-encoder for LMP; (iii) a comparison against generic metrics "
      "and, in place of the LLM judge our labelling decision ruled out, a transfer experiment that "
      "pre-trains on FrJUDGE before fine-tuning on our splits; (iv) cross-lingual, cross-domain and sanity "
-     "experiments; and (v) a qualitative error analysis. We also report, in Section VII, two "
+     "experiments; (v) a legal-error type classifier evaluated with precision, recall and F1; and (vi) a "
+     "qualitative error analysis. We also report, in Section VII, two "
      "failures of our own pipeline that would have produced confidently wrong numbers, because both "
      "are invisible unless specifically tested for."),
 
@@ -553,6 +553,53 @@ BODY: list[tuple] = [
      "fit to deploy: the variant lookup still beats it, it fails one sanity check on one seed in "
      "three, and Section VI shows the cases it still gets badly wrong."),
 
+    ("h2", "Follow-up: MuRIL and five seeds"),
+    ("p",
+     "After the experiments above we ran two follow-ups, both post hoc and reported as such. We "
+     "repeated the transfer with MuRIL [6], an encoder pre-trained on Indian languages, over five "
+     "clause-grouped seeds (42 to 46), and we re-ran the XLM-R transfer over the same five seeds, "
+     "which required a fresh FrJUDGE pre-training run. Table IX compares them with the principal "
+     "system. We leave the principal system unchanged: promoting a better one after seeing these "
+     "numbers would be selection on the test data."),
+    ("caption", "Follow-up: FrJUDGE→ours with augmentation, Pearson per experiment (mean ± std over seeds; FrJUDGE = test Pearson of the pre-training run)"),
+    ("table", "followup"),
+    ("p",
+     "MuRIL generalises best. Its overall correlation equals the principal system's (0.577 +/- "
+     "0.068 against 0.576 +/- 0.102) with lower variance, and it is better on every generalisation "
+     "measure: Hindi in E1 (0.466 against 0.308), both languages on the matched bilingual subset "
+     "(0.269 and 0.182 against 0.165 and -0.041), and the harder cross-act direction (0.251 against "
+     "0.119, though with a standard deviation of 0.186). Zero-shot transfer between the languages "
+     "stays near zero for every system (MuRIL 0.086 from English to Hindi, 0.104 in reverse)."),
+    ("p",
+     "The re-run exposes a weakness in the transfer recipe. The same XLM-R pre-training on FrJUDGE, "
+     "with the same seed, reached 0.691 on the FrJUDGE test set instead of 0.873, and the downstream "
+     "correlation followed: 0.486 +/- 0.112 with augmentation, and 0.166 +/- 0.214 without it, "
+     "against the 0.586 +/- 0.098 reported for that variant in Table III. The non-augmented result "
+     "therefore rests on one favourable pre-training run; the augmented variants, and MuRIL, are "
+     "the robust ones."),
+
+    ("h2", "Legal-error type classification"),
+    ("p",
+     "The brief asks, optionally, for the type of legal error in each pair. We frame it as six-way "
+     "classification (none, modality, negation, number, exception dropped, scope) on the standard "
+     "and perturbed pairs of the E1 splits. The targets are objective: \"none\" for standard "
+     "simplifications and the injected type for perturbed ones, not the LLM annotations; aggressive "
+     "pairs have no known type and are excluded. We compare a rule baseline built on the same cues "
+     "as the demonstration's cue table with cross-encoder classifiers (class-weighted cross-entropy, "
+     "best development macro-F1)."),
+    ("caption", "Legal-error type classification on the E1 splits (five seeds): macro-F1 (mean ± std), accuracy and per-class F1"),
+    ("table", "errcls_main"),
+    ("p",
+     "Trained on the corpus alone, the classifiers lose to the rules (MuRIL 0.362 +/- 0.174 against "
+     "0.509 +/- 0.074): about 130 training pairs over six classes are too few. Augmenting only the "
+     "training clauses, by injecting each applicable error type into their standard simplifications "
+     "and into their original texts (about 630 training pairs per split), changes that: MuRIL "
+     "reaches 0.789 +/- 0.101 (0.852, 0.874, 0.621, 0.779 and 0.817 across seeds) and beats the "
+     "rules on every class. Appending the rule cues to the input does not help (0.573). Because the "
+     "augmentation and the rules use the same rules that injected the test errors, this shows that "
+     "the model recognises these error types; it says nothing about errors a simplifier makes "
+     "naturally, which carry no type label here."),
+
     ("h1", "Error Analysis"),
     ("p",
      "Scoring the corpus blind made one structure plain, and it organises this section. The ways a "
@@ -576,7 +623,7 @@ BODY: list[tuple] = [
      "with test predictions for that pair, and the blinded annotator's own "
      "score, so that annotator disagreement stays visible rather than being hidden inside the "
      "mean."),
-    ("caption", "E5: legally difficult cases, with the change that was made"),
+    ("caption", "E5: legally difficult cases, with the change that was made (pert. = perturbed, aggr. = aggressive, norm. = normal; Annot. = annotator B, the blinded one)"),
     ("cases", None),
     ("p",
      "Two patterns in that table are worth drawing out. Where an injected negation reverses a whole "
@@ -670,8 +717,9 @@ BODY: list[tuple] = [
         "No human checked the Hindi text against the source PDFs; the OCR and rule-based repairs were "
         "verified only by an automated agent spot-check. The sanity holdouts contain 3 Hindi "
         "identical pairs and no Hindi unrelated pairs, so the unrelated-pair check is English-only.",
-        "The corpus covers two acts and, for Hindi, one act only, because the official Hindi text of "
-        "the Consumer Protection Act was unavailable. The two Right to Information editions differ, "
+        "The corpus covers two acts and, for Hindi, one act only, because no official Hindi text of "
+        "the Consumer Protection Act was available when the corpus was built (the Hindi text of the "
+        "Bill as introduced has since been located and is not used here). The two Right to Information editions differ, "
         "and the Hindi text had to be recovered by OCR; both are documented and flagged, and "
         "affected provisions are dropped rather than edited.",
         "The clause review that gates the corpus was performed by a rule-based agent rather than a "
@@ -684,6 +732,13 @@ BODY: list[tuple] = [
         "E2 is restricted to the 35 bilingual Right to Information clauses, about 126 training "
         "pairs per split, which is too few to support a conclusion about cross-lingual transfer "
         "either way.",
+        "The FrJUDGE pre-training is not stable: re-running it with the same seed gave 0.691 instead "
+        "of 0.873 on FrJUDGE and lowered every downstream result, so single-run transfer numbers, "
+        "including our non-augmented 0.586, should be read with that variance in mind. The MuRIL and "
+        "error-type results are post-hoc follow-ups and are reported as such.",
+        "The error-type classifier is trained and tested on rule-injected errors, with augmentation "
+        "from the same rules; its macro-F1 measures recognition of those five types, not of the "
+        "omissions and paraphrase errors that real simplifiers make.",
         "Injected errors are rule-based and may be easier to detect than errors a model makes "
         "naturally, so perturbed results are reported separately from the rest.",
         "The corpus is small, and the consequences fall hardest on the development split: about 35 "
@@ -711,6 +766,14 @@ BODY: list[tuple] = [
      "Hindi 0.308), more stably across seeds. Cross-act transfer works in one direction (0.388) and "
      "barely in the other (0.119), and the 35-clause bilingual subset is too small to show "
      "cross-lingual transfer either way."),
+    ("p",
+     "Two follow-ups sharpen this picture. MuRIL with the same FrJUDGE pre-training matches the "
+     "principal system overall (0.577 +/- 0.068 over five seeds) and generalises better, to Hindi "
+     "(0.466) and to the harder cross-act direction (0.251), while a re-run of the XLM-R pre-training "
+     "shows that transfer numbers depend on the pre-training run. And the legal-error type can be "
+     "predicted: a MuRIL classifier trained with injected-error augmentation reaches macro-F1 0.789 "
+     "against 0.509 for rules, which gives the score an explanation, within the limits of "
+     "rule-injected errors."),
     ("p",
      "Three cautions frame these numbers. The corpus encodes its construction, so a lookup by "
      "variant already beats every learned model, and only the within-variant correlations (0.31 to "

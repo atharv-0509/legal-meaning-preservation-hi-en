@@ -113,7 +113,7 @@ def _sources_table() -> list[list[str]]:
     for (act, lang), (label, edition) in labels.items():
         sections, units = _count_units(act, lang)
         rows.append([label, edition, sections, units])
-    rows.append(["Consumer Protection Act 2019, Hindi", "Not obtainable; India Code unreachable", "--", "--"])
+    rows.append(["Consumer Protection Act 2019, Hindi", "Not used: unavailable when the corpus was built (Bill text as introduced found later)", "--", "--"])
     if notes:
         pass  # version notes are quoted in the prose; the table keeps the short form
     return rows
