@@ -1,0 +1,5 @@
+Act	Lang	Clauses	Pairs	Mean words	Mean label
+CPA	EN	40	119	50.2	7.40
+RTI	EN	38	114	53.0	7.69
+RTI	HI	35	105	52.5	7.49
+All		78	338	51.9	7.53

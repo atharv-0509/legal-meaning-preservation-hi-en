@@ -1,0 +1,5 @@
+Setting	Pearson	RMSE	Over-score %
+xlm-roberta-base-frjudge-da: test EN (trained on EN+HI)	0.675 ± 0.104	1.802 ± 0.165	38.2 ± 5.5
+xlm-roberta-base-frjudge-da: test HI (trained on EN+HI)	0.308 ± 0.115	2.472 ± 0.292	40.2 ± 3.9
+xlm-roberta-base-frjudge-da: train EN → test HI (zero-shot)	0.064 ± 0.214	2.561 ± 0.162	39.2 ± 4.6
+xlm-roberta-base-frjudge-da: train HI → test EN (zero-shot)	0.085 ± 0.104	2.569 ± 0.237	44.9 ± 5.8

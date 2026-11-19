@@ -1,0 +1,6 @@
+Injected error type	n	MAE LMP model	MAE baseline	MAE LLM judge
+exception_drop	4 ± 2	1.902 ± 0.084	2.254 ± 0.466 (labse-cal)	not run (labels are LLM-produced; circular)
+modality	9 ± 2	3.126 ± 0.423	2.496 ± 0.334 (labse-cal)	not run (labels are LLM-produced; circular)
+negation	8 ± 2	1.878 ± 0.744	4.629 ± 0.531 (labse-cal)	not run (labels are LLM-produced; circular)
+number	5 ± 2	2.874 ± 0.817	2.722 ± 0.172 (labse-cal)	not run (labels are LLM-produced; circular)
+scope	7 ± 2	1.995 ± 0.834	2.672 ± 0.208 (labse-cal)	not run (labels are LLM-produced; circular)
