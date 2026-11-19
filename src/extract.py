@@ -4,7 +4,8 @@
     python src/extract.py --act rti --lang hi --backend ocr
 
 Backends:
-  text  pdftotext (poppler) text layer. Fast; fine for most English PDFs.
+  text  pdftotext (poppler) text layer, preserving physical line breaks.
+  gazette  PyMuPDF extraction for the CPA 2019 Gazette's marginal headings.
   ocr   pdftoppm -> tesseract. Needed for scanned or legacy-font Hindi PDFs.
         Use the tessdata_best `hin.traineddata` (the fast model misreads legal words);
         point --tessdata-dir at it if it is not the system default.
@@ -38,9 +39,41 @@ MATRAS = "ािीुूृॄॅॆेैॉॊोौ्ॢॣ"
 def pdf_text_pages(pdf: Path) -> list[str]:
     if not shutil.which("pdftotext"):
         sys.exit("pdftotext not found: install poppler-utils (apt) / poppler (brew).")
-    out = subprocess.run(["pdftotext", "-enc", "UTF-8", str(pdf), "-"], capture_output=True, check=True)
+    out = subprocess.run(["pdftotext", "-layout", "-enc", "UTF-8", str(pdf), "-"], capture_output=True, check=True)
     pages = out.stdout.decode("utf-8", errors="replace").split("\f")
     return [p for p in pages if p.strip()] or [""]
+
+
+def pdf_gazette_pages(pdf: Path) -> list[str]:
+    import pymupdf
+
+    pages = []
+    with pymupdf.open(pdf) as document:
+        for page in document:
+            # shortcut: CPA 2019 Gazette body occupies x=110..480 points; recalibrate for another edition.
+            blocks = sorted(page.get_text("blocks", clip=pymupdf.Rect(110, 85, 480, page.rect.height)),
+                            key=lambda block: (block[1], block[0]))
+            starts = [block for block in blocks if re.match(r"^\d+\.\s", block[4])]
+            margins = []
+            for block in page.get_text("dict")["blocks"]:
+                for line in block.get("lines", []):
+                    left, top, right, bottom = line["bbox"]
+                    text = "".join(span["text"] for span in line["spans"]).strip()
+                    if top > 85 and (right < 110 or left > 480) and not re.fullmatch(r"\d+ of \d{4}\.", text):
+                        margins.append((top, text))
+            output = []
+            for block in blocks:
+                text = block[4]
+                if block in starts:
+                    index = starts.index(block)
+                    end = starts[index + 1][1] - 8 if index + 1 < len(starts) else page.rect.height
+                    heading = " ".join(text for top, text in sorted(margins) if block[1] - 8 <= top < end)
+                    if not heading:
+                        raise ValueError(f"page {page.number + 1}: missing marginal heading; check Gazette layout")
+                    text = re.sub(r"^(\d+)\.\s*", lambda match: f"{match[1]}. {heading}{DASH}", text, count=1)
+                output.append(text)
+            pages.append("\n".join(output))
+    return pages
 
 
 def pdf_ocr_pages(pdf: Path, lang: str, dpi: int = 300, tessdata_dir: str | None = None,
@@ -118,7 +151,7 @@ def fix_hindi_spacing(text: str) -> str:
 
 _FOOTNOTE_EN = re.compile(
     r"^\s*\d{1,2}\s*\.?\s*(?:Subs\.?|Ins\.?|Omitted|Added|Rep\.?|Renumbered|Inserted|Substituted|The words?|"
-    r"Vide|Came into force|w\.e\.f|Cl\.|Section \d+ (?:was|of)|Sub-section)", re.I)
+    r"Vide|Came into force|w\.e\.f|Cl\.|Section \d+ (?:was|of)|Sub-section)(?!\w)", re.I)
 _FOOTNOTE_HI = re.compile(
     r"^\s*[\d०-९]{1,2}\s*\.?\s*.{0,80}(?:द्वारा प्रतिस्थापित|द्वारा अंतःस्थापित|द्वारा अंत:स्थापित|का लोप किया गया|"
     r"द्वारा लोप|द्वारा जोड़ा गया|द्वारा निरसित|से प्रवृत्त)")
@@ -189,7 +222,8 @@ SUB_TERMINATORS = (".", "।", ":", ";", DASH, "–", "-", ")")
 def parse_sections(text: str, lang: str) -> list[dict]:
     """Find numbered sections. The table of contents is skipped because its entries have no dash
     after the heading; if a number still repeats, the occurrence with the longest body wins."""
-    m = SCHEDULE_RE.search(text, pos=min(len(text), 2000))
+    first_section = SECTION_RE.search(text)
+    m = SCHEDULE_RE.search(text, pos=first_section.end()) if first_section else None
     if m:
         text = text[:m.start()]
     matches = list(SECTION_RE.finditer(text))
@@ -266,7 +300,7 @@ def extract_one(act: dict, lang: str, backend: str, paths, args) -> list[dict]:
         print(f"[{act['act_id']}/{lang}] missing {pdf} — download it by hand (see data/raw/README.md).")
         return []
     print(f"[{act['act_id']}/{lang}] {pdf.name} backend={backend}")
-    pages = None
+    pages = pdf_gazette_pages(pdf) if backend == "gazette" else None
     if backend in ("text", "auto"):
         pages = pdf_text_pages(pdf)
         q = text_quality(pages, lang)
@@ -297,7 +331,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--act", help="act_id from sources.json (default: all)")
     ap.add_argument("--lang", choices=["en", "hi"], help="default: both")
-    ap.add_argument("--backend", choices=["auto", "text", "ocr"], default="auto")
+    ap.add_argument("--backend", choices=["auto", "text", "gazette", "ocr"], default="auto")
     ap.add_argument("--dpi", type=int, default=300)
     ap.add_argument("--tessdata-dir", help="directory holding tessdata_best hin.traineddata / eng.traineddata")
     ap.add_argument("--sources", default=None)

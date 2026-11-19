@@ -1,5 +1,6 @@
 # Dataset pipeline (legal-lmp-dataset/src)
 openpyxl>=3.1
 numpy>=1.24
+pymupdf>=1.24
 # Optional, only for the OCR route of extract.py (also needs tesseract-ocr + poppler-utils on PATH)
 # pytesseract is NOT required: extract.py calls the tesseract binary directly.
