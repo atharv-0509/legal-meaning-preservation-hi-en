@@ -284,16 +284,45 @@ def build(out_path: Path) -> list[str]:
         "[TBD: screenshot once a trained checkpoint is in place.]",
     ])
 
+    # ---- 14b. the honest headline
+    bullet_slide(prs, "The headline is negative — and that is the result", [
+        "Best learned metric: XLM-R + DA, Pearson **0.228 ± 0.288** (seeds 0.56 / 0.21 / "
+        "−0.08). The SD exceeds the mean.",
+        ("≈ 1.4 standard errors from zero: not distinguishable from no correlation, nor from "
+         "LaBSE at 0.101, and far from our 0.723 annotator ceiling.", 16, 1),
+        "Same code reaches **0.707 on FrJUDGE**. So the limit is scale, not method: ~200 training "
+        "pairs with a bimodal label distribution.",
+        "E2: EN 0.297 vs HI 0.010; zero-shot EN→HI 0.057, HI→EN −0.017. "
+        "E3: CPA→RTI 0.144, RTI→CPA 0.040.",
+        "E4: no system passes both sanity checks — XLM-R-DA 33% / 31%; JUDGEBERT-DA passed both.",
+    ], subtitle="We report it this way because a reviewer would find it anyway, and the design is "
+                "what we are defending")
+
+    # ---- 14c. what survives
+    bullet_slide(prs, "What survives the negative result", [
+        "**The diagnostic set works.** Negation is the hardest injected error for every system "
+        "(MAE 4.3 model, 4.6 LaBSE). One inserted \"not\" flips the law and barely moves an "
+        "embedding — the clearest argument for a purpose-built metric.",
+        "**The sanity checks discriminate.** Train-fitted calibration improves baseline RMSE "
+        "(2.81 → 2.42) while making all four fail both checks at 0%.",
+        "**The apparatus is sound.** We reproduce FrJUDGE at 0.707 in the released setting, and "
+        "show the setting described in the paper's prose (patience 5) is unstable: 0.606 ± "
+        "0.284, one seed collapsing to −0.196.",
+        "**And the published 0.97 is partly test-set composition:** DA-trained, scored on human "
+        "pairs only, it is 0.869.",
+    ])
+
     # ---- 15. conclusion
     bullet_slide(prs, "Where this stands", [
         "Built: bilingual extraction from real government PDFs with quantitative acceptance tests, "
         "three-variant simplification design, blinded workbooks, clause-grouped splits, "
         "training / baselines / LLM judge / evaluation / error analysis, one-command results.",
         "Honest status: labels are disclosed LLM judgements; human validation is prepared but not "
-        "yet scored; Hindi text recovery and the full model runs are open items.",
+        "yet scored; the learned metric is not yet useful at this corpus size.",
         "What the design buys: the perturbed diagnostic set and the clause-grouped splits make the "
         "weaknesses of the original study measurable rather than arguable.",
-        "[TBD: headline numbers once E1–E5 complete.]",
+        "Next: borrow scale across jurisdictions (FrJUDGE → Indian transfer, running), and "
+        "replace model annotations with human legal judgement.",
     ], note=DISCLOSURE)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
