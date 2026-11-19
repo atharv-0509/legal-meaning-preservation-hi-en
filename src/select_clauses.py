@@ -139,7 +139,8 @@ def candidates_for_act(act: dict, paths, args) -> tuple[list[dict], dict]:
             "heading_en": ue["heading"], "heading_hi": uh["heading"] if uh else "",
             "text_en": ue["text"], "text_hi": text_hi, "n_words_en": n_words, "n_words_hi": n_words_hi,
             "n_sents_en": n_sents, "reading_ease_en": fre, "markers_en": m_en, "markers_hi": m_hi,
-            "weight": clause_weight(m_en), "auto_flags": auto_flags(ue["text"], text_hi, n_words, n_words_hi),
+            "weight": clause_weight(m_en), "auto_flags": auto_flags(ue["text"], text_hi, n_words, n_words_hi)
+            + act.get("review_flags", []) + act.get("section_review_flags", {}).get(ue["section"], []),
             "source": {"en": act["pdf"]["en"], "hi": act["pdf"]["hi"], "url": act.get("url"),
                        "version_note": act.get("version_note")},
         })

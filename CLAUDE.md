@@ -13,6 +13,7 @@ Team: [names / roll numbers]. The project should also work as a resume piece and
 ## 1. Current status (update this section as work moves)
 
 As of 18 Nov 2026:
+- 19 Nov 2026: DoPT RTI EN/HI and Gazette CPA EN extracted; 78 provisional review rows generated. Hindi OCR and amendment review remain blocked; CPA HI missing. See `paper/source_provenance.md`; no human review or finalization claimed.
 - 19 Nov 2026: Windows Python 3.12.6 environment installed; full pytest baseline passes (33 passed, 0 failed, 0 skipped). Reset the fake-server request counter between tests; setup commands are in `modeling/README.md`.
 - [x] Project chosen (PID-08) and Milestone 1 presented on 14 Oct 2026 (10-slide deck: problem, related work, gaps, feasibility, objectives, method, techniques, experiments + timeline).
 - [x] Dataset pipeline (`legal-lmp-dataset/`) written and tested end to end on **synthetic** text (`tests/`).

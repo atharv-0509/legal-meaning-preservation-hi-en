@@ -7,7 +7,9 @@
       "domain": "public_information",
       "url": "https://www.indiacode.nic.in/handle/123456789/2065",
       "pdf": {"en": "data/raw/rti_en.pdf", "hi": "data/raw/rti_hi.pdf"},
-      "version_note": "[TBD: record the 'as on' / amendment date printed on each PDF]"
+      "version_note": "Downloaded 2026-11-19 from DoPT. EN: https://rti.dopt.gov.in/Writereaddata/RTI%20Act,%202005%20(Amended)-English%20Version.PDF ; cover: as on 18 November 2025, includes 2023 amendment. HI: https://rti.dopt.gov.in/Writereaddata/RTI%20Act%20Version%20Hindi.pdf ; includes 2019 amendments, consolidation date [TBD]. HI PDF page 8 retains the older personal-information wording in section 8(1), unlike EN section 8(1)(j). HI text layer requires OCR; do not annotate extracted Hindi yet.",
+      "review_flags": ["hi_ocr_required", "amendment_version_review"],
+      "section_review_flags": {"8": ["en_hi_version_mismatch"]}
     },
     {
       "act_id": "cpa",
@@ -16,7 +18,7 @@
       "domain": "consumer_law",
       "url": "https://www.indiacode.nic.in/handle/123456789/15256",
       "pdf": {"en": "data/raw/cpa_en.pdf", "hi": "data/raw/cpa_hi.pdf"},
-      "version_note": "[TBD: record the 'as on' / amendment date printed on each PDF]"
+      "version_note": "Downloaded 2026-11-19: Gazette of India Extraordinary, Act No. 35 of 2019, 9 August 2019, https://egazette.gov.in/WriteReadData/2019/210422.pdf (40 pages). EN is the original Gazette enactment, not a verified current consolidation. HI source missing; English-only rows must not enter E2. Extract EN with --backend gazette."
     }
   ]
 }
