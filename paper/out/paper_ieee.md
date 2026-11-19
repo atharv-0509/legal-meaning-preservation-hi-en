@@ -154,6 +154,7 @@ The whole chain from labelled pairs to the tables below is a single reproducible
 
 | Setting | Pearson | RMSE | Over-score % |
 |---|---|---|---|
+| [TBD] | [TBD] | [TBD] | [TBD] |
 
 **TABLE V. E3: cross-act generalisation**
 
@@ -185,7 +186,9 @@ The whole chain from labelled pairs to the tables below is a single reproducible
 | number | n/a | n/a | 3.987 ± 0.178 (labse) | not run (labels are LLM-produced; circular) |
 | scope | n/a | n/a | 3.917 ± 0.619 (labse) | not run (labels are LLM-produced; circular) |
 
-[TBD: narrative reading of the tables once the runs are complete.]
+The baselines are in and the trained cross-encoder is still running, so the comparison that defines E1 is incomplete; what the baselines alone already show is worth stating. Every generic metric is close to useless on this corpus: LaBSE reaches Pearson 0.101 +/- 0.026, multilingual BERTScore 0.055 +/- 0.040, BLEU 0.018 +/- 0.021 and ROUGE-L 0.010 +/- 0.033. These are far below the 0.46 that BERTScore achieves on FrJUDGE, and the difference is a property of our corpus rather than of the metrics. A third of our pairs carry a single injected legal error, so the simplification is lexically and semantically almost identical to a faithful one while meaning the opposite; an overlap or embedding metric cannot see the difference by construction. The diagnostic table makes this explicit: LaBSE's error is largest exactly where the change is smallest on the surface, 5.896 +/- 0.372 mean absolute error on negation reversals against 3.022 +/- 0.910 on dropped exceptions. We note the alternative reading honestly, namely that correlations this low could indicate a baseline implementation fault; against that, the same code reproduces BERTScore's published behaviour on FrJUDGE, the four metrics fail in the same direction, and their ranking tracks surface sensitivity as theory predicts.
+
+The sanity checks add a caution about calibration that we had not anticipated. In their naive mapping all four baselines score 100% of identical holdout pairs at or above 9.9, but none places unrelated pairs at or below 1.1 (BLEU manages 11.8%), so every generic metric fails the second check. After the train-fitted linear calibration that makes their RMSE competitive, they fail both checks at 0%: the fit compresses predictions towards the label mean, which improves RMSE while destroying exactly the two endpoints a meaning-preservation metric must get right. Calibrated RMSE for these systems should therefore be read as a scaling artefact, not as evidence of fitness, and this is why we report both mappings. [TBD: the trained LMP model's rows, the E1 and E2 comparisons, and the cross-act results once the GPU runs complete.]
 
 ## VI. Error Analysis
 
@@ -199,7 +202,11 @@ The first is a tokenizer fallback. Under transformers 5.x, loading the CamemBERT
 
 The second is the Hindi text layer described in Section III-C, where two different extractors fail in two different ways while both returning text that looks like Hindi. The general lesson for legal NLP in Indic scripts is that an extraction step needs an explicit, quantitative acceptance test, because downstream metrics are computed happily on corrupted input.
 
-As an end-to-end check of the training code against a published result, we convert the released FrJUDGE splits and reproduce the original setting without augmentation. [TBD: our Pearson and RMSE against the published 0.74 +/- 0.02 and 1.72.] The FrJUDGE data is CC-BY-NC-SA 4.0 and is used only for this check; we do not redistribute it.
+As an end-to-end check of the training code against a published result, we converted the released FrJUDGE splits and reran the original no-augmentation setting over the same ten seeds on a single T4. The check succeeds, with a caveat worth stating precisely. Following the released code, which trains for 100 epochs and keeps the best development checkpoint, we obtain Pearson 0.707 +/- 0.042 and RMSE 1.788 +/- 0.115 against the published 0.74 +/- 0.02 and 1.72. Our Pearson is 0.033 lower, which over ten seeds each is roughly two standard errors: close enough to confirm that the implementation is the same method in the same regime, not close enough to call an exact replication. The residual gap is most plausibly explained by library versions (the tokenizer fallback of Section VII-A is itself a transformers 5.x artefact), our 512-token maximum length, and seed-level nondeterminism on different hardware.
+
+The more useful finding is that the setting matters more than the gap. Trained with early stopping at patience 5, which is what the paper's text describes, the same code gives Pearson 0.606 +/- 0.284: one seed stopped at epoch 5 and collapsed to -0.196, and the remaining nine average 0.695. The released code has that early-stopping callback commented out. A reader following the paper's description rather than its code would therefore see a wide, unstable spread and might conclude the method does not work, when the instability belongs to the stopping rule. We report both settings for that reason.
+
+A partial augmented run (two seeds so far) is also informative about the headline number of the original work. Trained with augmentation but evaluated on the human-annotated test pairs only, it reaches Pearson 0.869 +/- 0.023 and RMSE 1.276 +/- 0.128, against the 0.97 the paper reports on a test set that includes the trivial identical and unrelated augmentation pairs. The augmented model is genuinely much stronger than the unaugmented one, and the published 0.97 is also partly an artefact of what is in the test set. This is the concrete reason our own headline metrics exclude augmentation and sanity pairs. The FrJUDGE data is CC-BY-NC-SA 4.0 and is used only for this check; we do not redistribute it.
 
 ## VIII. Limitations and Ethics
 

@@ -67,7 +67,12 @@ def _read_tsv(key: str) -> list[list[str]] | None:
         return None
     with path.open(encoding="utf-8-sig", newline="") as fh:
         rows = [row for row in csv.reader(fh, delimiter="\t") if any(cell.strip() for cell in row)]
-    return rows or None
+    # A header with no body rows means the pipeline wrote the file but produced no results for it
+    # (this happened to e2.tsv). Rendering that as an empty table would look like a measured
+    # result of nothing, so treat it as missing and let the caller show [TBD] instead.
+    if len(rows) < 2:
+        return None
+    return rows
 
 
 def _tbd(key: str) -> list[list[str]]:
