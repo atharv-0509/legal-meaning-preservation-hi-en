@@ -46,24 +46,26 @@ agents is in `docs/agents/agent-chat-history.md`.
 | Splits | `data/splits/` | random_s42/43/44 (clause-grouped), bilingual_s42/43/44 (35 RTI clauses, E2), ood_rti_to_cpa / ood_cpa_to_rti (DA from training act only) + holdouts |
 | Experiments | `modeling/runs/`, `reports/tables/*.tsv`, `reports/results.md` | see §2 |
 | FrJUDGE check | `reports/frjudge_repro.md` (+ `.log`) | 0.707 ± 0.042 vs paper 0.74 → training code validated |
-| Paper + slides | `paper/out/LMP_paper_IEEE.{docx,pdf}`, `paper/out/LMP_slides.pptx` | 12-page IEEE paper, 21 slides, authors filled in, no `[TBD]` left |
-| Tests | `tests/` | 46 passing (`python -m pytest -q`) |
+| Paper + slides | `paper/out/LMP_paper_IEEE.{docx,pdf}`, `paper/out/LMP_slides.pptx` | 12-page IEEE paper, 21 slides, authors filled in, no `[TBD]` left; rebuilt on Windows with Word |
+| Tests | `tests/` | 47 passing (`python -m pytest -q`) |
 
 ## 2. Headline results (Pearson on annotated test pairs, mean ± std over 3 seeds)
 
-| System | E1 overall | EN | HI | CPA→RTI | RTI→CPA |
+| System | E1 overall | E2 EN (matched RTI) | E2 HI (matched RTI) | E3 CPA→RTI | E3 RTI→CPA |
 |---|---|---|---|---|---|
-| **XLM-R, FrJUDGE → ours, DA (principal)** | **0.576 ± 0.102** | 0.675 | 0.308 | 0.388 | 0.119 |
-| XLM-R, FrJUDGE → ours, no DA | 0.586 ± 0.098 | 0.687 | 0.322 | | |
-| XLM-R from scratch + DA | 0.228 ± 0.288 | 0.297 | 0.010 | 0.186 | 0.056 |
+| **XLM-R pre-trained on FrJUDGE → ours (DA)** | **0.576 ± 0.102** (no DA: **0.586 ± 0.098**) | 0.165 ± 0.063 | −0.041 ± 0.144 | 0.388 ± 0.021 | 0.119 ± 0.051 |
+| XLM-R from scratch + DA | 0.228 ± 0.288 | −0.059 | −0.058 | 0.186 | 0.056 |
 | LaBSE, calibrated (best generic baseline) | 0.101 | | | | |
 | Variant-mean lookup (uses answer key; diagnostic) | 0.831 | | | | |
 
-E2 on the 35 bilingual RTI clauses (~126 training pairs) is inconclusive: joint training EN 0.165 / HI −0.041,
-zero-shot EN→HI 0.035, HI→EN 0.131. Within-variant Pearson of the principal system: aggressive 0.487,
-perturbed 0.584. Demo checkpoint: `python modeling/kaggle/kaggle_client.py fetch --user atharvarora05 --slug
-lmp-e23-fixed --prefix demo_model/` → `modeling/checkpoints/demo_model` (git-ignored, ~1.1 GB).
-Training settings that work: lr 2e-5, batch 8, 30 epochs,
+E2/E3 are from the corrected `lmp-e23-fixed` kernel (collected 19 Nov, 14:12 UTC): E2 trains and tests on the
+35 RTI clauses present in both languages; E3 takes DA partners only from the training act. They replace the
+earlier E2 (0.675 EN / 0.308 HI), which was the E1 runs split by language and is confounded by act (EN pools
+CPA, where the model scores 0.669, vs RTI 0.485), and the earlier E3 (0.384 / 0.319), whose DA partners came
+from the target act. **The transfer gain is real overall and on CPA, but is not shown for Hindi on matched
+provisions.** The corrected E2/E3 runs start from a fresh FrJUDGE pre-training (test Pearson 0.849, `modeling/runs_frj/.../frjudge_s42_e23fixed`); the E1 transfer runs and the paper's 0.873 use the earlier one (`frjudge_s42`). E5 now uses in-domain (E1) predictions: the transferred model averages 4.0 on low-label
+negation reversals in domain (7.6 from scratch) but still gives single reversals 10.0, and 7.3 across acts.
+Zero-shot EN↔HI transfer stays at zero (0.035 / 0.131). Within-variant Pearson of the principal system: aggressive 0.487, perturbed 0.584. Demo checkpoint: `python modeling/kaggle/kaggle_client.py fetch --user atharvarora05 --slug lmp-e23-fixed --prefix demo_model/` → `modeling/checkpoints/demo_model` (git-ignored, ~1.1 GB). Training settings that work: lr 2e-5, batch 8, 30 epochs,
 **no early stopping**, keep best dev checkpoint (early stopping on the ~35-pair dev set collapsed every run).
 
 ## 3. How to run things
@@ -92,14 +94,18 @@ powershell -File paper\build.ps1                 # paper + slides only
    2–3 team members score the 30-pair workbook in `data/annotation/pilot/` (rubric:
    `guidelines/annotation_guidelines.md`), then report LLM-vs-human correlation in the paper. Ideally
    score more pairs and re-label.
-2. **Merge `handover` into `main`** on GitHub.
-3. **Hindi CPA PDF** from India Code when it is reachable → `data/raw/cpa_hi.pdf`, re-run extract → select
+2. ~~Merge `handover` into `main`~~ — done 19 Nov (fast-forward); clone `main` from now on.
+3. **Hindi CPA PDF** (retried 19 Nov: not obtainable from the cloud machine; see `sources.json` → `cpa.hi_source_attempts`). Fastest route: open WIPO Lex 23153 in a browser and download the Hindi PDF (a consolidation up to Act 33 of 2021: drop sections that differ from the 2019 English Gazette), or India Code → `data/raw/cpa_hi.pdf`, re-run extract → select
    → simplify (CPA HI) → annotate → `run_all.py all`. Makes E2 cover both acts.
-4. **Demo**: `modeling/predict.py --demo` needs a saved checkpoint. Re-run the transfer model with
-   `--save-model` (Kaggle output or Colab) and load it.
+4. **Demo**: the checkpoint now exists in the output of Kaggle kernel `lmp-e23-fixed` (`demo_model/`:
+   XLM-R pre-trained on FrJUDGE, fine-tuned on `random_s42`, no DA). Download it from kaggle.com → that
+   kernel → Output (it is ~1 GB, not in git), then `python modeling/predict.py --model-dir demo_model --demo`
+   (needs `pip install gradio`). **Verified 19 Nov** by Kaggle kernel `lmp-demo-check`
+   (`modeling/kaggle/demo_check.py`): loaded through `predict.py`, it reproduces the run's test Pearson exactly
+   (0.479 on the 96 `random_s42` test pairs) and outputs score + decision per pair.
 5. Improve zero-shot EN↔HI transfer (e.g. MuRIL/IndicBERT with FrJUDGE pre-training, more seeds).
 6. Slides: check timing/visuals for the presentation; paper: final read-through.
-7. **Verify a Hindi reader on the OCR'd clauses.** The corpus rests on OCR that no Hindi reader has
+7. **Verify a Hindi reader on the OCR'd clauses** (ready: `reports/ocr_spotcheck_hi.md` + `.csv`, 8 sampled clauses; DoPT blocks cloud machines, so do it from India). The corpus rests on OCR that no Hindi reader has
    checked; §5 of the paper says so, but a sample review would either remove that caveat or find a
    real problem. It is the cheapest remaining risk to retire.
 

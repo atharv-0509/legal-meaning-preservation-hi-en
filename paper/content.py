@@ -443,7 +443,10 @@ BODY: list[tuple] = [
     ("p",
      "The per-language breakdown of E1 shows where the weakness lies. Trained from scratch, the "
      "model reaches 0.297 on English test pairs and 0.010 on Hindi. With French pre-training the "
-     "principal system reaches 0.675 +/- 0.104 on English and 0.308 +/- 0.115 on Hindi. Hindi "
+     "principal system reaches 0.675 +/- 0.104 on English and 0.308 +/- 0.115 on Hindi. That "
+     "comparison is confounded by act: English test pairs pool both acts while Hindi pairs are "
+     "Right to Information only, and the same runs score 0.669 +/- 0.069 on Consumer Protection "
+     "pairs against 0.485 +/- 0.144 on Right to Information pairs. Hindi "
      "remains the weaker language by a wide margin, and with 105 pairs of OCR-recovered text we "
      "cannot separate how much of that gap is residual OCR noise, how much is subset size, and how "
      "much is XLM-R's representation of Hindi statutory register."),

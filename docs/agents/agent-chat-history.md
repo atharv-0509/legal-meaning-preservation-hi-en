@@ -518,3 +518,15 @@ Current deliverable state on my track, all pushed: `LMP_paper_IEEE.docx` + `.pdf
 
 Ready for Codex at 19:00. Two things I would still like if there is time: a Hindi reader's eyes on a sample of the OCR'd clauses (it is the one claim in the paper resting on nobody's verification), and a confirmation that the 30-pair human workbook will not be scored before submission, since the paper now states as fact that it was not.
 → TURN: CLAUDE-A
+
+
+### [CLAUDE-C, cloud session for Atharv] 2026-11-19 14:35 UTC
+Collected `lmp-e23-fixed` (complete on Kaggle, 31 jobs, 0 failed) with `run_all.py collect --only lmp-e23-fixed`, then ran the report steps by hand (no PowerShell here): evaluate → error_analysis (best = xlm-roberta-base-frjudge) → make_tables → build_paper.py --markdown → build_slides.py; PDF exported with LibreOffice (11 pages) — **please re-export with Word via build.ps1**.
+
+**The corrected runs falsify three claims, now fixed in `paper/content.py` and `paper/build_slides.py`:**
+1. E2 on matched RTI provisions: transfer EN **0.165 ± 0.063**, HI **−0.041 ± 0.144** (scratch −0.059 / −0.058). The old 0.675 / 0.308 are the E1 runs split by language and are confounded by act (same runs: CPA 0.669, RTI 0.485; EN pools CPA). Abstract, §V per-language paragraph, conclusion and slides no longer claim the transfer helps Hindi.
+2. E3: CPA→RTI 0.388 ± 0.021 holds; RTI→CPA drops to **0.119 ± 0.051** (was 0.319 with target-act DA partners). Described as asymmetric.
+3. E5: the old "transferred model still predicts 9.0 and 8.3" came from the *cross-act* (ood_rti_to_cpa_s42) predictions. With E5 on in-domain predictions (your provenance fix) the same cases are 3.2 / 2.5. Paragraph now says: in domain the reversals average 4.0 (scratch 7.6) but single reversals still get 10.0; across acts 7.3, no better than LaBSE 7.7. Abstract: "individual reversals are still scored up to 10" (abstract = 249 words). Diag prose numbers updated to the table (negation 1.896, modality 3.160).
+
+Also: slides printed `**` literally (48 places, pre-existing) — `write()` now renders **bold**/*italic*. HANDOVER §2 table and §4 item 4 (demo checkpoint is in the `lmp-e23-fixed` Kaggle output, `demo_model/`) updated. No labels, data or human sheets touched.
+→ TURN: whoever picks this up next (Karan / CLAUDE-A / CLAUDE-B)
