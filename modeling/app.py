@@ -5,6 +5,8 @@
 
 What it shows for one original/simplification pair:
   * the model's LMP score (1-10) and decision (Preserved / Partially Preserved / Not Preserved);
+  * the likely legal error type with a one-line explanation: rule-based always, plus a trained classifier
+    if --errcls-dir is given (modeling/error_classifier.py; metrics in reports/error_classification.md);
   * a rule-based "legal cue check" (negation, obligation/permission, exceptions, conditions, time limits,
     numbers) comparing the two texts. This is a heuristic explanation aid, NOT the model's reasoning;
   * optional: "Generate simplification" with an LLM, only if LLM_API_KEY and LLM_MODEL (exact model id;
@@ -24,7 +26,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "modeling")]
-from common import devanagari_ratio, find_markers, numbers_in  # noqa: E402
+from legal_cues import EXPLANATIONS, cue_rows, lang_of, rule_error_type  # noqa: E402
 from rubric import decision  # noqa: E402
 
 EXAMPLES_FILE = ROOT / "data" / "splits" / "random_s42" / "test.jsonl"
@@ -32,35 +34,6 @@ FEATURED = ["cpa-s10_1|en|normal", "cpa-s10_1|en|perturbed", "cpa-s10_1|en|aggre
             "rti-s11_4|hi|normal", "rti-s11_4|hi|perturbed", "rti-s11_4|hi|aggressive"]
 VARIANT_NAME = {"normal": "standard simplification", "perturbed": "one injected legal error",
                 "aggressive": "explained to a 12-year-old"}
-
-CUES = [  # (marker category from common.find_markers, label shown to the user)
-    ("prohibition", "Prohibition (shall not / नहीं …)"),
-    ("obligation", "Obligation (shall / must / करेगा)"),
-    ("permission", "Permission (may / सकेगा)"),
-    ("exception", "Exception / proviso"),
-    ("override", "Override (notwithstanding / subject to)"),
-    ("condition", "Condition (if / where / यदि)"),
-    ("time_limit", "Time limit"),
-]
-# English modality in plain-language simplifications: "will"/"has to" usually carry the obligation of "shall",
-# and "may" inside drafting idioms ("as it may specify", "may be prescribed") is not a permission.
-EN_OBLIG = re.compile(r"\b(shall|must|will|has to|have to|is required to|are required to|needs? to)\b(?!\s+not)", re.I)
-EN_PERM = re.compile(r"\b(may|can|is allowed to|are allowed to|is entitled to|are entitled to)\b(?!\s+not)", re.I)
-EN_PERM_IDIOM = re.compile(r"\b(as|which|that)\s+(\w+\s+){0,3}may\b|\bmay\s+be\s+(prescribed|specified|notified|"
-                           r"determined|necessary|required)|\bcase\s+may\s+be\b", re.I)
-
-
-def en_modality(text: str) -> set[str]:
-    out = set()
-    if EN_OBLIG.search(text):
-        out.add("obligation")
-    if EN_PERM.search(EN_PERM_IDIOM.sub(" ", text)):
-        out.add("permission")
-    return out
-
-
-NEG = {"en": re.compile(r"\b(not|no|never|cannot|can't|won't|neither|nor)\b", re.I),
-       "hi": re.compile(r"(?<![ऀ-ॿ])(नहीं|न|मत)(?![ऀ-ॿ])")}
 
 CSS = """
 .lmp-banner {background:#fff7e6;border:1px solid #f0c36d;color:#5c4400;border-radius:10px;padding:10px 14px;font-size:14px}
@@ -77,10 +50,6 @@ CSS = """
 .lmp-ok {color:#2e8b57}
 .lmp-empty {opacity:.7;font-size:14px}
 """
-
-
-def lang_of(text: str) -> str:
-    return "hi" if devanagari_ratio(text) > 0.3 else "en"
 
 
 def load_examples() -> dict[str, dict]:
@@ -114,36 +83,10 @@ def score_card(score: float, ref: float | None) -> str:
 
 
 def cue_table(original: str, simplification: str) -> str:
-    lo, ls = lang_of(original), lang_of(simplification)
-    mo, ms = set(find_markers(original, lo)), set(find_markers(simplification, ls))
-    for markers, text, lang in ((mo, original, lo), (ms, simplification, ls)):
-        if lang == "en":                     # replace the generic English modality markers (see en_modality)
-            markers -= {"obligation", "permission"}
-            markers |= en_modality(text)
-    rows, flags = [], 0
-    no, ns = len(NEG[lo].findall(original)), len(NEG[ls].findall(simplification))
-    if no != ns:
-        flags += 1
-        rows.append(("Negation words", f"{no}", f"{ns}", "Negation count differs: meaning may be reversed"))
-    for cat, label in CUES:
-        a, b = cat in mo, cat in ms
-        if a or b:
-            note = ""
-            if a and not b:
-                note, flags = "Present in original, missing in simplification", flags + 1
-            elif b and not a:
-                note, flags = "Added in simplification", flags + 1
-            rows.append((label, "yes" if a else "—", "yes" if b else "—", note))
-    numo, nums = numbers_in(original), numbers_in(simplification)
-    if numo or nums:
-        lost = sorted(set(numo) - set(nums))
-        new = sorted(set(nums) - set(numo))
-        note = "; ".join(x for x in (f"missing: {', '.join(lost)}" if lost else "",
-                                     f"new: {', '.join(new)}" if new else "") if x)
-        flags += bool(note)
-        rows.append(("Numbers", ", ".join(numo) or "—", ", ".join(nums) or "—", note))
+    rows = cue_rows(original, simplification)
     if not rows:
         return '<div class="lmp-empty">No legal cues detected by the rules.</div>'
+    flags = sum(bool(r[3]) for r in rows)
     body = "".join(
         f"<tr><td>{html.escape(a)}</td><td>{html.escape(b)}</td><td>{html.escape(c)}</td>"
         f"<td class='{'lmp-flag' if d else 'lmp-ok'}'>{html.escape(d) if d else 'consistent'}</td></tr>"
@@ -154,11 +97,53 @@ def cue_table(original: str, simplification: str) -> str:
             f"<th>Check</th></tr>{body}</table></div>")
 
 
-def build(model_dir: str):
+TYPE_LABEL = {"none": "No injected-type error", "modality": "Obligation ↔ permission (shall/may)",
+              "negation": "Negation added or removed", "number": "Number / time limit changed",
+              "exception_drop": "Exception or proviso dropped", "scope": "Scope changed (all → some)"}
+
+
+def error_card(rule: tuple[str, str], neural: tuple[str, float] | None) -> str:
+    rt, why = rule
+    parts = [f"<p><b>Rule-based:</b> {html.escape(TYPE_LABEL[rt])}<br><span style='opacity:.85'>{html.escape(why)}</span></p>"]
+    if neural:
+        nt, conf = neural
+        parts.append(f"<p><b>Trained classifier:</b> {html.escape(TYPE_LABEL[nt])} "
+                     f"<span style='opacity:.8'>(confidence {conf:.0%})</span><br><span style='opacity:.85'>"
+                     f"{html.escape(EXPLANATIONS[nt])}</span></p>")
+    parts.append("<p style='font-size:12px;opacity:.75'>Types follow the injected errors of the dataset (shall/may, "
+                 "negation, number, exception, scope); omissions of other kinds are not typed. "
+                 "See reports/error_classification.md for precision/recall/F1.</p>")
+    return '<div class="lmp-cues">' + "".join(parts) + "</div>"
+
+
+class ErrorTyper:
+    """Optional trained error-type classifier (modeling/error_classifier.py --save-model DIR)."""
+
+    def __init__(self, model_dir: str):
+        import torch
+        from transformers import AutoModelForSequenceClassification
+        from lmp_data import load_tokenizer
+        self.torch = torch
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.tok = load_tokenizer(model_dir)
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_dir).to(self.device).eval()
+        self.labels = [self.model.config.id2label[i] for i in range(self.model.config.num_labels)]
+
+    def __call__(self, original: str, simplification: str) -> tuple[str, float]:
+        enc = self.tok([original], [simplification], truncation="longest_first", max_length=512,
+                       return_tensors="pt").to(self.device)
+        with self.torch.no_grad():
+            p = self.torch.softmax(self.model(**enc).logits[0].float(), -1).cpu().tolist()
+        i = max(range(len(p)), key=p.__getitem__)
+        return self.labels[i], p[i]
+
+
+def build(model_dir: str, errcls_dir: str | None = None):
     import gradio as gr
     from predict import LMPScorer
 
     scorer = LMPScorer(model_dir)
+    typer = ErrorTyper(errcls_dir) if errcls_dir else None
     examples = load_examples()
     llm_ready = bool(os.environ.get("LLM_API_KEY") and os.environ.get("LLM_MODEL"))
 
@@ -169,13 +154,15 @@ def build(model_dir: str):
         if original == simplification:
             gr.Info("The two texts are identical; a good metric should score this near 10.")
         s = scorer.score([original], [simplification])[0]["lmp_score"]
-        return score_card(s, ref), cue_table(original, simplification)
+        rule = rule_error_type(original, simplification)
+        neural = typer(original, simplification) if typer else None
+        return score_card(s, ref), error_card(rule, neural), cue_table(original, simplification)
 
     def pick(name):
         r = examples.get(name)
         if not r:
-            return gr.update(), gr.update(), None, "", ""
-        return r["original"], r["simplification"], float(r["label"]), "", ""
+            return gr.update(), gr.update(), None, "", "", ""
+        return r["original"], r["simplification"], float(r["label"]), "", "", ""
 
     def generate(original, mode):
         original = (original or "").strip()
@@ -218,6 +205,8 @@ def build(model_dir: str):
                 gr.Markdown("**Scale** (JUDGEBERT rubric): 7–10 Preserved · 2–6.9 Partially Preserved · "
                             "below 2 Not Preserved.")
             with gr.Column(scale=3):
+                gr.Markdown("### Likely legal error")
+                errbox = gr.HTML('<div class="lmp-empty">The predicted error type and a short explanation appear here.</div>')
                 gr.Markdown("### Legal cue check (rule-based)")
                 cues = gr.HTML('<div class="lmp-empty">Cues compared between the two texts appear here.</div>')
         with gr.Accordion("About the model", open=False):
@@ -226,10 +215,10 @@ def build(model_dir: str):
                         "Cross-encoder regression on `original [SEP] simplification`. Code and paper: "
                         "https://github.com/atharv-0509/legal-meaning-preservation-hi-en")
 
-        ex.change(pick, ex, [orig, simp, ref, card, cues])
-        go.click(run, [orig, simp, ref], [card, cues])
-        clear.click(lambda: ("", "", None, None, '<div class="lmp-empty">The score appears here.</div>', ""),
-                    None, [orig, simp, ref, ex, card, cues])
+        ex.change(pick, ex, [orig, simp, ref, card, errbox, cues])
+        go.click(run, [orig, simp, ref], [card, errbox, cues])
+        clear.click(lambda: ("", "", None, None, '<div class="lmp-empty">The score appears here.</div>', "", ""),
+                    None, [orig, simp, ref, ex, card, errbox, cues])
         simp.input(lambda: None, None, ref)        # edited text: the reference label no longer applies
         orig.input(lambda: None, None, ref)
         if llm_ready:
@@ -240,13 +229,14 @@ def build(model_dir: str):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model-dir", default="modeling/checkpoints/demo_model")
+    ap.add_argument("--errcls-dir", default=None, help="optional trained error-type classifier (error_classifier.py --save-model)")
     ap.add_argument("--share", action="store_true", help="create a temporary public link")
     ap.add_argument("--port", type=int, default=7860)
     args = ap.parse_args(argv)
     if not (Path(args.model_dir) / "config.json").is_file():
         sys.exit(f"model folder not found: {Path(args.model_dir).resolve()} (see HANDOVER.md section 4, item 4)")
     import gradio as gr
-    build(args.model_dir).launch(share=args.share, server_port=args.port, css=CSS, theme=gr.themes.Soft())
+    build(args.model_dir, args.errcls_dir).launch(share=args.share, server_port=args.port, css=CSS, theme=gr.themes.Soft())
 
 
 if __name__ == "__main__":
