@@ -138,11 +138,31 @@ class ErrorTyper:
         return self.labels[i], p[i]
 
 
+# Known demo checkpoints: backbone (from config.json model_type) -> (description, held-out test Pearson on random_s42)
+CHECKPOINTS = {
+    "bert": ("MuRIL-base (google/muril-base-cased), first trained on FrJUDGE, then fine-tuned with data augmentation "
+             "on our split random_s42 (Kaggle kernel lmp-muril-demo)", 0.682),
+    "xlm-roberta": ("XLM-RoBERTa-base, first trained on FrJUDGE, then fine-tuned on our split random_s42 "
+                    "(Kaggle kernel lmp-e23-fixed)", 0.479),
+}
+
+
+def checkpoint_info(model_dir: str) -> tuple[str, float | None]:
+    try:
+        mtype = json.loads((Path(model_dir) / "config.json").read_text(encoding="utf-8")).get("model_type", "")
+    except (OSError, ValueError):
+        mtype = ""
+    return CHECKPOINTS.get(mtype, (f"checkpoint of type '{mtype or 'unknown'}'", None))
+
+
 def build(model_dir: str, errcls_dir: str | None = None):
     import gradio as gr
     from predict import LMPScorer
 
     scorer = LMPScorer(model_dir)
+    desc, test_r = checkpoint_info(model_dir)
+    pearson_txt = (f"Test Pearson {test_r:.2f} on held-out pairs of the same acts;" if test_r is not None
+                   else "Accuracy of this checkpoint is not recorded here;")
     typer = ErrorTyper(errcls_dir) if errcls_dir else None
     examples = load_examples()
     llm_ready = bool(os.environ.get("LLM_API_KEY") and os.environ.get("LLM_MODEL"))
@@ -183,7 +203,7 @@ def build(model_dir: str, errcls_dir: str | None = None):
                     "Paste a provision and a simplified version; the model returns a score from 1 to 10.")
         gr.HTML('<div class="lmp-banner"><b>Research prototype.</b> Trained on about 200 pairs from two acts '
                 "(RTI Act 2005, Consumer Protection Act 2019) with labels from two disclosed LLM annotators, not "
-                "human lawyers. Test Pearson 0.48 on held-out pairs of the same acts; much weaker on unseen acts and "
+                f"human lawyers. {pearson_txt} much weaker on unseen acts and "
                 "on Hindi, and it can miss reversed meanings there. Do not rely on it for legal decisions.</div>")
         ref = gr.State(None)
         with gr.Row():
@@ -210,10 +230,9 @@ def build(model_dir: str, errcls_dir: str | None = None):
                 gr.Markdown("### Legal cue check (rule-based)")
                 cues = gr.HTML('<div class="lmp-empty">Cues compared between the two texts appear here.</div>')
         with gr.Accordion("About the model", open=False):
-            gr.Markdown(f"Checkpoint: `{model_dir}`. XLM-RoBERTa-base, first trained on FrJUDGE (French insurance "
-                        "forms, JUDGEBERT, EMNLP 2025), then fine-tuned on our clause-grouped split `random_s42`. "
-                        "Cross-encoder regression on `original [SEP] simplification`. Code and paper: "
-                        "https://github.com/atharv-0509/legal-meaning-preservation-hi-en")
+            gr.Markdown(f"Checkpoint: `{model_dir}` — {desc}. Cross-encoder regression on "
+                        "`original [SEP] simplification`. FrJUDGE: French insurance forms (JUDGEBERT, EMNLP 2025). "
+                        "Code, paper and evaluation: https://github.com/atharv-0509/legal-meaning-preservation-hi-en")
 
         ex.change(pick, ex, [orig, simp, ref, card, errbox, cues])
         go.click(run, [orig, simp, ref], [card, errbox, cues])

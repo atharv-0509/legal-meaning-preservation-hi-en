@@ -97,7 +97,13 @@ powershell -File paper\build.ps1                 # paper + slides only
 2. ~~Merge `handover` into `main`~~ — done 19 Nov (fast-forward); clone `main` from now on.
 3. **Hindi CPA PDF** (retried 19 Nov: not obtainable from the cloud machine; see `sources.json` → `cpa.hi_source_attempts`). Fastest route: open WIPO Lex 23153 in a browser and download the Hindi PDF (a consolidation up to Act 33 of 2021: drop sections that differ from the 2019 English Gazette), or India Code → `data/raw/cpa_hi.pdf`, re-run extract → select
    → simplify (CPA HI) → annotate → `run_all.py all`. Makes E2 cover both acts.
-4. **Demo**: the checkpoint is in the output of Kaggle kernel `lmp-e23-fixed` (`demo_model/`: XLM-R pre-trained on
+4. **Demo** — recommended checkpoint (19 Nov evening): **MuRIL + FrJUDGE + DA**, kernel `lmp-muril-demo`, test Pearson
+   0.682 on `random_s42` (vs 0.479 for the XLM-R one below). Fetch:
+   `python modeling/kaggle/kaggle_client.py fetch --user atharvarora05 --slug lmp-muril-demo --prefix demo_model/ --dest modeling/checkpoints/muril`
+   then `python modeling/app.py --model-dir modeling/checkpoints/muril/demo_model` (or download `demo_model/` from that
+   kernel's Output tab into `modeling/checkpoints/muril/demo_model`). The app reads the backbone from config.json and
+   shows the matching description and test Pearson.
+   Older XLM-R checkpoint: in the output of Kaggle kernel `lmp-e23-fixed` (`demo_model/`: XLM-R pre-trained on
    FrJUDGE, fine-tuned on `random_s42`, no DA; ~1.1 GB, not in git). Fetch it (Kaggle token needed, see §0):
    `python modeling/kaggle/kaggle_client.py fetch --user atharvarora05 --slug lmp-e23-fixed --prefix demo_model/`
    → `modeling/checkpoints/demo_model`, or download `demo_model/` from that kernel's Output tab in a browser.
