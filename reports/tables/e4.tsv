@@ -1,0 +1,15 @@
+System	Identical >= 9.9 %	Unrelated <= 1.1 %
+xlm-roberta-base-frjudge	89.9 ± 4.7	17.6 ± 10.2
+xlm-roberta-base-frjudge-da	66.7 ± 57.7	94.1 ± 5.9
+xlm-roberta-base-da	33.3 ± 57.7	31.4 ± 27.8
+labse-cal	0.0 ± 0.0	0.0 ± 0.0
+labse	100.0 ± 0.0	0.0 ± 0.0
+muril-base-cased-da	0.0 ± 0.0	62.7 ± 54.7
+bertscore-cal	0.0 ± 0.0	0.0 ± 0.0
+bertscore	100.0 ± 0.0	0.0 ± 0.0
+bleu	100.0 ± 0.0	11.8 ± 0.0
+bleu-cal	0.0 ± 0.0	0.0 ± 0.0
+rougeL	100.0 ± 0.0	0.0 ± 0.0
+rougeL-cal	0.0 ± 0.0	0.0 ± 0.0
+xlm-roberta-base	0.0 ± 0.0	0.0 ± 0.0
+muril-base-cased	0.0 ± 0.0	0.0 ± 0.0
