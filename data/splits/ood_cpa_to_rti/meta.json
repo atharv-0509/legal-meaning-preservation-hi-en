@@ -6,8 +6,8 @@
     "train": 107,
     "dev": 12,
     "test": 219,
-    "train_da": 179,
-    "dev_da": 20
+    "train_da": 168,
+    "dev_da": 19
   },
   "clauses": {
     "train": 36,

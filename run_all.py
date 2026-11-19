@@ -26,6 +26,9 @@ KERNELS = {                       # slug -> "backbone=plan;..." run in ONE GPU s
     "lmp-experiments": "xlm-roberta-base=full;google/muril-base-cased=e1",
     # XLM-R first trained on FrJUDGE (same task, French), then fine-tuned on ours: E1-E3
     "lmp-transfer": "xlm-roberta-base=frj",
+    # review fixes (19 Nov): E2 on RTI-bilingual splits and E3 without target-act DA partners, for the
+    # transfer model and the from-scratch baseline, plus one saved checkpoint for the demo
+    "lmp-e23-fixed": "xlm-roberta-base=frj-e23;xlm-roberta-base=e23;xlm-roberta-base=frj-demo",
 }
 LOGS = ROOT / "modeling" / "kaggle_logs"
 # Early stopping on our ~35-pair dev set fires on noise: XLM-R stopped after a few epochs at the
@@ -45,21 +48,27 @@ def prepare():
     run(PY, "src/split.py", "--seeds", *SEEDS)
 
 
-def github_main_sha() -> str:
-    out = run("git", "ls-remote", "origin", "refs/heads/main", capture=True).stdout.split()
-    if not out:
-        sys.exit("cannot read origin/main from GitHub")
-    return out[0]
+def source_commit() -> str:
+    """The commit the kernel clones: the current checkout's HEAD, which must be clean and on GitHub,
+    so a run always uses the code you are looking at (not whatever main happens to contain)."""
+    if run("git", "status", "--porcelain", "--untracked-files=no", capture=True).stdout.strip():
+        sys.exit("commit your changes first: the kernel clones the code from GitHub at HEAD")
+    sha = run("git", "rev-parse", "HEAD", capture=True).stdout.strip()
+    remote = run("git", "branch", "-r", "--contains", sha, capture=True).stdout.strip()
+    if not remote:
+        sys.exit(f"HEAD {sha[:7]} is not on GitHub yet: git push first")
+    return sha
 
 
-ONLY: list[str] = []          # --only <slug> restricts push/collect to some kernels
+ONLY: list[str] = []              # --only <slug> restricts push/collect to some kernels
+FAILURES: list[str] = []          # problems found by collect()
 
 
 def push():
     b64 = ROOT / "modeling" / "kaggle" / "_splits.b64"
     b64.write_text(run(PY, "modeling/kaggle/pack_splits.py", capture=True).stdout, encoding="utf-8")
-    sha = github_main_sha()
-    print(f"kernel code: GitHub main {sha[:7]}; splits bundle {b64.stat().st_size // 1024} KB")
+    sha = source_commit()
+    print(f"kernel code: commit {sha[:7]}; splits bundle {b64.stat().st_size // 1024} KB")
     for slug, todo in KERNELS.items():
         if ONLY and slug not in ONLY:
             continue
@@ -96,13 +105,20 @@ def collect(poll_min: float = 5.0, max_hours: float = 8.0):
                 log = LOGS / f"{slug}.log"
                 run(PY, "modeling/kaggle/kaggle_client.py", "log", "--user", KAGGLE_USER, "--slug", slug,
                     "--out", log)
-                run(PY, "modeling/kaggle/kaggle_client.py", "unpack", "--log", log, "--dest", "modeling",
-                    check=False)
+                text = log.read_text(encoding="utf-8", errors="replace") if log.exists() else ""
+                failed = [l for l in text.splitlines() if l.startswith("FAILED:")]
+                if st != "complete" or failed or "RUNS_TGZ_B64_BEGIN" not in text:
+                    FAILURES.append(f"{slug}: status {st}, {len(failed)} failed jobs" +
+                                    "".join("\n    " + l for l in failed[:10]))
+                if "RUNS_TGZ_B64_BEGIN" in text:
+                    run(PY, "modeling/kaggle/kaggle_client.py", "unpack", "--log", log, "--dest", "modeling")
                 pending.discard(slug)
         if pending:
             time.sleep(poll_min * 60)
     if pending:
-        print("still running:", ", ".join(sorted(pending)))
+        FAILURES.append("still running: " + ", ".join(sorted(pending)))
+    if FAILURES:
+        sys.exit("collect finished with problems (results may be incomplete):\n  " + "\n  ".join(FAILURES))
 
 
 def report():
@@ -122,7 +138,8 @@ def report():
     # paper + slides: in this repo since the handover merge (older layout: a sibling ../lmp-paper worktree)
     for paper in (ROOT / "paper" / "build.ps1", ROOT.parent / "lmp-paper" / "paper" / "build.ps1"):
         if paper.exists():
-            run("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", paper, check=False)
+            if run("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", paper, check=False).returncode:
+                sys.exit("paper build failed (tables are written; see the output above)")
             break
     else:
         print("paper/build.ps1 not found: tables are written, paper/slides not rebuilt")
