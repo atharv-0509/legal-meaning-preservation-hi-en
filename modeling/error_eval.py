@@ -118,18 +118,22 @@ def main(argv=None):
             if g in conf:
                 L.append(f"| {g} | " + " | ".join(str(conf[g].get(p, 0)) for p in ERROR_CLASSES) + " |")
     L += ["", "## Findings (19 Nov 2026)", "",
-          "- The trained cross-encoder classifiers do **not** beat the rule baseline. With about 130 training pairs per "
-          "split spread over six classes (15-20 per error type), the models do not learn the types reliably; "
-          "class-weighted training also pushes them away from \"none\", so accuracy falls below the majority baseline.",
-          "- MuRIL is the best trained classifier and matches the rules on negation, number and scope, but fails on "
-          "exception_drop and on \"none\".",
-          "- The rule baseline has an unfair advantage: its cues mirror the rules that injected the errors "
-          "(`src/perturb.py`), so it is an upper-bound-style reference for these error types, not evidence that "
-          "rules would find natural errors in real simplifications.",
-          "- Consequence for the system: the demo app and `predict.py` report the rule-based error type and "
-          "explanation; the trained classifier is optional (`--errcls-dir`) and not recommended at this data size.",
-          "- What would help: more perturbed pairs per type (the perturbation step can generate them cheaply), "
-          "a two-stage model (error vs none, then type), or training on rule features plus the encoder."]
+          "- Without augmentation the trained classifiers do **not** beat the rules (best MuRIL 0.362 vs 0.509): about "
+          "130 training pairs per split over six classes (15-20 per error type) are too few.",
+          "- **With augmentation they do.** `--augment 3 --augment-originals` adds, for the training clauses only, "
+          "injected-error pairs built from the standard simplifications and from the original statute texts "
+          "(~630 training pairs per split, every type >= 21). **MuRIL + augmentation reaches macro-F1 0.789 ± 0.101** "
+          "and beats the rules on every class (negation 0.849, number 0.967, exception_drop 0.787, scope 0.790, "
+          "modality 0.659). Per seed: 0.852 / 0.874 / 0.621 / 0.779 / 0.817; seed 44 over-flags standard "
+          "simplifications. XLM-R + augmentation is unstable (one seed collapses to 0.112).",
+          "- Adding the rule cues to the input (`--cue-features`) does **not** help (MuRIL 0.573, XLM-R 0.586): the "
+          "model leans on the cues and inherits their false alarms.",
+          "- Caveat: the augmentation uses the same rules that injected the test errors (`src/perturb.py`), as do the "
+          "rule baseline's cues. These results show the model learns *these* error types; they say nothing about "
+          "natural errors in real simplifications, which have no type labels here (aggressive pairs are excluded).",
+          "- Consequence: the demo app and `predict.py` show the rule-based type and explanation always, and the "
+          "MuRIL + augmentation classifier when its checkpoint is passed with `--errcls-dir` "
+          "(Kaggle kernel `lmp-errcls-demo`)."]
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text("\n".join(L) + "\n", encoding="utf-8")
     tables = Path(args.tables)
