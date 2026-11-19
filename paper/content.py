@@ -287,17 +287,29 @@ BODY: list[tuple] = [
      "text, and knew the corpus design in the abstract but not which items carried an injected "
      "error. The second also wrote the simplifications, so although its workbook hides the variant "
      "labels it may recognise its own output and infer which copies were perturbed; it is "
-     "therefore not blind in practice, and we say so. We consequently report results against the "
-     "first annotator's labels alone as a robustness check alongside the two-annotator mean. "
-     "Third, with only two annotators a leave-one-out ceiling cannot be computed, so the ceiling we "
-     "would ordinarily compare models against is unavailable in this version."),
+     "therefore not blind in practice, and we say so. Third, with two annotators the leave-one-out "
+     "ceiling degenerates into the correlation between the two of them, so what it measures is how "
+     "well one instance of a model predicts another, not a ceiling set by human legal judgement."),
     ("p",
-     "Agreement between the two model annotators is reported as LLM-annotator agreement and never "
-     "as human agreement. To keep a path to the original claim open, a separate 30-pair validation "
-     "workbook is prepared for human legal annotators; if it is scored we report the correlation "
-     "between the model labels and the human scores on it, and if it is not we report its absence "
-     "as a limitation. [TBD: alpha between the two model annotators, label distribution, and the "
-     "human validation outcome.]"),
+     "On those terms the agreement is as follows. Krippendorff's alpha on the interval LMP scores "
+     "is 0.610 and on the nominal brackets 0.503; the leave-one-out ceiling, which we call the "
+     "LLM-annotator ceiling and never a human ceiling, is a Pearson correlation of 0.723, and 68 "
+     "of the 338 pairs fall on the adjudication list. These figures are far above the 0.10 that "
+     "JUDGEBERT reports between its five law students, and the comparison must be read with that "
+     "asymmetry in mind: two instances of one model agreeing is a much weaker result than five "
+     "people agreeing, and the gap is evidence about model consistency rather than about the "
+     "construct being well defined. The label distribution is bimodal, with mass at 10 and a tail "
+     "between 1 and 5 and nothing at 6 or 7; that is an arithmetic consequence of the rubric "
+     "itself, since a score is a bracket maximum of 10, 6 or 1 minus one point per error, and it "
+     "matters for RMSE. One convention differed between the annotators and we state it rather than "
+     "smoothing it over: where an inserted or dropped negation reverses an entire operative "
+     "provision, one annotator scored Off-track, the other Imprecise with a confusion. The label "
+     "is the mean of the two, as in FrJUDGE, and the adjudication list records every such divergence."),
+    ("p",
+     "To keep a path to the original claim open, a separate 30-pair validation workbook is prepared "
+     "for human legal annotators; if it is scored we report the correlation between the model "
+     "labels and the human scores on it, and if it is not we report its absence as a limitation. "
+     "[TBD: human validation outcome.]"),
     ("h2", "Augmentation, sanity holdouts and splits"),
     ("p",
      "Following JUDGEBERT we add, for each clause and language, an identical pair labelled 10 and "
@@ -417,10 +429,11 @@ BODY: list[tuple] = [
         "The central claim of the predecessor work, agreement with human legal judgement, is "
         "therefore not tested here, and the planned 30-pair human validation set is the minimum "
         "needed to begin testing it.",
-        "Two model annotators give no leave-one-out ceiling, and because both are instances of the "
-        "same model their agreement may reflect shared pretraining rather than a well-defined "
-        "construct. One of the two also wrote the simplifications and so is not blind in practice; "
-        "results against the blinded annotator's labels alone are reported alongside the mean.",
+        "With two annotators the leave-one-out ceiling is just the correlation between them, and "
+        "because both are instances of the same model their agreement may reflect shared "
+        "pretraining rather than a well-defined construct. We therefore call it the LLM-annotator "
+        "ceiling, never a human ceiling. One of the two also wrote the simplifications and so is "
+        "not blind in practice.",
         "The corpus covers two acts and, for Hindi, one act only, because the official Hindi text of "
         "the Consumer Protection Act was unavailable. The two Right to Information editions differ, "
         "and the Hindi text had to be recovered by OCR; both are documented and flagged, and "
