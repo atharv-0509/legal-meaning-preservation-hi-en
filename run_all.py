@@ -24,6 +24,8 @@ KAGGLE_USER = "atharvarora05"
 SEEDS = ["42", "43", "44"]
 KERNELS = {                       # slug -> "backbone=plan;..." run in ONE GPU session (Kaggle allows 2 at once)
     "lmp-experiments": "xlm-roberta-base=full;google/muril-base-cased=e1",
+    # XLM-R first trained on FrJUDGE (same task, French), then fine-tuned on ours: E1-E3
+    "lmp-transfer": "xlm-roberta-base=frj",
 }
 LOGS = ROOT / "modeling" / "kaggle_logs"
 # Early stopping on our ~35-pair dev set fires on noise: XLM-R stopped after a few epochs at the
@@ -50,12 +52,17 @@ def github_main_sha() -> str:
     return out[0]
 
 
+ONLY: list[str] = []          # --only <slug> restricts push/collect to some kernels
+
+
 def push():
     b64 = ROOT / "modeling" / "kaggle" / "_splits.b64"
     b64.write_text(run(PY, "modeling/kaggle/pack_splits.py", capture=True).stdout, encoding="utf-8")
     sha = github_main_sha()
     print(f"kernel code: GitHub main {sha[:7]}; splits bundle {b64.stat().st_size // 1024} KB")
     for slug, todo in KERNELS.items():
+        if ONLY and slug not in ONLY:
+            continue
         for attempt in range(48):                     # wait up to ~4 h for a free GPU session
             out = run(PY, "modeling/kaggle/kaggle_client.py", "push", "--user", KAGGLE_USER, "--slug", slug,
                       "--script", "modeling/kaggle/lmp_experiments.py", "--set", f"__COMMIT__={sha}",
@@ -79,7 +86,7 @@ def status(slug: str) -> str:
 
 def collect(poll_min: float = 5.0, max_hours: float = 8.0):
     LOGS.mkdir(parents=True, exist_ok=True)
-    pending = set(KERNELS)
+    pending = set(ONLY or KERNELS)
     deadline = time.time() + max_hours * 3600
     while pending and time.time() < deadline:
         for slug in sorted(pending):
@@ -121,7 +128,9 @@ def report():
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("stage", choices=["prepare", "push", "collect", "report", "all"])
+    ap.add_argument("--only", nargs="*", default=[], help="kernel slugs for push/collect (default: all)")
     a = ap.parse_args(argv)
+    ONLY.extend(a.only)
     stages = ["prepare", "push", "collect", "report"] if a.stage == "all" else [a.stage]
     for s in stages:
         print(f"\n=== {s} ===", flush=True)

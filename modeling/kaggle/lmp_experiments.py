@@ -57,8 +57,11 @@ sh("nvidia-smi --query-gpu=name,memory.total --format=csv && python -c \"import 
 S = f"{R}/data/splits"
 jobs = []
 plans = [item.split("=", 1) for item in TODO.split(";") if item.strip()]
+FRJ = f"{W}/frjudge-pretrained"          # 'frj' plan: backbone first trained on FrJUDGE (French LMP), then ours
 for model, plan in plans:
     name = model.split("/")[-1]
+    if plan == "frj":
+        model, name, plan = FRJ, f"{name}-frjudge", "full"
     if plan == "smoke":
         jobs.append((model, f"{S}/random_s42", name, "--epochs 2", 42))
         continue
@@ -72,6 +75,15 @@ for model, plan in plans:
         for ood in sorted(d for d in os.listdir(S) if d.startswith("ood_")):
             for s in SEEDS:
                 jobs.append((model, f"{S}/{ood}", f"{name}-da", "--da", s))
+
+if any(p == "frj" for _, p in [item.split("=", 1) for item in TODO.split(";") if item.strip()]):
+    base = next(m for m, p in [item.split("=", 1) for item in TODO.split(";") if item.strip()] if p == "frj")
+    sh(f"git clone -q --depth 1 https://github.com/GRAAL-Research/JUDGEBERT {W}/JUDGEBERT")
+    sh(f"cd {R} && python modeling/prepare_frjudge.py --repo {W}/JUDGEBERT --out {R}/data/splits_frjudge/frjudge")
+    sh(f"cd {R} && python modeling/train.py --split-dir {R}/data/splits_frjudge/frjudge --model {base} "
+       f"--run-name {base.split('/')[-1]}-frjudge-pretrain --seed 42 --fp16 {EXTRA} --da --dev-set da --clip-min 0 "
+       f"--runs-dir {W}/runs_frj --save-model {FRJ} 2>&1 | grep -E 'TEST|Error|Traceback'", check=False)
+    print(f"FrJUDGE pretraining done: {(time.time() - t0) / 60:.1f} min", flush=True)
 
 # Kaggle gives two T4s: run two jobs at a time, one per GPU (train.py itself uses a single device).
 import queue
@@ -101,7 +113,7 @@ for t in threads:
 for t in threads:
     t.join()
 
-if any(plan == "full" for _, plan in plans):
+if "=full" in TODO:
     splits = " ".join(f"{S}/{d}" for d in sorted(os.listdir(S)) if d.startswith(("random_", "ood_")))
     sh(f"cd {R} && python modeling/baselines.py --metrics rougeL bleu labse bertscore --splits {splits} "
        f"--runs-dir {RUNS} 2>&1 | grep -v -i warn | tail -15", check=False)
@@ -109,7 +121,7 @@ if any(plan == "full" for _, plan in plans):
 # preds + metrics + config of every run (incl. holdout preds for E4), gzipped + base64 into the log
 buf = io.BytesIO()
 with tarfile.open(fileobj=buf, mode="w:gz") as tar:
-    for root, _, files in os.walk(RUNS):
+    for root, _, files in list(os.walk(RUNS)) + list(os.walk(f"{W}/runs_frj")):
         for f in files:
             if f.endswith((".json", ".jsonl")):
                 tar.add(os.path.join(root, f), arcname=os.path.relpath(os.path.join(root, f), W))
