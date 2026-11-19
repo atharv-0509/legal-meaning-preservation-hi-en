@@ -1,0 +1,198 @@
+{
+  "test": {
+    "n": 64,
+    "accuracy": 0.84375,
+    "macro_f1": 0.8520276626834004,
+    "per_class": {
+      "none": {
+        "precision": 0.896551724137931,
+        "recall": 0.8125,
+        "f1": 0.8524590163934426,
+        "support": 32
+      },
+      "modality": {
+        "precision": 0.9,
+        "recall": 0.8181818181818182,
+        "f1": 0.8571428571428572,
+        "support": 11
+      },
+      "negation": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1": 0.8,
+        "support": 6
+      },
+      "number": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3
+      },
+      "exception_drop": {
+        "precision": 0.8333333333333334,
+        "recall": 0.8333333333333334,
+        "f1": 0.8333333333333334,
+        "support": 6
+      },
+      "scope": {
+        "precision": 0.7142857142857143,
+        "recall": 0.8333333333333334,
+        "f1": 0.7692307692307692,
+        "support": 6
+      }
+    },
+    "confusion": {
+      "exception_drop": {
+        "exception_drop": 5,
+        "none": 1
+      },
+      "modality": {
+        "modality": 9,
+        "none": 2
+      },
+      "negation": {
+        "negation": 6
+      },
+      "none": {
+        "none": 26,
+        "scope": 2,
+        "exception_drop": 1,
+        "negation": 2,
+        "modality": 1
+      },
+      "number": {
+        "number": 3
+      },
+      "scope": {
+        "scope": 5,
+        "negation": 1
+      }
+    }
+  },
+  "by_lang": {
+    "en": {
+      "n": 46,
+      "accuracy": 0.9130434782608695,
+      "macro_f1": 0.9204406704406703,
+      "per_class": {
+        "none": {
+          "precision": 0.9523809523809523,
+          "recall": 0.8695652173913043,
+          "f1": 0.909090909090909,
+          "support": 23
+        },
+        "modality": {
+          "precision": 1.0,
+          "recall": 0.8571428571428571,
+          "f1": 0.923076923076923,
+          "support": 7
+        },
+        "negation": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 5
+        },
+        "number": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 3
+        },
+        "exception_drop": {
+          "precision": 0.75,
+          "recall": 1.0,
+          "f1": 0.8571428571428571,
+          "support": 3
+        },
+        "scope": {
+          "precision": 0.7142857142857143,
+          "recall": 1.0,
+          "f1": 0.8333333333333333,
+          "support": 5
+        }
+      },
+      "confusion": {
+        "exception_drop": {
+          "exception_drop": 3
+        },
+        "modality": {
+          "modality": 6,
+          "none": 1
+        },
+        "negation": {
+          "negation": 5
+        },
+        "none": {
+          "none": 20,
+          "scope": 2,
+          "exception_drop": 1
+        },
+        "number": {
+          "number": 3
+        },
+        "scope": {
+          "scope": 5
+        }
+      }
+    },
+    "hi": {
+      "n": 18,
+      "accuracy": 0.6666666666666666,
+      "macro_f1": 0.5311764705882354,
+      "per_class": {
+        "none": {
+          "precision": 0.75,
+          "recall": 0.6666666666666666,
+          "f1": 0.7058823529411765,
+          "support": 9
+        },
+        "modality": {
+          "precision": 0.75,
+          "recall": 0.75,
+          "f1": 0.75,
+          "support": 4
+        },
+        "negation": {
+          "precision": 0.25,
+          "recall": 1.0,
+          "f1": 0.4,
+          "support": 1
+        },
+        "exception_drop": {
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "f1": 0.8,
+          "support": 3
+        },
+        "scope": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 1
+        }
+      },
+      "confusion": {
+        "exception_drop": {
+          "none": 1,
+          "exception_drop": 2
+        },
+        "modality": {
+          "none": 1,
+          "modality": 3
+        },
+        "negation": {
+          "negation": 1
+        },
+        "none": {
+          "none": 6,
+          "negation": 2,
+          "modality": 1
+        },
+        "scope": {
+          "negation": 1
+        }
+      }
+    }
+  }
+}

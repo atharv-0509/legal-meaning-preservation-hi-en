@@ -1,0 +1,207 @@
+{
+  "test": {
+    "n": 65,
+    "accuracy": 0.5538461538461539,
+    "macro_f1": 0.5507409257409257,
+    "per_class": {
+      "none": {
+        "precision": 0.7727272727272727,
+        "recall": 0.5151515151515151,
+        "f1": 0.6181818181818182,
+        "support": 33
+      },
+      "modality": {
+        "precision": 0.2857142857142857,
+        "recall": 0.3333333333333333,
+        "f1": 0.30769230769230765,
+        "support": 6
+      },
+      "negation": {
+        "precision": 0.6363636363636364,
+        "recall": 0.7777777777777778,
+        "f1": 0.7000000000000001,
+        "support": 9
+      },
+      "number": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3
+      },
+      "exception_drop": {
+        "precision": 0.5,
+        "recall": 0.16666666666666666,
+        "f1": 0.25,
+        "support": 6
+      },
+      "scope": {
+        "precision": 0.3,
+        "recall": 0.75,
+        "f1": 0.4285714285714285,
+        "support": 8
+      }
+    },
+    "confusion": {
+      "exception_drop": {
+        "exception_drop": 1,
+        "modality": 2,
+        "negation": 1,
+        "none": 2
+      },
+      "modality": {
+        "scope": 3,
+        "none": 1,
+        "modality": 2
+      },
+      "negation": {
+        "negation": 7,
+        "none": 2
+      },
+      "none": {
+        "scope": 11,
+        "none": 17,
+        "modality": 2,
+        "exception_drop": 1,
+        "negation": 2
+      },
+      "number": {
+        "number": 3
+      },
+      "scope": {
+        "scope": 6,
+        "modality": 1,
+        "negation": 1
+      }
+    }
+  },
+  "by_lang": {
+    "en": {
+      "n": 45,
+      "accuracy": 0.4888888888888889,
+      "macro_f1": 0.49139391074874944,
+      "per_class": {
+        "none": {
+          "precision": 1.0,
+          "recall": 0.34782608695652173,
+          "f1": 0.5161290322580645,
+          "support": 23
+        },
+        "modality": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 3
+        },
+        "negation": {
+          "precision": 0.5555555555555556,
+          "recall": 1.0,
+          "f1": 0.7142857142857143,
+          "support": 5
+        },
+        "number": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 3
+        },
+        "exception_drop": {
+          "precision": 0.5,
+          "recall": 0.25,
+          "f1": 0.3333333333333333,
+          "support": 4
+        },
+        "scope": {
+          "precision": 0.2631578947368421,
+          "recall": 0.7142857142857143,
+          "f1": 0.3846153846153846,
+          "support": 7
+        }
+      },
+      "confusion": {
+        "exception_drop": {
+          "exception_drop": 1,
+          "modality": 2,
+          "negation": 1
+        },
+        "modality": {
+          "scope": 3
+        },
+        "negation": {
+          "negation": 5
+        },
+        "none": {
+          "scope": 11,
+          "none": 8,
+          "modality": 1,
+          "exception_drop": 1,
+          "negation": 2
+        },
+        "number": {
+          "number": 3
+        },
+        "scope": {
+          "scope": 5,
+          "modality": 1,
+          "negation": 1
+        }
+      }
+    },
+    "hi": {
+      "n": 20,
+      "accuracy": 0.7,
+      "macro_f1": 0.6166666666666666,
+      "per_class": {
+        "none": {
+          "precision": 0.6428571428571429,
+          "recall": 0.9,
+          "f1": 0.75,
+          "support": 10
+        },
+        "modality": {
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "f1": 0.6666666666666666,
+          "support": 3
+        },
+        "negation": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "support": 4
+        },
+        "exception_drop": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 2
+        },
+        "scope": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 1
+        }
+      },
+      "confusion": {
+        "exception_drop": {
+          "none": 2
+        },
+        "modality": {
+          "none": 1,
+          "modality": 2
+        },
+        "negation": {
+          "none": 2,
+          "negation": 2
+        },
+        "none": {
+          "none": 9,
+          "modality": 1
+        },
+        "scope": {
+          "scope": 1
+        }
+      }
+    }
+  }
+}
