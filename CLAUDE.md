@@ -30,6 +30,10 @@ As of 18 Nov 2026:
 
 When you (Claude) finish a step, tick it here and add one line saying what changed.
 
+19 Nov 2026 decision: the deadline version will use disclosed LLM annotations, not human labels
+(see §4/§7). No such annotations have been completed yet. This does not meet the brief's
+human-judgement requirement; a separate 30-pair human validation set is planned.
+
 ---
 
 ## 2. The assignment brief (what the grader checks)
@@ -137,14 +141,15 @@ our training code.
   - `perturbed`: a `normal` output with ONE rule-based legal error (obligation↔permission, negation, number, exception drop, scope). Error types are balanced. Annotators score these **blind**; the known error type is a labelled diagnostic set for E5.
 - **Scale**: ~60 clauses × 2 languages × 3 variants ≈ **360 pairs**.
 - **Annotation**:
+  - **19 Nov 2026 override for the deadline:** two disclosed LLM annotators, Claude Opus 5.5 and GPT-6 Astra, using separate blinded workbooks (`llm_claude_opus55`, `llm_gpt6_astra`). These are planned roles; record actual runtime provenance when executed. Generator overlap must be disclosed; a generator's existing context is not blind.
   - Blinded Excel workbook per annotator, items in a shuffled order, identified only by an opaque `pair_uid`.
   - Scores use the same rubric as the paper and are computed in the sheet.
-  - 20-pair shared pilot round first (scores discarded).
-  - 3 annotators per pair preferred (`--per-pair 2` if time is short).
-- **Labels**: mean LMP across annotators, as in FrJUDGE. Also kept: `label_std`, raw `scores`, majority `main_change`.
+  - A separate 30-pair human validation workbook is planned; absent human scores must be reported as missing.
+  - Two LLM annotators per main pair; report their agreement as LLM-annotator agreement, not human agreement.
+- **Labels**: mean LMP across the two LLM annotators. This deviates from the brief's human-judgement requirement because of time constraints. Also kept: `label_std`, raw `scores`, majority `main_change`.
 - **Unrelated-pair label = 1** (the floor of our 1–10 scale). The paper used 0; `--unrelated-label 0` reproduces it.
 - **Splits are clause-grouped**: a clause's English and Hindi pairs, all variants and its DA pairs stay in one split. `split.py` asserts this.
-- **Test sets contain human-annotated pairs only.** Sanity checks run on separate holdout sets built from provisions never used elsewhere.
+- **Test sets contain main annotated pairs only** (disclosed LLM labels for the deadline version). Sanity checks run on separate holdout sets built from provisions never used elsewhere.
 - **Splits**: random 60/10/30 by clause over 5 seeds (42–46), plus OOD `rti→cpa` and `cpa→rti`.
 
 ---
@@ -247,9 +252,10 @@ Run the tests after any change: `python tests/test_units.py && python tests/test
 ## 7. Rules for working in this repo
 
 - **Never invent legal text, labels, statistics or results.** Synthetic sentences exist only as test fixtures in `tests/` and must never enter `data/`. If a number is not computed from our data or taken from the paper, write `[TBD]`.
+- **19 Nov 2026 annotation decision:** actual LLM rubric judgements are allowed only with explicit LLM provenance, never described as human scores. Annotators must not read `pairs.jsonl`, `perturbations.jsonl`, or each other's workbooks. Disclose generator/annotator overlap; omit a same-model LLM-judge comparison. All prose and reports must distinguish planned annotations from completed work and LLM agreement from human validation.
 - **Never let annotators see `pairs.jsonl`**, variant names or error types. Workbooks stay blinded.
 - **Keep splits clause-grouped.** Any new split code must call `check_disjoint`, and DA pairs must follow their clause.
-- **Headline correlations come from human-annotated test pairs only**; sanity checks are reported separately.
+- **Headline correlations identify their reference labels explicitly**: disclosed LLM-labelled test pairs for the deadline version; human validation separately if available. Sanity checks are reported separately and never mixed into headline test metrics.
 - **Record provenance**: which PDF version (date or amendment), which LLM (exact model string), and the prompt id for every simplification. `simplify.py` already writes model, prompt id, temperature, top_p and a timestamp.
 - **Any rubric or guideline change** goes in the change log of `annotation_guidelines.md`, with the date and reason.
 - Source PDFs, `.env` and API keys stay out of git (`.gitignore`).
