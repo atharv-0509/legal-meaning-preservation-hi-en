@@ -20,7 +20,7 @@ agents is in `docs/agents/agent-chat-history.md`.
 | Splits | `data/splits/` | random_s42/43/44 (clause-grouped) + ood_rti_to_cpa / ood_cpa_to_rti + holdouts |
 | Experiments | `modeling/runs/`, `reports/tables/*.tsv`, `reports/results.md` | see §2 |
 | FrJUDGE check | `reports/frjudge_repro.md` (+ `.log`) | 0.707 ± 0.042 vs paper 0.74 → training code validated |
-| Paper + slides | `paper/out/LMP_paper_IEEE.{docx,pdf}`, `paper/out/LMP_slides.pptx` | 11-page IEEE paper, 16 slides, authors filled in |
+| Paper + slides | `paper/out/LMP_paper_IEEE.{docx,pdf}`, `paper/out/LMP_slides.pptx` | 11-page IEEE paper, 20 slides, authors filled in, no `[TBD]` left |
 | Tests | `tests/` | 46 passing (`python -m pytest -q`) |
 
 ## 2. Headline results (Pearson on annotated test pairs, mean ± std over 3 seeds)
@@ -68,6 +68,9 @@ powershell -File paper\build.ps1                 # paper + slides only
    `--save-model` (Kaggle output or Colab) and load it.
 5. Improve zero-shot EN↔HI transfer (e.g. MuRIL/IndicBERT with FrJUDGE pre-training, more seeds).
 6. Slides: check timing/visuals for the presentation; paper: final read-through.
+7. **Verify a Hindi reader on the OCR'd clauses.** The corpus rests on OCR that no Hindi reader has
+   checked; §5 of the paper says so, but a sample review would either remove that caveat or find a
+   real problem. It is the cheapest remaining risk to retire.
 
 ## 5. Honesty notes that must stay in the paper
 Labels are LLM-produced (not human); LLM-2 also wrote the simplifications (not blind in practice);
