@@ -336,13 +336,24 @@ BODY: list[tuple] = [
      "The model follows JUDGEBERT: the pair is encoded as original, separator, simplification by a "
      "pretrained multilingual encoder, and a linear regression head on the pooled representation "
      "predicts the score under mean-squared-error loss, with predictions clipped to the rubric range "
-     "1 to 10. We keep the published optimisation settings, namely AdamW at learning rate 5e-5, "
-     "batch size 16, linear decay without warm-up, gradient clipping at norm 1.0, and up to 100 "
-     "epochs retaining the checkpoint with the best development loss. Candidate backbones are "
-     "XLM-R, MuRIL and IndicBERT v2; each is trained with and without augmentation over five "
-     "clause-grouped seeds. Model selection uses the annotated development set by default, with a "
-     "flag to select on the augmented development set as the original work did, because the two "
-     "choices are not equivalent and the difference should be visible."),
+     "1 to 10. Candidate backbones are XLM-R, MuRIL and IndicBERT v2; each is trained with and "
+     "without augmentation over clause-grouped seeds. Model selection uses the annotated "
+     "development set by default, with a flag to select on the augmented development set as the "
+     "original work did, because the two choices are not equivalent and the difference should be "
+     "visible."),
+    ("p",
+     "Our optimisation settings depart from the published ones and the reason is a property of our "
+     "corpus, so we state both. JUDGEBERT uses learning rate 5e-5, batch size 16 and early stopping "
+     "with patience 5; we use learning rate 2e-5, batch size 8, no early stopping, and 30 epochs "
+     "keeping the best development checkpoint, with linear decay and gradient clipping at norm 1.0 "
+     "unchanged. The reason is that our development split holds roughly 35 annotated pairs, and on "
+     "a set that small the development loss is dominated by noise: with patience 5 and with "
+     "patience 10 the run halted early and left the model predicting the label mean, giving a "
+     "near-zero correlation. The FrJUDGE reproduction in Section VII shows the same pathology on "
+     "the original data, where patience 5 collapses one seed in ten, so this is a property of the "
+     "stopping rule interacting with a small dev set rather than of our corpus alone. We disclose "
+     "that these settings were chosen after observing that failure, which is a form of selection on "
+     "the development set and is recorded as a limitation."),
     ("h2", "Baselines"),
     ("p",
      "We compare against four reference points of increasing sophistication. ROUGE-L and BLEU, "
@@ -500,6 +511,14 @@ BODY: list[tuple] = [
         "legal reader has not yet verified the kept clauses.",
         "Injected errors are rule-based and may be easier to detect than errors a model makes "
         "naturally, so perturbed results are reported separately from the rest.",
+        "The corpus is small, and the consequences fall hardest on the development split: about 35 "
+        "annotated pairs decide both when to stop training and which checkpoint to keep. We "
+        "changed the learning rate, batch size and stopping rule after seeing early stopping fail "
+        "on that split, so those choices are informed by the development data and the reported "
+        "numbers should be read as optimistic by an unknown margin. A larger corpus with a "
+        "held-out tuning split is the right fix, and the honest statement of what we have is that "
+        "the protocol was adjusted once, deliberately, and is disclosed rather than tuned "
+        "repeatedly against the test set.",
         "Statute texts are public government documents. The corpus is a course research artefact for "
         "evaluating simplification quality; it is not a validated legal tool, and a predicted LMP "
         "score is not legal advice.",
