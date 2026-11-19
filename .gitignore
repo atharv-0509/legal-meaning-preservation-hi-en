@@ -18,3 +18,6 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 ~$*.xlsx
+
+# downloaded model checkpoints (large; fetch with kaggle_client.py fetch)
+modeling/checkpoints/

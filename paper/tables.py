@@ -44,10 +44,10 @@ DATA_ROOTS = [
 
 EXPECTED_HEADERS = {
     "e1": ["System", "Pearson", "Spearman", "RMSE", "MAE", "Over-score %"],
-    "e2": ["Setting", "Pearson", "RMSE", "Over-score %"],
-    "e3": ["Split", "Pearson", "RMSE", "MAE"],
+    "e2": ["System", "Setting", "Pearson", "RMSE", "Over-score %"],
+    "e3": ["System", "Split", "Pearson", "RMSE", "MAE"],
     "e4": ["System", "Identical >= 9.9 %", "Unrelated <= 1.1 %"],
-    "diag": ["Injected error type", "n", "MAE LMP model", "MAE baseline", "MAE LLM judge"],
+    "diag": ["Injected error type", "n per test split", "MAE LMP model", "MAE baseline"],
     "dataset": ["Act", "Lang", "Clauses", "Pairs", "Mean words", "Mean label"],
     "variant": ["Variant", "n per test split", "Mean label", "MAE", "Mean signed error", "Within-variant Pearson"],
 }

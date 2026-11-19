@@ -1,0 +1,4 @@
+Variant	n per test split	Mean label	MAE XLM-R, FrJUDGE→ours, DA	Mean signed error XLM-R, FrJUDGE→ours, DA	Within-variant Pearson XLM-R, FrJUDGE→ours, DA
+normal	33 ± 1	9.96 ± 0.02	1.015 ± 0.630	-0.995 ± 0.640	0.314 ± 0.363
+aggressive	33 ± 1	7.64 ± 0.27	1.205 ± 0.134	-0.683 ± 0.294	0.487 ± 0.063
+perturbed	33 ± 1	5.04 ± 0.60	2.203 ± 0.057	1.961 ± 0.189	0.584 ± 0.047

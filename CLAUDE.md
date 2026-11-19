@@ -25,7 +25,8 @@ As of 18 Nov 2026:
   - 19 Nov 2026, after the tokenizer fix, CPU, camembertv2-base, no DA, seed 42, patience 5 (best epoch 11): test Pearson 0.617, Spearman 0.551, RMSE 1.979, MAE 1.645 (paper: 0.74 ± 0.02 / 1.72 over 10 seeds). One seed only.
   - A 100-epoch keep-best run (released-code setting) reached dev MSE 1.72 at epoch 21 vs 2.24 with patience 5; it was stopped at epoch 47 with no test score. Next: all 10 seeds with `--patience 0` (Colab or Kaggle; `modeling/kaggle/`).
   - (resolved 19 Nov) Logs of running kernels are visible on the kernel's web page, not via the API. `lmp-frjudge-smoke` ran the pre-fix commit and was cancelled; `lmp-frjudge-reproduction` (commit f356b1c) produced the numbers above. The API has no cancel: use kaggle.com → kernel → versions → … → Cancel.
-- [x] IEEE paper and final slides (`paper/out/`, built by `paper/build.ps1` from `paper/content.py` + `reports/tables/*.tsv`). [ ] Demo (needs a saved checkpoint).
+- [x] IEEE paper and final slides (`paper/out/`, built by `paper/build.ps1` from `paper/content.py` + `reports/tables/*.tsv`). [x] Demo checkpoint (`kaggle_client.py fetch ... --prefix demo_model/` → `modeling/checkpoints/demo_model`).
+  - 19 Nov 2026 (evening): Codex hostile review fixed (`reviews/codex_review.md`): clean E2/E3 rerun, declared principal system, variant-lookup diagnostic, honest wording; paper/slides rewritten to the new numbers.
   - 18 Nov 2026: `paper/paper_draft.md` drafted (structure, dataset/method text from the design; every result is [TBD]; references to verify). Demo: `modeling/predict.py --demo` (Gradio).
   - `train.py` was checked with real PyTorch on a tiny offline BERT (dev MSE falls 39 → 6.5 in 40 epochs). Hugging Face was blocked in that cloud environment, so no pretrained backbone and no FrJUDGE run yet: do both on Colab first.
 
@@ -36,8 +37,8 @@ As of 18 Nov 2026:
   - Hindi RTI re-extracted with Tesseract 5.4 + tessdata_best `hin` (devanagari 0.993, bad-matra 0, no U+FFFD); `extract.repair_ocr_numbering` restores OCR-dropped "1" in section/sub-section numbers.
   - Clause review done by rules + agent spot-check (`src/agent_review.py`, **disclosed, not human**): 78 final clauses (RTI 38, 35 with HI; CPA 40).
   - Simplifications written by an LLM agent (`src/agent_simplify.py`, model recorded per row); perturb/sanity/build_pairs → **338 pairs**.
-  - Labels: two **disclosed LLM annotators** (Claude Opus 5.5 ×2; LLM-2 also wrote the simplifications, so not blind in practice). α(interval) 0.610; LLM-annotator ceiling 0.723. The 30-pair human validation workbook (`data/annotation/pilot/`) is **not yet scored**.
-  - Results (`reports/tables/*.tsv`, Kaggle kernels `lmp-experiments` v3 and `lmp-transfer`, runbook `run_all.py`): from-scratch XLM-R+DA 0.228 ± 0.288; **FrJUDGE→ours transfer 0.586 ± 0.098** (EN 0.675, HI 0.308; CPA→RTI 0.384, RTI→CPA 0.319); best baseline LaBSE 0.101. Training uses lr 2e-5, batch 8, 30 epochs, no early stopping (early stopping on the ~35-pair dev set collapsed every run).
+  - Labels: two **disclosed LLM annotators** (Claude Opus 5.5 ×2; annotator A also wrote the simplifications, so not blind in practice). α(interval) 0.610; inter-LLM Pearson 0.723 (not a ceiling). The 30-pair human validation workbook (`data/annotation/pilot/`) is **not yet scored**.
+  - Results (`reports/tables/*.tsv`, kernels `lmp-experiments` v3, `lmp-transfer`, `lmp-e23-fixed`; runbook `run_all.py`): principal system XLM-R FrJUDGE→ours+DA **0.576 ± 0.102** (EN 0.675, HI 0.308); from-scratch XLM-R+DA 0.228 ± 0.288; calibrated LaBSE 0.101; variant-mean lookup (answer key, diagnostic) 0.831. E2 (35 bilingual RTI clauses) inconclusive (≈0); E3 CPA→RTI 0.388, RTI→CPA 0.119 (DA from training act only). Training: lr 2e-5, batch 8, 30 epochs, no early stopping.
   - FrJUDGE reproduction (`reports/frjudge_repro.md`): released-code setting 0.707 ± 0.042 vs paper 0.74.
   - Open: score the human validation pilot; get the Hindi CPA PDF; push branches to GitHub; demo needs a saved checkpoint.
 
