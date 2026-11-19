@@ -79,8 +79,9 @@ for model, plan in plans:
     if plan == "smoke":
         jobs.append((model, f"{S}/random_s42", name, "--epochs 2", 42))
         continue
-    if plan == "demo":
-        jobs.append((model, f"{S}/random_s42", f"{name}-demo", f"--save-model {DEMO}", 42))
+    if plan in ("demo", "demo-da"):     # demo-da: the DA-trained variant (more stable for MuRIL)
+        da = "--da " if plan == "demo-da" else ""
+        jobs.append((model, f"{S}/random_s42", f"{name}-demo{'-da' if da else ''}", f"{da}--save-model {DEMO}", 42))
         continue
     if plan == "errcls":                 # legal-error type classifier (P/R/F1) on the E1 random splits
         for s in SEEDS:

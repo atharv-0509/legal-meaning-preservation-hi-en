@@ -35,6 +35,8 @@ KERNELS = {                       # slug -> "backbone=plan;..." run in ONE GPU s
     "lmp-xlmr-5seeds": "xlm-roberta-base=frj-e1;xlm-roberta-base=frj-e23",
     # legal-error type classifier (brief: optional error type + P/R/F1): XLM-R from scratch, XLM-R from the
     # FrJUDGE-trained encoder, MuRIL; two saved checkpoints for the demo app
+    # demo checkpoint of the MuRIL transfer model with DA (best on Hindi and cross-act in the 5-seed follow-up)
+    "lmp-muril-demo": "google/muril-base-cased=frj-demo-da",
     "lmp-errcls": ("xlm-roberta-base=errcls;xlm-roberta-base=frj-errcls;google/muril-base-cased=errcls;"
                    "xlm-roberta-base=errcls-demo;xlm-roberta-base=frj-errcls-demo"),
 }

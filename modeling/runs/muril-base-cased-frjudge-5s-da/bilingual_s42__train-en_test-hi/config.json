@@ -1,0 +1,184 @@
+{
+  "split_dir": "/kaggle/working/lmp/data/splits/bilingual_s42",
+  "model": "/kaggle/working/frjudge-pretrained",
+  "run_name": "muril-base-cased-frjudge-5s-da",
+  "da": true,
+  "dev_set": "human",
+  "train_langs": [
+    "en"
+  ],
+  "test_langs": [
+    "hi"
+  ],
+  "seed": 42,
+  "lr": 2e-05,
+  "batch_size": 8,
+  "epochs": 30,
+  "patience": 0,
+  "max_len": 512,
+  "weight_decay": 0.0,
+  "max_grad_norm": 1.0,
+  "clip_min": 1.0,
+  "fp16": true,
+  "save_model": null,
+  "extra_test": [],
+  "runs_dir": "/kaggle/working/runs",
+  "system": "muril-base-cased-frjudge-5s-da",
+  "split_name": "bilingual_s42__train-en_test-hi",
+  "best_epoch": 17,
+  "best_dev_mse": 5.217695871988933,
+  "history": [
+    {
+      "epoch": 1,
+      "train_mse": 9.687357657296317,
+      "dev_mse": 11.380383809407553
+    },
+    {
+      "epoch": 2,
+      "train_mse": 5.3535799866630915,
+      "dev_mse": 9.189445495605469
+    },
+    {
+      "epoch": 3,
+      "train_mse": 3.7065914335704986,
+      "dev_mse": 6.188387552897136
+    },
+    {
+      "epoch": 4,
+      "train_mse": 4.632198406401135,
+      "dev_mse": 7.241952260335286
+    },
+    {
+      "epoch": 5,
+      "train_mse": 3.201095494769868,
+      "dev_mse": 6.130414326985677
+    },
+    {
+      "epoch": 6,
+      "train_mse": 2.9108416602725073,
+      "dev_mse": 5.798244476318359
+    },
+    {
+      "epoch": 7,
+      "train_mse": 2.4332448232741584,
+      "dev_mse": 5.960080464680989
+    },
+    {
+      "epoch": 8,
+      "train_mse": 2.178450548081171,
+      "dev_mse": 6.622698465983073
+    },
+    {
+      "epoch": 9,
+      "train_mse": 2.771693243299212,
+      "dev_mse": 7.75473149617513
+    },
+    {
+      "epoch": 10,
+      "train_mse": 3.184872189022246,
+      "dev_mse": 7.5197248458862305
+    },
+    {
+      "epoch": 11,
+      "train_mse": 2.5828016008649555,
+      "dev_mse": 5.477498372395833
+    },
+    {
+      "epoch": 12,
+      "train_mse": 2.3014375346047538,
+      "dev_mse": 5.851062774658203
+    },
+    {
+      "epoch": 13,
+      "train_mse": 2.2051431201753164,
+      "dev_mse": 6.1241505940755205
+    },
+    {
+      "epoch": 14,
+      "train_mse": 2.2036769435519266,
+      "dev_mse": 6.46633783976237
+    },
+    {
+      "epoch": 15,
+      "train_mse": 2.374596323285784,
+      "dev_mse": 6.989922841389974
+    },
+    {
+      "epoch": 16,
+      "train_mse": 2.3109097980317617,
+      "dev_mse": 6.1500244140625
+    },
+    {
+      "epoch": 17,
+      "train_mse": 2.0652416728791736,
+      "dev_mse": 5.217695871988933
+    },
+    {
+      "epoch": 18,
+      "train_mse": 1.8972623756953648,
+      "dev_mse": 6.5446319580078125
+    },
+    {
+      "epoch": 19,
+      "train_mse": 1.8985214142572313,
+      "dev_mse": 5.903216044108073
+    },
+    {
+      "epoch": 20,
+      "train_mse": 1.8369429769970123,
+      "dev_mse": 5.613361358642578
+    },
+    {
+      "epoch": 21,
+      "train_mse": 1.9644432998838879,
+      "dev_mse": 5.415330251057942
+    },
+    {
+      "epoch": 22,
+      "train_mse": 1.7914521171933129,
+      "dev_mse": 5.899433135986328
+    },
+    {
+      "epoch": 23,
+      "train_mse": 1.7708338805607386,
+      "dev_mse": 5.880668640136719
+    },
+    {
+      "epoch": 24,
+      "train_mse": 1.6683505921136765,
+      "dev_mse": 5.990601857503255
+    },
+    {
+      "epoch": 25,
+      "train_mse": 1.7581461588541667,
+      "dev_mse": 5.749617258707683
+    },
+    {
+      "epoch": 26,
+      "train_mse": 1.5791616712297711,
+      "dev_mse": 5.8367156982421875
+    },
+    {
+      "epoch": 27,
+      "train_mse": 1.5771376223791214,
+      "dev_mse": 6.057559967041016
+    },
+    {
+      "epoch": 28,
+      "train_mse": 1.6380363396235875,
+      "dev_mse": 6.062236785888672
+    },
+    {
+      "epoch": 29,
+      "train_mse": 1.6986747832525344,
+      "dev_mse": 6.049659729003906
+    },
+    {
+      "epoch": 30,
+      "train_mse": 1.5936433723994663,
+      "dev_mse": 6.040259043375651
+    }
+  ],
+  "seconds": 72,
+  "device": "cuda"
+}

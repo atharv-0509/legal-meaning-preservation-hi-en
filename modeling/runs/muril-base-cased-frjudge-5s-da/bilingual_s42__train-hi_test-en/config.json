@@ -1,0 +1,184 @@
+{
+  "split_dir": "/kaggle/working/lmp/data/splits/bilingual_s42",
+  "model": "/kaggle/working/frjudge-pretrained",
+  "run_name": "muril-base-cased-frjudge-5s-da",
+  "da": true,
+  "dev_set": "human",
+  "train_langs": [
+    "hi"
+  ],
+  "test_langs": [
+    "en"
+  ],
+  "seed": 42,
+  "lr": 2e-05,
+  "batch_size": 8,
+  "epochs": 30,
+  "patience": 0,
+  "max_len": 512,
+  "weight_decay": 0.0,
+  "max_grad_norm": 1.0,
+  "clip_min": 1.0,
+  "fp16": true,
+  "save_model": null,
+  "extra_test": [],
+  "runs_dir": "/kaggle/working/runs",
+  "system": "muril-base-cased-frjudge-5s-da",
+  "split_name": "bilingual_s42__train-hi_test-en",
+  "best_epoch": 6,
+  "best_dev_mse": 5.5841318766276045,
+  "history": [
+    {
+      "epoch": 1,
+      "train_mse": 11.429273864201138,
+      "dev_mse": 6.28274663289388
+    },
+    {
+      "epoch": 2,
+      "train_mse": 6.129891268412272,
+      "dev_mse": 12.35716438293457
+    },
+    {
+      "epoch": 3,
+      "train_mse": 4.3361922491164435,
+      "dev_mse": 7.640716552734375
+    },
+    {
+      "epoch": 4,
+      "train_mse": 4.1044379915509905,
+      "dev_mse": 11.396130959192911
+    },
+    {
+      "epoch": 5,
+      "train_mse": 3.2357424826849073,
+      "dev_mse": 6.923444112141927
+    },
+    {
+      "epoch": 6,
+      "train_mse": 2.9923400152297246,
+      "dev_mse": 5.5841318766276045
+    },
+    {
+      "epoch": 7,
+      "train_mse": 2.891350453240531,
+      "dev_mse": 6.377346038818359
+    },
+    {
+      "epoch": 8,
+      "train_mse": 2.7282983439309256,
+      "dev_mse": 6.663906097412109
+    },
+    {
+      "epoch": 9,
+      "train_mse": 2.912100955418178,
+      "dev_mse": 6.419705708821614
+    },
+    {
+      "epoch": 10,
+      "train_mse": 2.2761965842474075,
+      "dev_mse": 6.627277374267578
+    },
+    {
+      "epoch": 11,
+      "train_mse": 2.456850167683193,
+      "dev_mse": 5.7030080159505205
+    },
+    {
+      "epoch": 12,
+      "train_mse": 2.6269359361557734,
+      "dev_mse": 5.965410868326823
+    },
+    {
+      "epoch": 13,
+      "train_mse": 2.4491431508745465,
+      "dev_mse": 6.727333068847656
+    },
+    {
+      "epoch": 14,
+      "train_mse": 2.2650322800590876,
+      "dev_mse": 7.15572992960612
+    },
+    {
+      "epoch": 15,
+      "train_mse": 2.44735411689395,
+      "dev_mse": 6.321842193603516
+    },
+    {
+      "epoch": 16,
+      "train_mse": 2.2995961325509207,
+      "dev_mse": 5.977390289306641
+    },
+    {
+      "epoch": 17,
+      "train_mse": 2.1776579266502742,
+      "dev_mse": 6.290019989013672
+    },
+    {
+      "epoch": 18,
+      "train_mse": 2.2548783938090007,
+      "dev_mse": 7.079732259114583
+    },
+    {
+      "epoch": 19,
+      "train_mse": 1.9917507989065988,
+      "dev_mse": 6.610365549723308
+    },
+    {
+      "epoch": 20,
+      "train_mse": 2.0103410357520692,
+      "dev_mse": 6.755088806152344
+    },
+    {
+      "epoch": 21,
+      "train_mse": 2.2906144142150877,
+      "dev_mse": 6.054248809814453
+    },
+    {
+      "epoch": 22,
+      "train_mse": 1.8758032935006277,
+      "dev_mse": 6.9192148844401045
+    },
+    {
+      "epoch": 23,
+      "train_mse": 1.7911338965098063,
+      "dev_mse": 6.630516052246094
+    },
+    {
+      "epoch": 24,
+      "train_mse": 1.9642398198445639,
+      "dev_mse": 6.944073994954427
+    },
+    {
+      "epoch": 25,
+      "train_mse": 1.957360923857916,
+      "dev_mse": 6.917599995930989
+    },
+    {
+      "epoch": 26,
+      "train_mse": 1.6105269840785434,
+      "dev_mse": 7.557401021321614
+    },
+    {
+      "epoch": 27,
+      "train_mse": 1.6931973139444987,
+      "dev_mse": 7.613527933756511
+    },
+    {
+      "epoch": 28,
+      "train_mse": 1.7710903440202985,
+      "dev_mse": 7.458445231119792
+    },
+    {
+      "epoch": 29,
+      "train_mse": 1.628986288252331,
+      "dev_mse": 7.4101613362630205
+    },
+    {
+      "epoch": 30,
+      "train_mse": 1.7477717127118793,
+      "dev_mse": 7.456125895182292
+    }
+  ],
+  "seconds": 67,
+  "device": "cuda"
+}
