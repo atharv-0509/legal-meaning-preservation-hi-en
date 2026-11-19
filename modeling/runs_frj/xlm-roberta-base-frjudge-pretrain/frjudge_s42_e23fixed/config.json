@@ -1,0 +1,180 @@
+{
+  "split_dir": "/kaggle/working/lmp/data/splits_frjudge/frjudge",
+  "model": "xlm-roberta-base",
+  "run_name": "xlm-roberta-base-frjudge-pretrain",
+  "da": true,
+  "dev_set": "da",
+  "train_langs": null,
+  "test_langs": null,
+  "seed": 42,
+  "lr": 2e-05,
+  "batch_size": 8,
+  "epochs": 30,
+  "patience": 0,
+  "max_len": 512,
+  "weight_decay": 0.0,
+  "max_grad_norm": 1.0,
+  "clip_min": 0.0,
+  "fp16": true,
+  "save_model": "/kaggle/working/frjudge-pretrained",
+  "extra_test": [],
+  "runs_dir": "/kaggle/working/runs_frj",
+  "system": "xlm-roberta-base-frjudge-pretrain",
+  "split_name": "frjudge_s42",
+  "best_epoch": 16,
+  "best_dev_mse": 0.759911322294772,
+  "history": [
+    {
+      "epoch": 1,
+      "train_mse": 24.730274036952427,
+      "dev_mse": 11.445880458468483
+    },
+    {
+      "epoch": 2,
+      "train_mse": 7.5728576745305745,
+      "dev_mse": 2.905686053018721
+    },
+    {
+      "epoch": 3,
+      "train_mse": 3.0065275196518217,
+      "dev_mse": 1.2280867096064505
+    },
+    {
+      "epoch": 4,
+      "train_mse": 2.5131561130285265,
+      "dev_mse": 1.672862606874061
+    },
+    {
+      "epoch": 5,
+      "train_mse": 2.124464393726417,
+      "dev_mse": 2.4484046393088876
+    },
+    {
+      "epoch": 6,
+      "train_mse": 1.7740319978977952,
+      "dev_mse": 2.1272992461919786
+    },
+    {
+      "epoch": 7,
+      "train_mse": 1.240934788861445,
+      "dev_mse": 1.169575212588386
+    },
+    {
+      "epoch": 8,
+      "train_mse": 0.9547280731211816,
+      "dev_mse": 1.5505267578830613
+    },
+    {
+      "epoch": 9,
+      "train_mse": 0.747131057482745,
+      "dev_mse": 1.379726594710161
+    },
+    {
+      "epoch": 10,
+      "train_mse": 0.6159906729523624,
+      "dev_mse": 1.1879801184323338
+    },
+    {
+      "epoch": 11,
+      "train_mse": 0.39187125360061015,
+      "dev_mse": 1.1391044048089831
+    },
+    {
+      "epoch": 12,
+      "train_mse": 0.3593556131103209,
+      "dev_mse": 0.932777472512634
+    },
+    {
+      "epoch": 13,
+      "train_mse": 0.48039053313966307,
+      "dev_mse": 1.010412909905383
+    },
+    {
+      "epoch": 14,
+      "train_mse": 0.27293905513361094,
+      "dev_mse": 1.3323772750220204
+    },
+    {
+      "epoch": 15,
+      "train_mse": 0.25334226962045897,
+      "dev_mse": 0.9603573686073698
+    },
+    {
+      "epoch": 16,
+      "train_mse": 0.2872527120102729,
+      "dev_mse": 0.759911322294772
+    },
+    {
+      "epoch": 17,
+      "train_mse": 0.19661819458539997,
+      "dev_mse": 1.1039384253204816
+    },
+    {
+      "epoch": 18,
+      "train_mse": 0.1597596005736185,
+      "dev_mse": 1.062545892673116
+    },
+    {
+      "epoch": 19,
+      "train_mse": 0.19142614396155944,
+      "dev_mse": 0.942315763447966
+    },
+    {
+      "epoch": 20,
+      "train_mse": 0.15061395771003194,
+      "dev_mse": 0.9843131151885564
+    },
+    {
+      "epoch": 21,
+      "train_mse": 0.12022674599263285,
+      "dev_mse": 0.9659104008346312
+    },
+    {
+      "epoch": 22,
+      "train_mse": 0.0983262866203274,
+      "dev_mse": 0.9821910442903472
+    },
+    {
+      "epoch": 23,
+      "train_mse": 0.10645499844104052,
+      "dev_mse": 0.982458494066625
+    },
+    {
+      "epoch": 24,
+      "train_mse": 0.08106836031324097,
+      "dev_mse": 0.8296887527873439
+    },
+    {
+      "epoch": 25,
+      "train_mse": 0.07933452249105488,
+      "dev_mse": 0.9324735073001158
+    },
+    {
+      "epoch": 26,
+      "train_mse": 0.07650943470320531,
+      "dev_mse": 0.7932748003475354
+    },
+    {
+      "epoch": 27,
+      "train_mse": 0.0661725542774158,
+      "dev_mse": 0.8770415713367194
+    },
+    {
+      "epoch": 28,
+      "train_mse": 0.06165542557968625,
+      "dev_mse": 0.8695012852044163
+    },
+    {
+      "epoch": 29,
+      "train_mse": 0.05663666574151388,
+      "dev_mse": 0.875566364507621
+    },
+    {
+      "epoch": 30,
+      "train_mse": 0.041608420167384405,
+      "dev_mse": 0.8687668043883362
+    }
+  ],
+  "seconds": 553,
+  "device": "cuda"
+}

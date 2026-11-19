@@ -63,7 +63,7 @@ E2/E3 are from the corrected `lmp-e23-fixed` kernel (collected 19 Nov, 14:12 UTC
 earlier E2 (0.675 EN / 0.308 HI), which was the E1 runs split by language and is confounded by act (EN pools
 CPA, where the model scores 0.669, vs RTI 0.485), and the earlier E3 (0.384 / 0.319), whose DA partners came
 from the target act. **The transfer gain is real overall and on CPA, but is not shown for Hindi on matched
-provisions.** E5 now uses in-domain (E1) predictions: the transferred model averages 4.0 on low-label
+provisions.** The corrected E2/E3 runs start from a fresh FrJUDGE pre-training (test Pearson 0.849, `modeling/runs_frj/.../frjudge_s42_e23fixed`); the E1 transfer runs and the paper's 0.873 use the earlier one (`frjudge_s42`). E5 now uses in-domain (E1) predictions: the transferred model averages 4.0 on low-label
 negation reversals in domain (7.6 from scratch) but still gives single reversals 10.0, and 7.3 across acts.
 Zero-shot EN↔HI transfer stays at zero (0.035 / 0.131). Training settings that work: lr 2e-5, batch 8, 30 epochs,
 **no early stopping**, keep best dev checkpoint (early stopping on the ~35-pair dev set collapsed every run).
