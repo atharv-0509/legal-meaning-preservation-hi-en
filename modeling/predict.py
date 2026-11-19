@@ -1,5 +1,6 @@
 """Score new pairs with a trained model (saved with train.py --save-model DIR): the brief's
-per-pair output = LMP score (1-10) + decision (Preserved / Partially Preserved / Not Preserved).
+per-pair output = LMP score (1-10) + decision (Preserved / Partially Preserved / Not Preserved) + legal error
+type and a short explanation (rule-based; plus the trained classifier with --errcls-dir).
 
     python modeling/predict.py --model-dir modeling/models/xlmr-da \
         --original "The officer shall reply within thirty days." --simplification "The officer may reply."
@@ -49,6 +50,7 @@ def main(argv=None):
     ap.add_argument("--simplification")
     ap.add_argument("--input", help="JSONL with original + simplification fields")
     ap.add_argument("--output")
+    ap.add_argument("--errcls-dir", default=None, help="optional trained error-type classifier")
     ap.add_argument("--demo", action="store_true")
     args = ap.parse_args(argv)
     if not (Path(args.model_dir) / "config.json").is_file():
@@ -61,19 +63,37 @@ def main(argv=None):
     if args.demo:                       # the full demo UI lives in modeling/app.py
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         import app
-        app.main(["--model-dir", args.model_dir])
+        app.main(["--model-dir", args.model_dir] + (["--errcls-dir", args.errcls_dir] if args.errcls_dir else []))
         return
     scorer = LMPScorer(args.model_dir)
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from legal_cues import rule_error_type
+    typer = None
+    if args.errcls_dir:
+        from app import ErrorTyper
+        typer = ErrorTyper(args.errcls_dir)
+
+    def explain(o: str, s: str) -> dict:
+        """Brief's optional outputs: legal error type + short explanation (rule-based, and trained if given)."""
+        t, why = rule_error_type(o, s)
+        out = {"error_type": t, "explanation": why}
+        if typer:
+            nt, conf = typer(o, s)
+            out.update(error_type_model=nt, error_type_confidence=round(conf, 3))
+        return out
+
     if args.input:
         rows = [json.loads(line) for line in open(args.input, encoding="utf-8") if line.strip()]
         res = scorer.score([r["original"] for r in rows], [r["simplification"] for r in rows])
         with open(args.output or "/dev/stdout", "w", encoding="utf-8") as f:
             for r, s in zip(rows, res):
-                f.write(json.dumps(dict(r, **s), ensure_ascii=False) + "\n")
+                f.write(json.dumps(dict(r, **s, **explain(r["original"], r["simplification"])),
+                                   ensure_ascii=False) + "\n")
         return
     if not (args.original and args.simplification):
         sys.exit("give --original and --simplification, --input, or --demo")
-    print(json.dumps(scorer.score([args.original], [args.simplification])[0], ensure_ascii=False))
+    print(json.dumps(dict(scorer.score([args.original], [args.simplification])[0],
+                          **explain(args.original, args.simplification)), ensure_ascii=False))
 
 
 if __name__ == "__main__":
