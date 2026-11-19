@@ -41,7 +41,7 @@ KEYWORDS = ("legal NLP, text simplification, meaning preservation, evaluation me
 ABSTRACT = (
     "Plain-language versions of statutes can widen access to the law, but a simplification that "
     "drops a condition, turns an obligation into a permission or alters a time limit misleads the "
-    "reader while still looking fluent. JUDGEBERT (Beauchemin et al., 2025) introduced a learned "
+    "reader while still looking fluent. JUDGEBERT [1] introduced a learned "
     "metric for legal meaning preservation (LMP) on French insurance text. We extend that line of "
     "work to Indian statutory law in two languages. From the official texts of the Right to "
     "Information Act, 2005 and the Consumer Protection Act, 2019 we build a corpus of "
@@ -73,7 +73,7 @@ BODY: list[tuple] = [
      "and semantic overlap, so a simplification that preserves almost every word but deletes a "
      "proviso scores well, even though the legal consequence has changed."),
     ("p",
-     "JUDGEBERT made this concrete. On FrJUDGE, a corpus of 297 French insurance sentence blocks "
+     "JUDGEBERT [1] made this concrete. On FrJUDGE, a corpus of 297 French insurance sentence blocks "
      "scored by five law students, BERTScore correlates with human LMP judgements at Pearson 0.46 "
      "and SBERT at 0.13, while a CamemBERT-v2 cross-encoder trained directly on the rubric reaches "
      "0.74. BERTScore and MeaningBERT over-score the human label on 82% of test pairs; the learned "
@@ -84,9 +84,11 @@ BODY: list[tuple] = [
      "and a different kind of statutory text, and we attack the specific weaknesses of the original "
      "study. Each gap below maps to a contribution of this paper."),
     ("bullets", [
-        "JUDGEBERT covers French and a single domain. We cover English and Hindi across two Indian "
-        "central acts. Because the Hindi statute is an official translation of the same provision, "
-        "the language comparison is controlled rather than confounded by content.",
+        "JUDGEBERT covers French and a single domain. We cover two Indian central acts from "
+        "different domains, and English and Hindi within one of them, the Right to Information Act, "
+        "because the official Hindi text of the other could not be obtained (Section III-A). Where "
+        "both languages exist, the Hindi statute is an official translation of the very same "
+        "provision, so the language comparison is controlled rather than confounded by content.",
         "FrJUDGE contains one simplification style, so its label distribution is narrow. We add "
         "aggressive simplifications, which tend to drop conditions, and perturbed simplifications "
         "carrying exactly one injected legal error of a known type. The latter is a labelled "
@@ -115,13 +117,13 @@ BODY: list[tuple] = [
     ("p",
      "Simplification quality is usually decomposed into simplicity, fluency and meaning "
      "preservation. Meaning preservation is commonly measured by n-gram overlap, by contextual "
-     "embedding similarity such as BERTScore, by sentence-embedding cosine similarity, or by "
-     "learned or question-based metrics such as QuestEval, LENS and MeaningBERT. BLESS benchmarks "
+     "embedding similarity such as BERTScore [3], by sentence-embedding cosine similarity, or by "
+     "learned or question-based metrics such as QuestEval [9], LENS [10] and MeaningBERT [11]. BLESS [2] benchmarks "
      "large language models as sentence simplifiers with zero-shot prompts; we reuse its prompt so "
      "that our normal variant is comparable to established practice."),
     ("h2", "Legal meaning preservation"),
     ("p",
-     "JUDGEBERT is the direct predecessor of this work. Its rubric, which we adopt unchanged, first "
+     "JUDGEBERT [1] is the direct predecessor of this work. Its rubric, which we adopt unchanged, first "
      "places a simplification in a bracket (Accurate 7-10, Imprecise 2-6, Off-track 1) and then "
      "subtracts one point per identified error, with a floor of 1; the error types are omission, "
      "hallucination, consistency issue and confusion. Its model is a cross-encoder regression over "
@@ -131,14 +133,14 @@ BODY: list[tuple] = [
     ("h2", "Indian legal NLP"),
     ("p",
      "Work on Indian legal text has concentrated on judgments: domain-adapted encoders such as "
-     "InLegalBERT, and benchmarks such as IL-TUR, target tasks like judgment prediction, "
+     "InLegalBERT [12], and benchmarks such as IL-TUR [13], target tasks like judgment prediction, "
      "rhetorical-role labelling and summarisation. Statutory simplification, and the question of "
      "whether a simplification is legally faithful, is comparatively unexplored for Indian law, and "
      "we are not aware of a Hindi resource for it."),
     ("h2", "Multilingual encoders"),
     ("p",
-     "For the backbone we consider XLM-R, which is multilingual but not Indic-focused, and MuRIL "
-     "and IndicBERT v2, which are trained with Indian languages and transliteration in mind. LaBSE "
+     "For the backbone we consider XLM-R [5], which is multilingual but not Indic-focused, and MuRIL "
+     "[6] and IndicBERT v2 [7], which are trained with Indian languages and transliteration in mind. LaBSE [4] "
      "provides a strong language-agnostic sentence embedding and serves as one of our baselines."),
 
     ("h1", "Dataset"),
@@ -291,7 +293,7 @@ BODY: list[tuple] = [
      "ceiling degenerates into the correlation between the two of them, so what it measures is how "
      "well one instance of a model predicts another, not a ceiling set by human legal judgement."),
     ("p",
-     "On those terms the agreement is as follows. Krippendorff's alpha on the interval LMP scores "
+     "On those terms the agreement is as follows. Krippendorff's alpha [8] on the interval LMP scores "
      "is 0.610 and on the nominal brackets 0.503; the leave-one-out ceiling, which we call the "
      "LLM-annotator ceiling and never a human ceiling, is a Pearson correlation of 0.723, and 68 "
      "of the 338 pairs fall on the adjudication list. These figures are far above the 0.10 that "
@@ -344,8 +346,9 @@ BODY: list[tuple] = [
     ("h2", "Baselines"),
     ("p",
      "We compare against four reference points of increasing sophistication. ROUGE-L and BLEU, "
-     "computed with our Devanagari-aware tokenizer, represent pure overlap. LaBSE cosine similarity "
-     "represents language-agnostic sentence semantics. Multilingual BERTScore F1 represents "
+     "computed with our Devanagari-aware tokenizer, represent pure overlap. LaBSE [4] cosine "
+     "similarity "
+     "represents language-agnostic sentence semantics. Multilingual BERTScore [3] F1 represents "
      "contextual token matching and is the strongest generic metric in the original study. Finally "
      "an LLM judge receives the annotators' rubric verbatim, at temperature 0, and returns a bracket "
      "and error counts from which the score is recomputed by the same function used for the "
