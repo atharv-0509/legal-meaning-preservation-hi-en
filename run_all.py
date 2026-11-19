@@ -119,9 +119,13 @@ def report():
         if ea:                            # stable name for the paper's @@INCLUDE
             (ROOT / "reports" / "error_analysis.md").write_text(ea[0].read_text(encoding="utf-8"), encoding="utf-8")
     run(PY, "modeling/make_tables.py")                 # reports/tables/*.tsv read by the paper and slides
-    paper = ROOT.parent / "lmp-paper" / "paper" / "build.ps1"
-    if paper.exists():                                 # paper + slides live on agent/paper-slides (worktree)
-        run("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", paper, check=False)
+    # paper + slides: in this repo since the handover merge (older layout: a sibling ../lmp-paper worktree)
+    for paper in (ROOT / "paper" / "build.ps1", ROOT.parent / "lmp-paper" / "paper" / "build.ps1"):
+        if paper.exists():
+            run("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", paper, check=False)
+            break
+    else:
+        print("paper/build.ps1 not found: tables are written, paper/slides not rebuilt")
     print("reports/ ready" + (f"; best system {best[0]} (Pearson {best[1]:.3f})" if best else ""))
 
 

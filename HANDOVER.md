@@ -7,6 +7,32 @@ Open a pull request `handover → main` and merge it to continue from `main`.
 Read `CLAUDE.md` first (project spec, rules, §1 status). The full day-long coordination log between the
 agents is in `docs/agents/agent-chat-history.md`.
 
+## 0. Set up on your own laptop (Windows, ~10 minutes)
+
+1. **Get the code** (Python 3.10+ and Git required):
+   ```powershell
+   git clone -b handover https://github.com/atharv-0509/legal-meaning-preservation-hi-en
+   cd legal-meaning-preservation-hi-en
+   python -m venv .venv
+   .venv\Scripts\pip install -r requirements.txt -r modeling\requirements.txt -r paper\requirements-paper.txt
+   .venv\Scripts\python -m pytest -q          # expect: 46 passed
+   ```
+   After the PR is merged you can clone `main` instead of `-b handover`.
+2. **Start Claude (Claude Code) in that folder** and paste the prompt from
+   `docs/agents/START_HERE_FOR_CLAUDE.md`. It tells Claude to read this file, `CLAUDE.md` and the agent log,
+   summarise the state, and wait for your instructions.
+3. **Only if you need them:**
+   - *Kaggle GPU runs* (`run_all.py push`): create a token at kaggle.com → Settings → API → "Create New
+     Token" and set it once, without echoing it:
+     `$t = Read-Host "Kaggle token" -AsSecureString; [Environment]::SetEnvironmentVariable("KAGGLE_API_TOKEN", [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($t)), "User")`
+     then open a new terminal. Never commit or paste the token into files or chats.
+   - *Paper PDF*: `paper\build.ps1` exports the PDF through Microsoft Word; without Word you still get the
+     `.docx` and `.pptx`.
+   - *Re-extracting PDFs / Hindi OCR*: download the PDFs from `sources.json` → `pdf_url` into `data\raw\`
+     (names `rti_en.pdf`, `rti_hi.pdf`, `cpa_en.pdf`); install Tesseract 5 and put `hin.traineddata` +
+     `eng.traineddata` from github.com/tesseract-ocr/tessdata_best in a folder passed as `--tessdata-dir`.
+     Not needed otherwise: the extracted and OCR text is already in `data\`.
+
 ## 1. What is done
 
 | Item | Where | Result |
