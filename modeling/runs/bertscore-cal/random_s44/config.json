@@ -1,0 +1,9 @@
+{
+  "system": "bertscore-cal",
+  "metric": "bertscore",
+  "split": "random_s44",
+  "calibration": {
+    "a": 1.5441156736284976,
+    "b": 6.446794039967492
+  }
+}

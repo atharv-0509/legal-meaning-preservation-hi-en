@@ -1,0 +1,6 @@
+{
+  "system": "labse",
+  "metric": "labse",
+  "split": "ood_cpa_to_rti",
+  "calibration": "naive [0,1]->[1,10]"
+}

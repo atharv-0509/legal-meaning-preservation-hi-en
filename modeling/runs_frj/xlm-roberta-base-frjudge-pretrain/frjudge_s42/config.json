@@ -1,0 +1,180 @@
+{
+  "split_dir": "/kaggle/working/lmp/data/splits_frjudge/frjudge",
+  "model": "xlm-roberta-base",
+  "run_name": "xlm-roberta-base-frjudge-pretrain",
+  "da": true,
+  "dev_set": "da",
+  "train_langs": null,
+  "test_langs": null,
+  "seed": 42,
+  "lr": 2e-05,
+  "batch_size": 8,
+  "epochs": 30,
+  "patience": 0,
+  "max_len": 512,
+  "weight_decay": 0.0,
+  "max_grad_norm": 1.0,
+  "clip_min": 0.0,
+  "fp16": true,
+  "save_model": "/kaggle/working/frjudge-pretrained",
+  "extra_test": [],
+  "runs_dir": "/kaggle/working/runs_frj",
+  "system": "xlm-roberta-base-frjudge-pretrain",
+  "split_name": "frjudge_s42",
+  "best_epoch": 30,
+  "best_dev_mse": 0.7671506036283721,
+  "history": [
+    {
+      "epoch": 1,
+      "train_mse": 25.28097457885742,
+      "dev_mse": 15.335184425020975
+    },
+    {
+      "epoch": 2,
+      "train_mse": 6.597875082492829,
+      "dev_mse": 2.7919516735606726
+    },
+    {
+      "epoch": 3,
+      "train_mse": 3.783506012388638,
+      "dev_mse": 1.5640114894055253
+    },
+    {
+      "epoch": 4,
+      "train_mse": 2.8490542605519296,
+      "dev_mse": 3.1967702186178597
+    },
+    {
+      "epoch": 5,
+      "train_mse": 2.078514791918652,
+      "dev_mse": 2.373310934140699
+    },
+    {
+      "epoch": 6,
+      "train_mse": 2.1987876547766585,
+      "dev_mse": 2.8604101506076636
+    },
+    {
+      "epoch": 7,
+      "train_mse": 1.079714778384992,
+      "dev_mse": 1.039415892840378
+    },
+    {
+      "epoch": 8,
+      "train_mse": 0.8422431995826108,
+      "dev_mse": 1.282054887412648
+    },
+    {
+      "epoch": 9,
+      "train_mse": 0.6622936968292509,
+      "dev_mse": 1.3646047726155273
+    },
+    {
+      "epoch": 10,
+      "train_mse": 0.5177835293114186,
+      "dev_mse": 1.019178017122405
+    },
+    {
+      "epoch": 11,
+      "train_mse": 0.5266842175008996,
+      "dev_mse": 0.9011825603656546
+    },
+    {
+      "epoch": 12,
+      "train_mse": 0.3789824906603566,
+      "dev_mse": 0.9395898971324123
+    },
+    {
+      "epoch": 13,
+      "train_mse": 0.29344736213928885,
+      "dev_mse": 1.0944094166434963
+    },
+    {
+      "epoch": 14,
+      "train_mse": 0.24987312141539794,
+      "dev_mse": 1.3062703345541933
+    },
+    {
+      "epoch": 15,
+      "train_mse": 0.34130848801827857,
+      "dev_mse": 0.9195031473760509
+    },
+    {
+      "epoch": 16,
+      "train_mse": 0.23498299667345626,
+      "dev_mse": 0.8910738271537297
+    },
+    {
+      "epoch": 17,
+      "train_mse": 0.21296889608991998,
+      "dev_mse": 1.136388961182486
+    },
+    {
+      "epoch": 18,
+      "train_mse": 0.14952676550684763,
+      "dev_mse": 0.8327926534538468
+    },
+    {
+      "epoch": 19,
+      "train_mse": 0.18524256170993406,
+      "dev_mse": 0.9434845894443922
+    },
+    {
+      "epoch": 20,
+      "train_mse": 0.12607427981149938,
+      "dev_mse": 0.8462970531161225
+    },
+    {
+      "epoch": 21,
+      "train_mse": 0.1037962982298008,
+      "dev_mse": 0.8831494853157359
+    },
+    {
+      "epoch": 22,
+      "train_mse": 0.1080289221235684,
+      "dev_mse": 0.9793879351112992
+    },
+    {
+      "epoch": 23,
+      "train_mse": 0.09799830610198634,
+      "dev_mse": 0.9668704440426992
+    },
+    {
+      "epoch": 24,
+      "train_mse": 0.07540124329472227,
+      "dev_mse": 0.843177201863358
+    },
+    {
+      "epoch": 25,
+      "train_mse": 0.06358344094561678,
+      "dev_mse": 0.8761954833771887
+    },
+    {
+      "epoch": 26,
+      "train_mse": 0.06126170216926507,
+      "dev_mse": 0.7856526481501837
+    },
+    {
+      "epoch": 27,
+      "train_mse": 0.05880439235562725,
+      "dev_mse": 0.8076916036337901
+    },
+    {
+      "epoch": 28,
+      "train_mse": 0.05245692602225712,
+      "dev_mse": 0.7796559815018427
+    },
+    {
+      "epoch": 29,
+      "train_mse": 0.05492254716477224,
+      "dev_mse": 0.779398513283296
+    },
+    {
+      "epoch": 30,
+      "train_mse": 0.03797667461580464,
+      "dev_mse": 0.7671506036283721
+    }
+  ],
+  "seconds": 547,
+  "device": "cuda"
+}

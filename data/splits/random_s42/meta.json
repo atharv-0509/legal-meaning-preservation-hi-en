@@ -1,0 +1,35 @@
+{
+  "type": "random",
+  "seed": 42,
+  "ratios": [
+    0.6,
+    0.1,
+    0.3
+  ],
+  "counts": {
+    "train": 207,
+    "dev": 35,
+    "test": 96,
+    "train_da": 345,
+    "dev_da": 59
+  },
+  "clauses": {
+    "train": 47,
+    "dev": 8,
+    "test": 23
+  },
+  "by_lang": {
+    "train": {
+      "en": 141,
+      "hi": 66
+    },
+    "dev": {
+      "en": 23,
+      "hi": 12
+    },
+    "test": {
+      "en": 69,
+      "hi": 27
+    }
+  }
+}

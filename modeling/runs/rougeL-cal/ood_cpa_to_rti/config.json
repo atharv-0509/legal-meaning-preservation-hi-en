@@ -1,0 +1,9 @@
+{
+  "system": "rougeL-cal",
+  "metric": "rougeL",
+  "split": "ood_cpa_to_rti",
+  "calibration": {
+    "a": 7.399710806784826,
+    "b": 0.11330600759615558
+  }
+}

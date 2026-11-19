@@ -1,0 +1,9 @@
+{
+  "system": "bertscore-cal",
+  "metric": "bertscore",
+  "split": "ood_cpa_to_rti",
+  "calibration": {
+    "a": 4.837043180846949,
+    "b": 2.8305955879260214
+  }
+}

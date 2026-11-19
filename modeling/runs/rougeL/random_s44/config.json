@@ -1,0 +1,6 @@
+{
+  "system": "rougeL",
+  "metric": "rougeL",
+  "split": "random_s44",
+  "calibration": "naive [0,1]->[1,10]"
+}

@@ -1,0 +1,9 @@
+{
+  "system": "labse-cal",
+  "metric": "labse",
+  "split": "ood_cpa_to_rti",
+  "calibration": {
+    "a": 6.650377958907346,
+    "b": 1.0389341581328555
+  }
+}
