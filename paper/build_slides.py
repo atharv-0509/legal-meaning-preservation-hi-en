@@ -330,8 +330,8 @@ def build(out_path: Path) -> list[str]:
         "Principal system (with DA): **Pearson 0.576 ± 0.102** (seeds 0.564 / 0.684 / 0.481); "
         "without DA 0.586 ± 0.098 — within noise. From scratch: 0.228 ± 0.288.",
         ("Transferred seeds lie in 0.48–0.68; from-scratch seeds in 0.05–0.56.", 16, 1),
-        "**Per language (E1):** EN 0.297 → **0.675**, HI 0.010 → **0.308**. Hindi stays far "
-        "weaker; OCR noise, subset size and representation cannot be separated.",
+        "**Per language (E1):** EN 0.297 → **0.675**, HI 0.010 → **0.308** — confounded by act "
+        "(EN pools both acts; same runs: CPA 0.669 vs RTI 0.485).",
         "**Across acts (E3):** CPA→RTI 0.186 → **0.388**, RTI→CPA 0.056 → **0.119**. Asymmetric.",
         "**E2 (35 bilingual clauses):** joint training EN 0.165, HI −0.041; zero-shot EN→HI "
         "0.035, HI→EN 0.131. Inconclusive: too little data to tell a language gap from a data gap.",

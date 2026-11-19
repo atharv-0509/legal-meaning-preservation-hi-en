@@ -80,7 +80,7 @@ def push(args):
         "slug": f"{args.user}/{args.slug}", "newTitle": args.title or args.slug, "text": text,
         "language": "python", "kernelType": "script", "isPrivate": True,
         "enableGpu": not args.cpu, "enableTpu": False, "enableInternet": True,
-        "datasetDataSources": [], "competitionDataSources": [], "kernelDataSources": [],
+        "datasetDataSources": [], "competitionDataSources": [], "kernelDataSources": list(args.kernel_source or []),
         "modelDataSources": [], "categoryIds": [],
     }
     if not args.cpu and args.machine:
@@ -152,6 +152,7 @@ def main(argv=None):
     p.add_argument("--set-file", action="append", help="PLACEHOLDER=path: substitute the file's contents")
     p.add_argument("--machine", default="NvidiaTeslaT4", help="Kaggle machine shape (GPU)")
     p.add_argument("--cpu", action="store_true")
+    p.add_argument("--kernel-source", action="append", help="<user>/<kernel-slug> whose output is mounted under /kaggle/input")
     p.set_defaults(fn=push)
     for name, fn in (("status", status), ("log", log)):
         q = sub.add_parser(name)
