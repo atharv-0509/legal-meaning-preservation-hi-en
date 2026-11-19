@@ -107,6 +107,10 @@ def report():
         ea = sorted((ROOT / "reports").glob(f"error_analysis_{best[0]}*.md"))
         if ea:                            # stable name for the paper's @@INCLUDE
             (ROOT / "reports" / "error_analysis.md").write_text(ea[0].read_text(encoding="utf-8"), encoding="utf-8")
+    run(PY, "modeling/make_tables.py")                 # reports/tables/*.tsv read by the paper and slides
+    paper = ROOT.parent / "lmp-paper" / "paper" / "build.ps1"
+    if paper.exists():                                 # paper + slides live on agent/paper-slides (worktree)
+        run("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", paper, check=False)
     print("reports/ ready" + (f"; best system {best[0]} (Pearson {best[1]:.3f})" if best else ""))
 
 
