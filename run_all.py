@@ -33,10 +33,15 @@ KERNELS = {                       # slug -> "backbone=plan;..." run in ONE GPU s
     # over five seeds; tagged run names so the deadline results are not overwritten
     "lmp-muril-frj": "google/muril-base-cased=frj-e1;google/muril-base-cased=frj-e23",
     "lmp-xlmr-5seeds": "xlm-roberta-base=frj-e1;xlm-roberta-base=frj-e23",
+    # legal-error type classifier (brief: optional error type + P/R/F1): XLM-R from scratch, XLM-R from the
+    # FrJUDGE-trained encoder, MuRIL; two saved checkpoints for the demo app
+    "lmp-errcls": ("xlm-roberta-base=errcls;xlm-roberta-base=frj-errcls;google/muril-base-cased=errcls;"
+                   "xlm-roberta-base=errcls-demo;xlm-roberta-base=frj-errcls-demo"),
 }
 KERNEL_SETS = {                   # extra placeholder values per kernel (see lmp_experiments.py)
     "lmp-muril-frj": {"__SEEDS__": "42 43 44 45 46", "__TAG__": "-5s"},
     "lmp-xlmr-5seeds": {"__SEEDS__": "42 43 44 45 46", "__TAG__": "-5s"},
+    "lmp-errcls": {"__SEEDS__": "42 43 44 45 46"},
 }
 LOGS = ROOT / "modeling" / "kaggle_logs"
 # Early stopping on our ~35-pair dev set fires on noise: XLM-R stopped after a few epochs at the
