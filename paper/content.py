@@ -52,7 +52,8 @@ ABSTRACT = (
     "disclosed large-language-model annotators rather than by humans, which is a deviation from our "
     "original human-judgement protocol and is reported as such throughout. We train multilingual "
     "cross-encoders on clause-grouped splits and compare them against generic similarity metrics "
-    "and an LLM judge given the same rubric. Trained from scratch on our corpus the metric fails: "
+    "and against a planned LLM judge that we explain we could not run. Trained from scratch on our "
+    "corpus the metric fails: "
     "Pearson 0.228 with a standard deviation of 0.288 across seeds, indistinguishable from the best "
     "generic baseline at 0.101. Our main result is that this is a problem of scale and not of "
     "method, and that the scale can be borrowed across a language and a jurisdiction. Pre-training "
@@ -118,7 +119,8 @@ BODY: list[tuple] = [
      "Our contributions are therefore: (i) a bilingual legal LMP corpus with a documented, blinded "
      "scoring protocol and an explicit statement of who, or what, produced the labels; (ii) a "
      "JUDGEBERT-style multilingual cross-encoder for LMP; (iii) a comparison against generic metrics "
-     "and an LLM judge given the identical rubric; (iv) cross-lingual, cross-domain and sanity "
+     "and, in place of the LLM judge our labelling decision ruled out, a transfer experiment that "
+     "pre-trains on FrJUDGE before fine-tuning on our splits; (iv) cross-lingual, cross-domain and sanity "
      "experiments; and (v) a qualitative error analysis. We also report, in Section VII, two "
      "failures of our own pipeline that would have produced confidently wrong numbers, because both "
      "are invisible unless specifically tested for."),
@@ -323,10 +325,12 @@ BODY: list[tuple] = [
      "provision, one annotator scored Off-track, the other Imprecise with a confusion. The label "
      "is the mean of the two, as in FrJUDGE, and the adjudication list records every such divergence."),
     ("p",
-     "To keep a path to the original claim open, a separate 30-pair validation workbook is prepared "
-     "for human legal annotators; if it is scored we report the correlation between the model "
-     "labels and the human scores on it, and if it is not we report its absence as a limitation. "
-     "[TBD: human validation outcome.]"),
+     "To keep a path to the original claim open, a separate 30-pair validation workbook was prepared "
+     "for human legal annotators, stratified by language and variant. At the time of writing it has "
+     "not been scored. No human validation of these labels therefore exists, the correlation "
+     "between our model labels and human legal judgement is unmeasured, and every result in this "
+     "paper should be read with that gap in mind. The workbook and the tooling to aggregate it are "
+     "in the repository, so the measurement is a scoring session away rather than a rebuild."),
     ("h2", "Augmentation, sanity holdouts and splits"),
     ("p",
      "Following JUDGEBERT we add, for each clause and language, an identical pair labelled 10 and "
@@ -340,7 +344,7 @@ BODY: list[tuple] = [
      "The sanity holdouts are built only from provisions that are not selected, are not in a "
      "section containing a selected clause, and are not used as augmentation partners, so that "
      "passing a sanity check cannot be an artefact of memorising training text. Splits are 60/10/30 "
-     "by clause over five seeds, and every pair derived from one clause, both languages, all three "
+     "by clause over three seeds (42 to 44), and every pair derived from one clause, both languages, all three "
      "variants and its augmentation pairs, stays within a single split; the splitter asserts this "
      "at clause level and at text level. Headline metrics are computed on annotated test pairs "
      "only, with augmentation and sanity pairs excluded and reported separately."),
@@ -392,13 +396,14 @@ BODY: list[tuple] = [
      "and RMSE we report Spearman and MAE, and the over-scoring rate, that is the share of pairs "
      "whose prediction exceeds the label, because the practically dangerous failure for this task is "
      "a metric that flatters a simplification which has lost a condition. All aggregate numbers are "
-     "means with standard deviations over the five seeds, and results are broken down by language, "
+     "means with standard deviations over the three seeds, and results are broken down by language, "
      "by act and by variant."),
 
     ("h1", "Experiments"),
     ("p",
-     "Five experiments are defined in advance. E1 compares the generic baselines and the LLM judge "
-     "against the trained cross-encoder on the random clause-grouped splits. E2 reports per-language "
+     "Five experiments are defined in advance. E1 compares the generic baselines against the "
+     "trained cross-encoder on the random clause-grouped splits; the LLM judge belonged here and is "
+     "reported as not run for the reason given in Section III-F. E2 reports per-language "
      "results and zero-shot transfer in both directions, training on English and testing on Hindi "
      "and the reverse, which is possible precisely because the two languages contain the same "
      "provisions; it is confined to the Right to Information Act for the reason given in Section "
