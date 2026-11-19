@@ -78,7 +78,7 @@ def pdf_gazette_pages(pdf: Path) -> list[str]:
 
 def pdf_ocr_pages(pdf: Path, lang: str, dpi: int = 300, tessdata_dir: str | None = None,
                   cache_dir: Path | None = None) -> list[str]:
-    for tool in ("pdftoppm", "tesseract"):
+    for tool in ("tesseract",):
         if not shutil.which(tool):
             sys.exit(f"{tool} not found: OCR needs poppler-utils and tesseract-ocr "
                      "(plus tessdata_best hin.traineddata for Hindi).")
@@ -91,7 +91,14 @@ def pdf_ocr_pages(pdf: Path, lang: str, dpi: int = 300, tessdata_dir: str | None
                 print(f"  using OCR cache {cache}")
                 return [f.read_text(encoding="utf-8") for f in files]
     with tempfile.TemporaryDirectory() as tmp:
-        subprocess.run(["pdftoppm", "-r", str(dpi), "-png", str(pdf), f"{tmp}/page"], check=True)
+        if shutil.which("pdftoppm"):
+            subprocess.run(["pdftoppm", "-r", str(dpi), "-png", str(pdf), f"{tmp}/page"], check=True)
+        else:
+            import pymupdf
+
+            with pymupdf.open(pdf) as document:
+                for index, page in enumerate(document, 1):
+                    page.get_pixmap(dpi=dpi).save(f"{tmp}/page-{index:04d}.png")
         images = sorted(Path(tmp).glob("page-*.png"))
         pages = []
         for i, img in enumerate(images, 1):
