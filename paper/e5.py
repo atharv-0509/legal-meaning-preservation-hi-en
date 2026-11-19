@@ -34,7 +34,7 @@ BLIND_ANNOTATOR = "llm_claude_opus55_b"
 #: first, then the strongest generic baseline. `shown_systems()` falls back to whatever exists, so
 #: a renamed or added system still appears instead of silently leaving the columns out.
 PREFERRED_SYSTEMS = ["xlm-roberta-base-frjudge-da", "xlm-roberta-base-da", "labse"]
-MAX_SHOWN_SYSTEMS = 2
+MAX_SHOWN_SYSTEMS = 3
 
 
 def _read_jsonl(relative: str) -> list[dict]:

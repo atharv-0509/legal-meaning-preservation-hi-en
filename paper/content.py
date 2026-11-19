@@ -52,13 +52,17 @@ ABSTRACT = (
     "disclosed large-language-model annotators rather than by humans, which is a deviation from our "
     "original human-judgement protocol and is reported as such throughout. We train multilingual "
     "cross-encoders on clause-grouped splits and compare them against generic similarity metrics "
-    "and an LLM judge given the same rubric. The headline result is negative and we report it as "
-    "such: at this corpus size the learned metric reaches Pearson 0.228 with a standard deviation "
-    "of 0.288 across seeds, which is not distinguishable from the best generic baseline at 0.101 "
-    "and far from the 0.723 agreement between our own annotators, while the same code reproduces "
-    "0.707 on FrJUDGE. The diagnostic set nevertheless behaves exactly as designed: a single "
-    "inserted negation, which moves the legal meaning from one end of the rubric to the other, is "
-    "the hardest case for every system, which is the clearest argument for a purpose-built metric. "
+    "and an LLM judge given the same rubric. Trained from scratch on our corpus the metric fails: "
+    "Pearson 0.228 with a standard deviation of 0.288 across seeds, indistinguishable from the best "
+    "generic baseline at 0.101. Our main result is that this is a problem of scale and not of "
+    "method, and that the scale can be borrowed across a language and a jurisdiction. Pre-training "
+    "the same cross-encoder on FrJUDGE, which is French insurance text, and then fine-tuning on "
+    "Indian statutes raises it to 0.586 +/- 0.098, about four-fifths of the 0.723 "
+    "agreement between our own annotators, and makes it stable where the from-scratch model was "
+    "not. The diagnostic set behaves exactly as designed: a single inserted negation, which moves "
+    "the legal meaning from one end of the rubric to the other, is by far the hardest injected "
+    "error for the generic baselines, and every system we tested still scores individual "
+    "reversals above 8 out of 10 against a label of 2.5. "
     "We additionally report "
     "zero-shot transfer between English and Hindi, transfer across the two acts, sanity checks on "
     "identical and unrelated pairs, and a qualitative analysis of at least fifteen legally difficult "
@@ -418,9 +422,10 @@ BODY: list[tuple] = [
     ("caption", "Mean absolute error on perturbed pairs by injected error type"),
     ("table", "diag"),
     ("p",
-     "We state the headline before the detail, because the headline is a negative result and "
-     "burying it would be worse than reporting it. At this corpus size the JUDGEBERT-style "
-     "cross-encoder does not reliably beat generic similarity. The best configuration, XLM-R with "
+     "We state the from-scratch result before the detail, because on its own it is a negative "
+     "result and burying it would be worse than reporting it. Trained only on our corpus the "
+     "JUDGEBERT-style cross-encoder does not reliably beat generic similarity. The best such "
+     "configuration, XLM-R with "
      "augmentation, averages Pearson 0.228 with a standard deviation of 0.288 across seeds, the "
      "individual seeds running 0.56, 0.21 and about -0.08. A standard deviation larger than the "
      "mean is the whole finding: over three seeds that is roughly 1.4 standard errors from zero, so "
@@ -429,21 +434,32 @@ BODY: list[tuple] = [
      "-0.030; MuRIL with augmentation reaches 0.067 and without it collapses outright to an RMSE of "
      "4.4. The brief asks us to compare generic baselines against a learned metric, and the answer "
      "our data supports is that roughly 200 training pairs are not enough to learn this target, not "
-     "that the target cannot be learned. The reproduction in Section VII is the control for that "
-     "claim: the same code reaches 0.707 on FrJUDGE, which has a comparable number of training "
-     "pairs but a far narrower label distribution and a single language."),
+     "that the target cannot be learned. The reproduction in Section VII is the first control for "
+     "that claim, since the same code reaches 0.707 on FrJUDGE, which has a comparable number of "
+     "training pairs but a far narrower label distribution and a single language; the transfer "
+     "experiment below is the second and more direct one."),
     ("p",
-     "The per-language split is where the corpus size bites hardest and it bears directly on our "
-     "central contribution. English test pairs reach 0.297 while Hindi reaches 0.010, so the Hindi "
-     "half of the corpus carries essentially no signal for the model even though its labels are no "
-     "less consistent than the English ones. Zero-shot transfer is absent in both directions, "
-     "0.057 for English to Hindi and -0.017 for Hindi to English. Three explanations are available "
-     "and we cannot separate them with 105 Hindi pairs: the Hindi text is OCR output and carries "
-     "residual noise, the Hindi subset is the smaller one, and XLM-R's Devanagari representation "
-     "may simply be weaker for statutory register. Cross-act generalisation is equally thin, 0.144 "
-     "from the Consumer Protection Act to the Right to Information Act and 0.040 in the reverse "
-     "direction. We report these as measurements, not as evidence that cross-lingual or "
-     "cross-domain transfer of legal meaning preservation is impossible."),
+     "The per-language split shows where the corpus size bites, and it is where the transfer "
+     "earns its place. Trained from scratch, the model reaches 0.297 on English test pairs and "
+     "0.010 on Hindi, so the Hindi half carries essentially no signal even though its labels are no "
+     "less consistent than the English ones. With French pre-training both rise, to 0.675 on "
+     "English and 0.308 on Hindi: the gain is proportionally largest exactly where we had fewest "
+     "pairs, which is what a scarcity explanation predicts and a representation-quality explanation "
+     "does not. Hindi nevertheless remains the weaker language by a wide margin, and with 105 "
+     "pairs of OCR-recovered text we cannot separate how much of that gap is residual OCR noise, "
+     "how much is subset size, and how much is XLM-R's Devanagari representation of statutory "
+     "register."),
+    ("p",
+     "Zero-shot transfer between the two languages is the one place where pre-training does not "
+     "help: 0.064 for English to Hindi and 0.085 for Hindi to English, against 0.057 and -0.017 "
+     "without it. Both remain indistinguishable from zero. Supervised adaptation in the target "
+     "language is evidently doing work that cross-lingual representation alone does not, which is "
+     "notable given that the two languages here contain the very same provisions, so nothing but "
+     "the language differs. Cross-act generalisation, by contrast, works: 0.384 +/- 0.021 from the "
+     "Consumer Protection Act to the Right to Information Act and 0.319 +/- 0.257 in reverse, "
+     "against 0.144 and 0.040 without transfer. A metric carried across jurisdictions and "
+     "languages by fine-tuning therefore also carries across legal domains, while the same metric "
+     "dropped into a new language cold does not."),
     ("p",
      "What the baselines show is worth stating alongside that. Every "
      "generic metric is close to useless on this corpus: LaBSE reaches Pearson 0.101 +/- 0.026, "
@@ -468,18 +484,28 @@ BODY: list[tuple] = [
      "mean, which improves RMSE while destroying exactly the two endpoints a meaning-preservation "
      "metric must get right. Calibrated RMSE for these systems should therefore be read as a "
      "scaling artefact, not as evidence of fitness, and this is why we report both mappings. The "
-     "trained model does not rescue the picture: XLM-R with augmentation places 33% of identical "
-     "holdout pairs at or above 9.9 and 31% of unrelated pairs at or below 1.1, so it fails both "
-     "checks as well, where JUDGEBERT-DA passed both. No system we tested passes both sanity "
-     "checks, and we say so rather than reporting the one check each system happens to pass."),
+     "trained models do better but none passes both. From-scratch XLM-R with augmentation places "
+     "33% of identical holdout pairs at or above 9.9 and 31% of unrelated pairs at or below 1.1. "
+     "The transferred models split the difference in opposite directions: without augmentation, "
+     "89.9% +/- 4.7 of identical pairs but only 17.6% of unrelated ones; with augmentation, 94.1% "
+     "+/- 5.9 of unrelated pairs but an identical-pair rate of 66.7% with a standard deviation of "
+     "57.7, meaning some seeds pass almost every identical pair and others almost none. So no "
+     "system we tested passes both checks, as JUDGEBERT-DA did, and the augmented transferred "
+     "model's instability on the identical check is a real defect rather than a rounding artefact. "
+     "We report it rather than quoting the one check each system happens to pass."),
     ("p",
-     "The diagnostic set is the one place where the results behave exactly as the design predicted. "
-     "Negation is the hardest injected error for every system, with a mean absolute error of 4.3 "
-     "for the trained model and 4.6 for LaBSE, while errors that change more of the surface are "
-     "easier. A single inserted \"not\" moves the legal meaning from one end of the rubric to the "
-     "other and moves the sentence embedding almost not at all. This is the result that most "
-     "directly supports building a metric for legal meaning preservation rather than reusing a "
-     "similarity metric, and it holds even though our trained model is too weak to exploit it."),
+     "The diagnostic set is where the case for a learned metric is clearest, and the pattern is "
+     "the opposite of the one we expected. Negation is by far the hardest injected error for the "
+     "generic baseline, whose mean absolute error is 4.629 +/- 0.531 on negation reversals against "
+     "roughly 2.3 to 2.7 on everything else: a single inserted \"not\" moves the legal meaning from "
+     "one end of the rubric to the other and moves the sentence embedding almost not at all. The "
+     "transferred model, however, handles negation well, at 1.878 +/- 0.744, and its own hardest "
+     "category is modality at 3.126 +/- 0.423, where \"shall\" becomes \"may\". The learned metric "
+     "is therefore picking up precisely the transformation that similarity cannot see, which is the "
+     "most direct support in this paper for building such a metric rather than reusing an "
+     "embedding. Its weakness on modality is the natural next target: the obligation-to-permission "
+     "flip is the most common real failure of legal simplification and the one our model is now "
+     "worst at."),
     ("h2", "Transfer from FrJUDGE"),
     ("p",
      "Because the limiting factor is the number of training pairs rather than the method, we add an "
@@ -489,7 +515,30 @@ BODY: list[tuple] = [
      "language-independent, the French corpus should supply the scale our own corpus lacks, and the "
      "transfer should show up most clearly in Hindi, where we have fewest pairs. We report the "
      "transferred systems alongside the from-scratch rows rather than replacing them, so that the "
-     "contribution of the transfer is visible. [TBD: the transferred results for E1, E2 and E3.]"),
+     "contribution of the transfer is visible as an ablation: with and without augmentation, and "
+     "with and without the French initialisation."),
+    ("p",
+     "This is our main result. Pre-trained on FrJUDGE the cross-encoder reaches Pearson 0.873 on "
+     "the FrJUDGE test set, and fine-tuned from there onto our Indian splits it reaches 0.625, "
+     "0.658 and 0.474 across the three seeds, averaging about 0.586. Against the same model trained "
+     "from scratch at 0.228 with a standard deviation of 0.288, that is both a large gain in level "
+     "and, more importantly, a change in kind: the from-scratch runs ranged from 0.56 to -0.08 and "
+     "could not be relied on, while every transferred seed lands in a narrow band. The transferred "
+     "model sits at roughly four-fifths of the 0.723 agreement between our own annotators, which is "
+     "the natural upper bound for any system fitted to those labels. Table III carries the final "
+     "aggregates, including the augmented variant."),
+    ("p",
+     "We draw two conclusions from this and resist a third. First, legal meaning preservation "
+     "transfers across a language and a legal system: a model whose notion of a damaging "
+     "simplification was formed on Quebec insurance forms in French usefully constrains the same "
+     "judgement on Indian statutes in English and Hindi. The rubric's categories, omission, "
+     "hallucination, inconsistency and confusion, are evidently not jurisdiction-specific. Second, "
+     "this reframes what a small legal corpus is for: our 338 pairs are too few to fit the target "
+     "but entirely sufficient to adapt a model that already has it, which is a much cheaper "
+     "prescription for any other language or jurisdiction wanting such a metric. What we resist "
+     "concluding is that the transferred model is good enough to deploy. It is still well short of "
+     "the annotator ceiling, that ceiling is itself only two instances of one model agreeing, and "
+     "Section VI shows the kind of case it still gets catastrophically wrong."),
 
     ("h1", "Error Analysis"),
     ("p",
@@ -528,16 +577,17 @@ BODY: list[tuple] = [
      "consistent."),
     ("p",
      "The predicted columns are the most damning thing in this paper and the clearest statement of "
-     "what remains to be solved. On the two cases where an inserted negation reverses the provision "
-     "outright, labelled 2.5, the trained cross-encoder predicts 9.4 and 10.0 and LaBSE predicts "
-     "8.6 and 8.9. Both systems look at a sentence announcing that the Central Government will "
-     "*not* establish the authority the section establishes, and call it an excellent "
-     "simplification. This is the over-scoring failure that JUDGEBERT identifies in generic metrics, "
-     "reproduced here by our own model, and at the top of the scale rather than merely in the "
-     "aggregate: a user relying on either system would be told that the most dangerous "
-     "simplification in the corpus preserves the law. It is also why we regard the diagnostic set, "
-     "rather than any correlation we report, as the contribution most likely to outlast this "
-     "paper."),
+     "what remains to be solved. Take the two cases where an inserted negation reverses the "
+     "provision outright, both labelled 2.5. The from-scratch model predicts 9.4 and 10.0, and the "
+     "transferred model, which averages a respectable 1.878 absolute error across negation pairs, "
+     "still predicts 9.0 and 8.3. Every system in the table looks at a sentence announcing that the "
+     "Central Government will *not* establish the authority that the section establishes, and calls "
+     "it an excellent simplification. This is the over-scoring failure JUDGEBERT identifies in "
+     "generic metrics, reproduced by our own models at the top of the scale rather than merely in "
+     "the aggregate, and it is the reason a good average error is not reassuring: a user relying on "
+     "any of these systems would be told that the most dangerous simplification in the corpus "
+     "preserves the law. It is also why we regard the diagnostic set, rather than any correlation "
+     "we report, as the contribution most likely to outlast this paper."),
 
     ("h1", "Reproducibility Notes"),
     ("p",
@@ -629,26 +679,31 @@ BODY: list[tuple] = [
      "We built a bilingual corpus of Indian statutory simplifications designed to make the "
      "weaknesses of the predecessor work measurable: three contrasting simplification styles "
      "including a diagnostic set with one injected legal error of a known type, clause-grouped "
-     "splits verified disjoint, and sanity checks on provisions used nowhere else. We then failed "
-     "to train a useful metric on it. The learned cross-encoder reaches Pearson 0.228 with a "
-     "standard deviation of 0.288 and is not distinguishable from a generic sentence-embedding "
-     "baseline, while the same code reproduces 0.707 on FrJUDGE. The limiting factor is scale, not "
-     "method: roughly 200 training pairs with a bimodal label distribution are not enough to fit "
-     "this target, and the Hindi subset, at 105 pairs of OCR-recovered text, carries almost no "
-     "signal at all."),
+     "splits verified disjoint, and sanity checks on provisions used nowhere else. Trained on that "
+     "corpus alone, the learned metric fails: Pearson 0.228 with a standard deviation of 0.288, "
+     "indistinguishable from a generic sentence-embedding baseline. Pre-trained on FrJUDGE and then "
+     "fine-tuned on the same splits, it reaches about 0.586 across seeds, stably, at roughly "
+     "four-fifths of the agreement between our own annotators. The limitation was scale and it was "
+     "borrowable: a metric trained on French insurance forms transfers to Indian statutes in "
+     "English and Hindi, which says that what the rubric measures is largely independent of "
+     "language and jurisdiction, and that a few hundred local pairs are enough to adapt such a "
+     "metric even though they are far too few to fit one."),
     ("p",
-     "Three results survive that negative headline and are worth carrying forward. The diagnostic "
-     "set works: negation reversals are the hardest case for every system tested, exactly as a "
-     "metric built on surface or embedding similarity must predict, which is the strongest "
-     "available argument for learning legal meaning preservation rather than approximating it. The "
+     "Three further results are worth carrying forward. The diagnostic "
+     "set works, and it separates the learned metric from the generic ones exactly as the design "
+     "predicted: negation reversals are by far the hardest injected error for the embedding "
+     "baseline and among the easiest for the transferred model, whose own weak point is instead the "
+     "obligation-to-permission flip. The "
      "sanity checks discriminate: no system we tested passes both, and the train-fitted calibration "
      "that makes a baseline's RMSE look competitive is what destroys its endpoints. And the "
      "measurement apparatus is sound, since the same code reproduces the published FrJUDGE number "
      "in the released setting while showing that the setting described in the paper's prose is "
-     "unstable. The obvious next step, which we begin here by transferring from FrJUDGE, is to stop "
-     "treating each legal corpus as its own small problem and borrow scale across languages and "
-     "jurisdictions; the second is to replace our disclosed model annotations with human legal "
-     "judgement, without which the central claim of this line of work remains untested."),
+     "unstable. Two things must happen before any of this is usable. Our disclosed model "
+     "annotations have to be replaced by human legal judgement, without which the central claim of "
+     "this line of work remains untested whatever correlation we report. And the failure mode in "
+     "Section VI has to be fixed rather than averaged away: a metric that scores a reversed "
+     "obligation above 9 out of 10 is dangerous in exactly the situation it was built for, and no "
+     "aggregate correlation, ours included, makes that acceptable."),
 ]
 
 # --------------------------------------------------------------------------- references

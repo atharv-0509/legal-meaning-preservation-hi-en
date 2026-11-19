@@ -284,28 +284,54 @@ def build(out_path: Path) -> list[str]:
         "[TBD: screenshot once a trained checkpoint is in place.]",
     ])
 
-    # ---- 14b. the honest headline
-    bullet_slide(prs, "The headline is negative — and that is the result", [
-        "Best learned metric: XLM-R + DA, Pearson **0.228 ± 0.288** (seeds 0.56 / 0.21 / "
+    # ---- 14b. from-scratch fails
+    bullet_slide(prs, "Trained on our corpus alone, it fails", [
+        "Best from-scratch metric: XLM-R + DA, Pearson **0.228 ± 0.288** (seeds 0.56 / 0.21 / "
         "−0.08). The SD exceeds the mean.",
         ("≈ 1.4 standard errors from zero: not distinguishable from no correlation, nor from "
          "LaBSE at 0.101, and far from our 0.723 annotator ceiling.", 16, 1),
-        "Same code reaches **0.707 on FrJUDGE**. So the limit is scale, not method: ~200 training "
-        "pairs with a bimodal label distribution.",
+        "Without DA: −0.030. MuRIL + DA: 0.067; MuRIL without DA collapses (RMSE 4.4).",
         "E2: EN 0.297 vs HI 0.010; zero-shot EN→HI 0.057, HI→EN −0.017. "
         "E3: CPA→RTI 0.144, RTI→CPA 0.040.",
-        "E4: no system passes both sanity checks — XLM-R-DA 33% / 31%; JUDGEBERT-DA passed both.",
-    ], subtitle="We report it this way because a reviewer would find it anyway, and the design is "
-                "what we are defending")
+        "E4: no system passes both sanity checks — XLM-R-DA 33% / 31%; JUDGEBERT-DA passed "
+        "both. The transferred models get much closer but still fail one each.",
+        "But the same code reaches **0.707 on FrJUDGE**. So the limit is scale, not method.",
+    ], subtitle="~200 training pairs with a bimodal label distribution")
 
-    # ---- 14c. what survives
-    bullet_slide(prs, "What survives the negative result", [
-        "**The diagnostic set works.** Negation is the hardest injected error for every system "
-        "(MAE 4.3 model, 4.6 LaBSE). One inserted \"not\" flips the law and barely moves an "
-        "embedding — the clearest argument for a purpose-built metric.",
-        "**And the failure is legible, not just low.** On the two cases where an inserted "
-        "\"not\" reverses the provision (label 2.5), XLM-R+DA predicts **9.4 and 10.0**, LaBSE "
-        "**8.6 and 8.9** — both call the most dangerous simplification in the corpus excellent.",
+    # ---- 14b2. the main result
+    bullet_slide(prs, "Main result: the scale can be borrowed", [
+        "Pre-train the same cross-encoder on **FrJUDGE** (French insurance forms) → 0.873 on "
+        "its test set. Then fine-tune on our Indian splits.",
+        "**Pearson 0.586 ± 0.098** (seeds 0.625 / 0.658 / 0.474), vs 0.228 ± 0.288 from "
+        "scratch and 0.101 for LaBSE. Roughly four-fifths of the 0.723 annotator ceiling.",
+        ("The change in kind matters more than the level: from-scratch seeds ranged 0.56 to "
+         "−0.08 and could not be relied on; every transferred seed lands in a narrow band.", 16, 1),
+        "Per language: EN 0.297 → **0.675**, HI 0.010 → **0.308**. The gain is largest "
+        "where we had fewest pairs — which is what a scarcity explanation predicts.",
+        "Cross-act too: CPA→RTI 0.144 → **0.384**, RTI→CPA 0.040 → **0.319**. "
+        "But zero-shot EN↔HI stays at zero (0.064 / 0.085): supervised adaptation is doing the "
+        "work, not cross-lingual representation.",
+        "So legal meaning preservation **transfers across a language and a legal system**: the "
+        "rubric's categories are not jurisdiction-specific.",
+        "And it reframes what a small legal corpus is for — 338 pairs cannot fit this target "
+        "but can adapt a model that already has it. That is a cheap recipe for any other "
+        "jurisdiction.",
+    ], subtitle="French insurance forms → Indian statutes in English and Hindi",
+       note="Still short of the ceiling, that ceiling is two instances of one model, and the "
+            "reversal failure on the next slide is unfixed. Not deployable.")
+
+    # ---- 14c. what else holds
+    bullet_slide(prs, "What else holds, regardless of the correlation", [
+        "**The diagnostic set separates learned from generic.** Negation is by far the baseline's "
+        "hardest injected error (MAE **4.63** vs ~2.3–2.7 elsewhere) — one \"not\" flips "
+        "the law and barely moves an embedding. The transferred model handles it (**1.88**); its "
+        "own weak point is modality, shall→may (**3.13**).",
+        ("That is the clearest argument in the project for a purpose-built metric: it detects "
+         "precisely what similarity cannot.", 16, 1),
+        "**But a good average is not safety.** On the two cases where an inserted \"not\" reverses "
+        "the provision (label 2.5), the transferred model still predicts **9.0 and 8.3**, and the "
+        "from-scratch model **9.4 and 10.0** — all calling the corpus's most dangerous "
+        "simplification excellent.",
         "**The sanity checks discriminate.** Train-fitted calibration improves baseline RMSE "
         "(2.81 → 2.42) while making all four fail both checks at 0%.",
         "**The apparatus is sound.** We reproduce FrJUDGE at 0.707 in the released setting, and "
@@ -320,12 +346,13 @@ def build(out_path: Path) -> list[str]:
         "Built: bilingual extraction from real government PDFs with quantitative acceptance tests, "
         "three-variant simplification design, blinded workbooks, clause-grouped splits, "
         "training / baselines / LLM judge / evaluation / error analysis, one-command results.",
-        "Honest status: labels are disclosed LLM judgements; human validation is prepared but not "
-        "yet scored; the learned metric is not yet useful at this corpus size.",
+        "Main result: legal meaning preservation transfers across language and jurisdiction "
+        "(FrJUDGE → Indian EN/HI, 0.228 → ~0.586 and stable).",
+        "Honest status: labels are disclosed LLM judgements, not human legal judgement; human "
+        "validation is prepared but not scored; the metric is not deployable.",
         "What the design buys: the perturbed diagnostic set and the clause-grouped splits make the "
         "weaknesses of the original study measurable rather than arguable.",
-        "Next: borrow scale across jurisdictions (FrJUDGE → Indian transfer, running), and "
-        "replace model annotations with human legal judgement.",
+        "Next: human labels, and fix the reversal failure instead of averaging it away.",
     ], note=DISCLOSURE)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
