@@ -434,10 +434,39 @@ BODY: list[tuple] = [
 
     ("h1", "Error Analysis"),
     ("p",
-     "[TBD: at least fifteen cases, grouped by error type (omission, hallucination, contradiction, "
-     "obligation versus permission, condition, exception, scope, date, number, entity). For each: "
-     "the original provision, the simplification, the label, each system's prediction, and a short "
-     "legal explanation of what changed and why it matters.]"),
+     "Scoring the corpus blind made one structure plain, and it organises this section. The ways a "
+     "simplification can betray a provision fall into two families. The first is loss: a proviso, "
+     "an override, a subject-to clause, the date from which a limitation period runs, or an "
+     "exception simply disappears. This is what aggressive plain-language rewriting does by its "
+     "nature, and the resulting text is honest about being shorter. The second is reversal: a "
+     "negation is inserted or dropped, an obligation becomes a permission or the reverse, or a "
+     "quantifier narrows, so that \"any political party\" becomes \"certain political party\" and "
+     "\"every order\" becomes \"some order\". Reversal is the dangerous family, because the text "
+     "stays the same length and reads as fluently as a faithful version while telling the reader "
+     "the opposite of the law. It is also the family that overlap and embedding metrics cannot see: "
+     "as Section V reports, LaBSE's error is nearly twice as large on negation reversals as on "
+     "dropped exceptions, which is precisely backwards from how much the surface changed."),
+    ("p",
+     "The cases below are selected automatically from our labelled pairs and the blinded "
+     "annotator's own workbook comments, taking the injected-error pairs first so that the error "
+     "type is known rather than inferred, and capping each group so that every error type appears "
+     "before any repeats. For each case the table gives the provision, the language, the variant, "
+     "the kind of change, the label (the mean of the annotators) and the blinded annotator's own "
+     "score, so that annotator disagreement stays visible rather than being hidden inside the "
+     "mean."),
+    ("caption", "E5: legally difficult cases, with the change that was made"),
+    ("cases", None),
+    ("p",
+     "Two patterns in that table are worth drawing out. Where an injected negation reverses a whole "
+     "operative provision the annotators split, one placing it Off-track and the other Imprecise, "
+     "and the mean label of roughly 2.5 understates how misleading the text is: a reader told that "
+     "the Central Government \"will not\" establish the authority the section establishes has been "
+     "told the opposite of the law. Where the change is a quantifier or a single digit, by "
+     "contrast, the annotators agreed closely, because the error is easy to see once noticed. The "
+     "practical implication for a deployed metric is that the cases needing the most reliable "
+     "detection are exactly the ones on which human, or in our case model, annotators are least "
+     "consistent. [TBD: the trained model's predictions for these cases, once the GPU runs "
+     "complete, and a comparison against the baseline predictions already shown.]"),
 
     ("h1", "Reproducibility Notes"),
     ("p",
