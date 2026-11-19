@@ -1,0 +1,9 @@
+{
+  "system": "rougeL-cal",
+  "metric": "rougeL",
+  "split": "random_s43",
+  "calibration": {
+    "a": 7.499964285522567,
+    "b": 0.46232612380819327
+  }
+}

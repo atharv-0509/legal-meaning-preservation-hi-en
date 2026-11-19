@@ -1,20 +1,18 @@
-# Source PDFs and generated data stay out of git (see CLAUDE.md §7)
+# Source PDFs stay out of git (CLAUDE.md §7): download them from the URLs in sources.json (pdf_url).
 data/raw/*.pdf
-data/interim/
-data/processed/
-data/annotation/
-data/splits/
-data/splits_frjudge/
-data/ocr_cache/
-reports/*.md
-reports/*.csv
-!reports/.gitkeep
-modeling/runs/
-modeling/cache/
+
+# Generated data IS tracked since the 19 Nov 2026 handover, so the project can be continued without
+# re-running OCR, clause review, simplification and the 676 LLM annotations (see HANDOVER.md):
+#   data/interim/ data/processed/ data/annotation/ data/splits/ data/ocr_cache/ modeling/runs/ reports/
+data/splits_frjudge/          # FrJUDGE is CC-BY-NC-SA 4.0: re-create with modeling/prepare_frjudge.py, never redistribute
+modeling/cache/               # baseline score caches (re-computed on demand)
+modeling/kaggle/_splits.b64   # temporary bundle written by run_all.py push
+
+# Secrets and local environment
 .env
 *.env
+.venv/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
-.venv/
 ~$*.xlsx

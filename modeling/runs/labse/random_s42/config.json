@@ -1,0 +1,6 @@
+{
+  "system": "labse",
+  "metric": "labse",
+  "split": "random_s42",
+  "calibration": "naive [0,1]->[1,10]"
+}

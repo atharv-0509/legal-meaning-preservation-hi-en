@@ -1,0 +1,9 @@
+{
+  "system": "labse-cal",
+  "metric": "labse",
+  "split": "random_s42",
+  "calibration": {
+    "a": 6.059925342758548,
+    "b": 1.8030917413420111
+  }
+}

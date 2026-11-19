@@ -1,0 +1,9 @@
+{
+  "system": "bleu-cal",
+  "metric": "bleu",
+  "split": "random_s42",
+  "calibration": {
+    "a": 7.265133819047258,
+    "b": 1.203295268471278
+  }
+}

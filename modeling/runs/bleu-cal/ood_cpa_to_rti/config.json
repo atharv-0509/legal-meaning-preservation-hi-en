@@ -1,0 +1,9 @@
+{
+  "system": "bleu-cal",
+  "metric": "bleu",
+  "split": "ood_cpa_to_rti",
+  "calibration": {
+    "a": 7.404301416719533,
+    "b": 0.2191249708250513
+  }
+}

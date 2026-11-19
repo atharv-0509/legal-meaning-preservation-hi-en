@@ -1,0 +1,30 @@
+{
+  "type": "ood",
+  "train_act": "rti",
+  "test_act": "cpa",
+  "counts": {
+    "train": 195,
+    "dev": 24,
+    "test": 119,
+    "train_da": 325,
+    "dev_da": 40
+  },
+  "clauses": {
+    "train": 34,
+    "dev": 4,
+    "test": 40
+  },
+  "by_lang": {
+    "train": {
+      "en": 102,
+      "hi": 93
+    },
+    "dev": {
+      "en": 12,
+      "hi": 12
+    },
+    "test": {
+      "en": 119
+    }
+  }
+}

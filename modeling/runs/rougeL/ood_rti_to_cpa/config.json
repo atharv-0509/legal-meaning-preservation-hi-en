@@ -1,0 +1,6 @@
+{
+  "system": "rougeL",
+  "metric": "rougeL",
+  "split": "ood_rti_to_cpa",
+  "calibration": "naive [0,1]->[1,10]"
+}
