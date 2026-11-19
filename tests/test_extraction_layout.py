@@ -81,3 +81,10 @@ def test_gazette_rejects_missing_heading(tmp_path):
         document.save(pdf)
     with pytest.raises(ValueError, match="missing marginal heading"):
         extract.pdf_gazette_pages(pdf)
+
+
+def test_mojibake_flag_per_row():
+    damaged = "सूचना का अ�धकार"
+    assert "mojibake" in select_clauses.auto_flags("Every public authority shall maintain records.", damaged, 6, 3)
+    assert "mojibake" not in select_clauses.auto_flags("Every public authority shall maintain records.", "सूचना का अधिकार", 6, 3)
+    assert select_clauses.auto_flags("Text with � damage.", "", 4, 0) == ["mojibake", "no_hi"]

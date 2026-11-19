@@ -63,8 +63,10 @@ def reading_ease(text: str) -> float:
 # --------------------------------------------------------------------------- flags / weights
 def auto_flags(en: str, hi: str, en_words: int, hi_words: int) -> list[str]:
     flags = []
+    if "\ufffd" in en or "\ufffd" in hi:
+        flags.append("mojibake")
     if not hi:
-        return ["no_hi"]
+        return flags + ["no_hi"]
     if re.search(r"[A-Za-z]{2,}", hi):
         flags.append("latin_in_hi")
     if numbers_in(en) != numbers_in(hi):
@@ -142,6 +144,7 @@ def candidates_for_act(act: dict, paths, args) -> tuple[list[dict], dict]:
             "weight": clause_weight(m_en), "auto_flags": auto_flags(ue["text"], text_hi, n_words, n_words_hi)
             + act.get("review_flags", []) + act.get("section_review_flags", {}).get(ue["section"], []),
             "source": {"en": act["pdf"]["en"], "hi": act["pdf"]["hi"], "url": act.get("url"),
+                       "pdf_url": act.get("pdf_url", {}),
                        "version_note": act.get("version_note")},
         })
     stats["candidates"] = len(out)
