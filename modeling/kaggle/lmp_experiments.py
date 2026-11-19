@@ -36,6 +36,7 @@ SPLITS_B64 = "__SPLITS_B64__"
 W = "/kaggle/working"
 R = f"{W}/lmp"
 RUNS = f"{W}/runs"
+RUNS_ERR = f"{W}/runs_err"              # error-classifier runs (kept apart from the LMP regression runs)
 # seeds and a run-name tag can be set per kernel (run_all.KERNEL_SETS); defaults keep the deadline runs
 SEEDS = [int(x) for x in "__SEEDS__".split()] if "__SEEDS__" != "__" + "SEEDS__" else [42, 43, 44]
 TAG = "__TAG__" if "__TAG__" != "__" + "TAG__" else ""   # e.g. "-5s": new runs sit beside the old ones
@@ -68,6 +69,7 @@ plans = [item.split("=", 1) for item in TODO.split(";") if item.strip()]
 #              full  e1 + e23 (+ baselines)
 #              demo  one no-DA run on random_s42 that saves its best checkpoint to /kaggle/working/demo_model
 #              smoke 2-epoch pipeline check
+#              errcls  legal-error type classifier (modeling/error_classifier.py) on random_s*; errcls-demo saves one
 #              frj-<plan>  the same, starting from the backbone first trained on FrJUDGE
 for model, plan in plans:
     name = model.split("/")[-1]
@@ -79,6 +81,14 @@ for model, plan in plans:
         continue
     if plan == "demo":
         jobs.append((model, f"{S}/random_s42", f"{name}-demo", f"--save-model {DEMO}", 42))
+        continue
+    if plan == "errcls":                 # legal-error type classifier (P/R/F1) on the E1 random splits
+        for s in SEEDS:
+            jobs.append((model, f"{S}/random_s{s}", f"errcls-{name}", "", s, "modeling/error_classifier.py", RUNS_ERR))
+        continue
+    if plan == "errcls-demo":            # one classifier on random_s42 saved for the demo app
+        jobs.append((model, f"{S}/random_s42", f"errcls-{name}-demo", f"--save-model {W}/errcls_{name}", 42,
+                     "modeling/error_classifier.py", RUNS_ERR))
         continue
     if plan in ("e1", "full"):
         for s in SEEDS:
@@ -94,6 +104,8 @@ for model, plan in plans:
                 jobs.append((model, f"{S}/{ood}", f"{name}-da", "--da", s))
     if plan not in ("e1", "e23", "full"):
         raise SystemExit(f"unknown plan {plan!r}")
+
+jobs = [j if len(j) == 7 else (*j, "modeling/train.py", RUNS) for j in jobs]
 
 if any(p.startswith("frj") for _, p in plans):
     base = next(m for m, p in plans if p.startswith("frj"))
@@ -118,11 +130,11 @@ for i, job in enumerate(jobs, 1):
 def worker(gpu: int):
     while True:
         try:
-            i, (model, split, run, flags, seed) = q.get_nowait()
+            i, (model, split, run, flags, seed, script, runs_dir) = q.get_nowait()
         except queue.Empty:
             return
-        r = sh(f"set -o pipefail; cd {R} && CUDA_VISIBLE_DEVICES={gpu} python modeling/train.py --split-dir {split} --model {model} "
-           f"--run-name {run} --seed {seed} --fp16 {EXTRA} {flags} --runs-dir {RUNS} 2>&1 | "
+        r = sh(f"set -o pipefail; cd {R} && CUDA_VISIBLE_DEVICES={gpu} python {script} --split-dir {split} --model {model} "
+           f"--run-name {run} --seed {seed} --fp16 {EXTRA} {flags} --runs-dir {runs_dir} 2>&1 | "
            f"grep -E 'TEST|early stop|Error|Traceback' | sed 's/^/[gpu{gpu} job{i}] /'", check=False)
         if r.returncode != 0:
             FAILED.append(f"job{i} {run} {os.path.basename(split)} {flags} seed {seed}")
@@ -144,7 +156,7 @@ if any(p == "full" for _, p in plans):
 # preds + metrics + config of every run (incl. holdout preds for E4), gzipped + base64 into the log
 buf = io.BytesIO()
 with tarfile.open(fileobj=buf, mode="w:gz") as tar:
-    for root, _, files in list(os.walk(RUNS)) + list(os.walk(f"{W}/runs_frj")):
+    for root, _, files in list(os.walk(RUNS)) + list(os.walk(f"{W}/runs_frj")) + list(os.walk(RUNS_ERR)):
         for f in files:
             if f.endswith((".json", ".jsonl")):
                 tar.add(os.path.join(root, f), arcname=os.path.relpath(os.path.join(root, f), W))
