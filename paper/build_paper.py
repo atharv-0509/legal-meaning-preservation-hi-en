@@ -21,6 +21,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import content  # noqa: E402
+import e5  # noqa: E402
 import tables  # noqa: E402
 
 from docx import Document  # noqa: E402
@@ -98,6 +99,25 @@ def add_table(doc, rows: list[list[str]], size=8) -> None:
             run.bold = r == 0
     # A borderless left/right edge reads better in a narrow IEEE column than a full grid box.
     para(doc, "", size=4)
+
+
+def _clip(text: str, limit: int = 180) -> str:
+    """Statutory text is long; quote enough to see the change without flooding the column."""
+    text = " ".join(text.split())
+    return text if len(text) <= limit else text[:limit - 1].rstrip() + "…"
+
+
+def e5_rows() -> list[list[str]]:
+    """The E5 case table: one row per case, built from `e5.cases()`."""
+    rows = [["#", "Provision", "Lang", "Variant", "Change", "Label", "Annot."]]
+    cases = e5.cases()
+    if not cases:
+        return rows + [["[TBD]"] * 7]
+    for i, case in enumerate(cases, 1):
+        rows.append([str(i), case["clause"], case["lang"], case["variant"],
+                     case["error_type"] or case["main_change"],
+                     case["label"], str(case["annotator_score"])])
+    return rows
 
 
 def add_bullets(doc, items: list[str]) -> None:
@@ -187,6 +207,13 @@ def build(out_path: Path) -> list[str]:
             run.font.name, run.font.size = FONT, Pt(8)
         elif kind == "table":
             add_table(doc, tables.get(value))
+        elif kind == "cases":
+            add_table(doc, e5_rows())
+            for case in e5.cases():
+                para(doc, f"{case['clause']} ({case['lang']}, {case['variant']}). "
+                          f"Original: “{_clip(case['original'])}”  Simplification: "
+                          f"“{_clip(case['simplification'])}”  {case['explanation']}",
+                     size=8, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=3)
         else:
             raise ValueError(f"unknown block kind {kind!r}")
 
@@ -235,11 +262,18 @@ def build_markdown(out_path: Path) -> None:
         elif kind == "caption":
             table_no += 1
             lines += [f"**TABLE {ROMAN[table_no - 1]}. {value}**", ""]
-        elif kind == "table":
-            rows = tables.get(value)
+        elif kind in ("table", "cases"):
+            rows = e5_rows() if kind == "cases" else tables.get(value)
             lines += ["| " + " | ".join(rows[0]) + " |",
                       "|" + "---|" * len(rows[0])]
             lines += ["| " + " | ".join(str(c) for c in r) + " |" for r in rows[1:]] + [""]
+            if kind == "cases":
+                for case in e5.cases():
+                    lines += [f"- **{case['clause']} ({case['lang']}, {case['variant']})** "
+                              f"Original: “{_clip(case['original'])}” "
+                              f"Simplification: “{_clip(case['simplification'])}” "
+                              f"{case['explanation']}"]
+                lines += [""]
     lines += ["## References", ""]
     for i, ref in enumerate(content.REFERENCES, 1):
         mark = "" if ref.get("status") == "verified" else "  **[UNVERIFIED]**"
