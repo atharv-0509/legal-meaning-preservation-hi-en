@@ -1,0 +1,2 @@
+# Overleaf and latexmk: compile with XeLaTeX (needed for the Hindi text)
+$pdf_mode = 5;

@@ -42,6 +42,9 @@ if (-not $?) { throw "human_validation.py failed" }
 if (-not $?) { throw "build_paper.py failed" }
 & $Python (Join-Path $paperDir "build_slides.py")
 if (-not $?) { throw "build_slides.py failed" }
+# Overleaf project (paper/out/LMP_paper_overleaf.zip): same content as the Word paper, compiled with XeLaTeX on Overleaf
+& $Python (Join-Path $paperDir "build_latex.py")
+if (-not $?) { throw "build_latex.py failed" }
 
 $docx = Join-Path $out "LMP_paper_IEEE.docx"
 $pdf = Join-Path $out "LMP_paper_IEEE.pdf"

@@ -24,3 +24,13 @@ modeling/checkpoints/
 # demo checkpoint downloaded from Kaggle (~1 GB); never commit
 demo_model/
 kaggle_output/
+
+# LaTeX build files of paper/out/overleaf (main.tex, latexmkrc and fonts/ are tracked)
+paper/out/overleaf/*.aux
+paper/out/overleaf/*.log
+paper/out/overleaf/*.out
+paper/out/overleaf/*.fls
+paper/out/overleaf/*.fdb_latexmk
+paper/out/overleaf/*.xdv
+paper/out/overleaf/*.pdf
+paper/out/overleaf/build.log
