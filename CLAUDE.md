@@ -48,6 +48,8 @@ As of 18 Nov 2026:
 
 - 19 Nov 2026 (night): paper + slides updated with the MuRIL follow-up (Table IX) and error-type classification (Table X); wide paper tables now fit the IEEE column. **Hindi CPA**: the team supplied the Hindi text of the Consumer Protection *Bill*, 2019 (Bill No. 144, as introduced; not the enacted Act; provenance in `sources.json`). New backend `extract.py --backend ocr-bill` (Tesseract psm 3 + TSV, margin notes and line numbers removed, sections in sequence, logged द्व/द्ध conjunct repairs, `-l hin` only) gives 107/107 sections; 228 of 229 EN units have a HI key, median HI/EN length 0.96, no Latin junk. Still needed before use: EN-referenced number repair (~48 units lost a digit 1) and Hindi-reader review (e.g. s90(1)(a) HI lacks the negation of EN 'does not result'). **Not used in the corpus, splits or results yet.**
 
+- 20 Nov 2026: final pre-presentation run. 53 tests pass; every table regenerates identically from the run files (`results.md` now also lists the follow-up runs). Demo app redesigned; MuRIL demo models re-fetched and verified (test Pearson 0.682 on random_s42). Demo slide shows a real app output (`paper/figures/demo_ui.png`); presenter checklist, demo script and Q&A in `paper/PRESENTATION_GUIDE.md`.
+
 When you (Claude) finish a step, tick it here and add one line saying what changed.
 
 19 Nov 2026 decision: the deadline version uses disclosed LLM annotations, not human labels

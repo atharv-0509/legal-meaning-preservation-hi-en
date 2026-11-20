@@ -304,17 +304,20 @@ def build(out_path: Path) -> list[str]:
     ])
 
     # ---- 14. demo
-    bullet_slide(prs, "Demo", [
-        "python modeling/app.py --model-dir modeling/checkpoints/muril/demo_model: paste an original "
-        "and a simplification (or pick a held-out test example) → LMP score, decision (≥ 7 Preserved / "
-        "2–6.9 Partially / < 2 Not Preserved), likely **error type** with a one-line explanation, and a "
-        "rule-based legal cue table.",
-        "Score model: MuRIL pre-trained on FrJUDGE, fine-tuned with DA on random_s42 (test Pearson "
-        "**0.682** on that split; the earlier XLM-R checkpoint: 0.479).",
-        "Error type: rules always; the MuRIL + augmentation classifier with --errcls-dir "
-        "(macro-F1 0.826 on random_s42).",
-        "A prediction, not an annotation; the banner states the model is not fit for legal use.",
-    ])
+    slide = bullet_slide(prs, "Demo: score, decision and likely legal error", [
+        ("Live app with the MuRIL score model (test Pearson **0.682**) and MuRIL error classifier "
+         "(macro-F1 **0.826**).", 16, 0),
+        ("Per pair: LMP score 1–10, decision, likely legal error with an explanation, rule-based cue check.", 16, 0),
+        ("Below: test pair cpa-s10_1, where *shall … establish* became *will not set up* (reference 2.5, "
+         "dotted mark).", 16, 0),
+    ], note="A prediction, not an annotation. Obligation ↔ permission flips (must → may) can still score 10; "
+            "the error classifier usually names them. The app states it is not fit for legal use.")
+    from pptx.dml.color import RGBColor as _RGB
+    pic_w = Inches(9.0)
+    pic = slide.shapes.add_picture(str(HERE / "figures" / "demo_ui.png"), int((W - pic_w) / 2), Inches(3.45),
+                                   width=pic_w)
+    pic.line.color.rgb = _RGB(0xD6, 0xD3, 0xD1)
+    pic.line.width = Pt(0.75)
 
     # ---- 14b. from-scratch fails
     bullet_slide(prs, "Trained on our corpus alone, it is unstable", [
