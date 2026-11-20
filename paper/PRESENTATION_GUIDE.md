@@ -27,6 +27,8 @@ were produced with these exact models on 20 Nov 2026; the reference label is the
 | 6 | cpa-s33_1 · English · one injected legal error | **10.0** | 5.0 | modality (90%) | Honest failure: an obligation turned into a permission (must → may) still scores 10, though the classifier names it. This is the paper's main open problem. |
 
 Optional live edit: load step 1, type "not" into the simplification, press Score again.
+For provisions the model has never seen (better than the dropdown for showing it on new text), use the copy-paste
+sheet `paper/DEMO_SAMPLES.md`: CPA 69(1), RTI 19(6) in Hindi and RTI 19(5), each with expected outputs.
 Hindi works too (rti-s11_4 · Hindi), but the Hindi injected-error example also scores 10.0 against a reference of 5.0
 (may → shall, flagged as modality 88%). Show it only as part of the honesty point.
 
