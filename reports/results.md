@@ -8,10 +8,15 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 
 | System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
 |---|---|---|---|---|---|---|---|
+| muril-base-cased-frjudge-demo-da | 1 | 0.682 | 0.669 | 1.901 | 1.104 | 40 ± 0 | 0.504 |
 | xlm-roberta-base-frjudge | 3 | 0.586 ± 0.098 | 0.553 ± 0.101 | 2.037 ± 0.110 | 1.525 ± 0.042 | 46 ± 7 | 0.703 ± 0.008 |
+| muril-base-cased-frjudge-5s-da | 5 | 0.577 ± 0.068 | 0.558 ± 0.055 | 2.153 ± 0.136 | 1.387 ± 0.154 | 38 ± 5 | 0.635 ± 0.130 |
 | xlm-roberta-base-frjudge-da | 3 | 0.576 ± 0.102 | 0.544 ± 0.106 | 2.037 ± 0.142 | 1.474 ± 0.213 | 39 ± 4 | 0.543 ± 0.136 |
+| xlm-roberta-base-frjudge-5s-da | 5 | 0.486 ± 0.112 | 0.493 ± 0.116 | 2.245 ± 0.084 | 1.566 ± 0.220 | 44 ± 5 | 0.515 ± 0.095 |
 | xlm-roberta-base-frjudge-demo | 1 | 0.479 | 0.406 | 2.142 | 1.656 | 39 ± 0 | 0.422 |
+| muril-base-cased-frjudge-5s | 5 | 0.363 ± 0.277 | 0.348 ± 0.281 | 2.232 ± 0.297 | 1.781 ± 0.476 | 41 ± 5 | 0.643 ± 0.096 |
 | xlm-roberta-base-da | 3 | 0.228 ± 0.288 | 0.259 ± 0.280 | 2.464 ± 0.224 | 2.020 ± 0.469 | 48 ± 12 | 0.541 ± 0.097 |
+| xlm-roberta-base-frjudge-5s | 5 | 0.166 ± 0.214 | 0.155 ± 0.176 | 2.398 ± 0.113 | 2.091 ± 0.109 | 48 ± 5 | 0.440 ± 0.084 |
 | labse-cal | 3 | 0.101 ± 0.026 | 0.224 ± 0.066 | 2.417 ± 0.124 | 2.184 ± 0.090 | 44 ± 5 | 0.438 ± 0.088 |
 | labse | 3 | 0.101 ± 0.026 | 0.224 ± 0.066 | 2.811 ± 0.157 | 2.110 ± 0.121 | 41 ± 4 | 0.496 ± 0.019 |
 | muril-base-cased-da | 3 | 0.067 ± 0.097 | 0.097 ± 0.060 | 2.607 ± 0.180 | 2.365 ± 0.135 | 42 ± 7 | 0.340 ± 0.157 |
@@ -36,11 +41,16 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 | labse-cal | 0.122 ± 0.027 | 2.428 ± 0.165 | 0.033 ± 0.167 | 2.391 ± 0.096 |
 | muril-base-cased | -0.050 ± 0.028 | 4.453 ± 0.055 | 0.015 ± 0.168 | 4.419 ± 0.089 |
 | muril-base-cased-da | 0.130 ± 0.026 | 2.559 ± 0.157 | 0.006 ± 0.123 | 2.720 ± 0.249 |
+| muril-base-cased-frjudge-5s | 0.424 ± 0.282 | 2.112 ± 0.331 | 0.236 ± 0.242 | 2.473 ± 0.292 |
+| muril-base-cased-frjudge-5s-da | 0.629 ± 0.121 | 2.013 ± 0.306 | 0.466 ± 0.092 | 2.403 ± 0.192 |
+| muril-base-cased-frjudge-demo-da | 0.754 | 1.718 | 0.460 | 2.305 |
 | rougeL | 0.045 ± 0.014 | 3.957 ± 0.142 | -0.072 ± 0.139 | 4.226 ± 0.199 |
 | rougeL-cal | 0.045 ± 0.014 | 2.443 ± 0.161 | -0.072 ± 0.139 | 2.400 ± 0.076 |
 | xlm-roberta-base | -0.016 ± 0.111 | 2.465 ± 0.122 | 0.049 ± 0.042 | 2.397 ± 0.071 |
 | xlm-roberta-base-da | 0.297 ± 0.308 | 2.413 ± 0.316 | 0.010 ± 0.210 | 2.582 ± 0.045 |
 | xlm-roberta-base-frjudge | 0.687 ± 0.078 | 1.822 ± 0.055 | 0.322 ± 0.188 | 2.451 ± 0.256 |
+| xlm-roberta-base-frjudge-5s | 0.207 ± 0.239 | 2.357 ± 0.118 | 0.070 ± 0.177 | 2.484 ± 0.137 |
+| xlm-roberta-base-frjudge-5s-da | 0.565 ± 0.168 | 2.062 ± 0.195 | 0.290 ± 0.068 | 2.587 ± 0.230 |
 | xlm-roberta-base-frjudge-da | 0.675 ± 0.104 | 1.802 ± 0.165 | 0.308 ± 0.115 | 2.472 ± 0.292 |
 | xlm-roberta-base-frjudge-demo | 0.556 | 2.030 | 0.324 | 2.404 |
 
@@ -56,11 +66,16 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 | labse-cal | 0.102 ± 0.052 | 2.624 ± 0.151 | 0.076 ± 0.090 | 2.290 ± 0.125 |
 | muril-base-cased | -0.076 | 4.324 ± 0.077 | -0.046 ± 0.032 | 4.510 ± 0.099 |
 | muril-base-cased-da | 0.099 ± 0.046 | 2.684 ± 0.060 | 0.051 ± 0.119 | 2.562 ± 0.277 |
+| muril-base-cased-frjudge-5s | 0.444 ± 0.336 | 2.176 ± 0.492 | 0.301 ± 0.220 | 2.258 ± 0.202 |
+| muril-base-cased-frjudge-5s-da | 0.650 ± 0.153 | 2.068 ± 0.424 | 0.517 ± 0.060 | 2.185 ± 0.087 |
+| muril-base-cased-frjudge-demo-da | 0.868 | 1.386 | 0.508 | 2.152 |
 | rougeL | 0.031 ± 0.057 | 3.860 ± 0.084 | 0.017 ± 0.105 | 4.140 ± 0.244 |
 | rougeL-cal | 0.031 ± 0.057 | 2.641 ± 0.149 | 0.017 ± 0.105 | 2.301 ± 0.114 |
 | xlm-roberta-base | 0.000 ± 0.118 | 2.640 ± 0.132 | -0.028 ± 0.066 | 2.324 ± 0.098 |
 | xlm-roberta-base-da | 0.316 ± 0.336 | 2.507 ± 0.374 | 0.165 ± 0.224 | 2.439 ± 0.138 |
 | xlm-roberta-base-frjudge | 0.693 ± 0.065 | 1.986 ± 0.200 | 0.490 ± 0.149 | 2.064 ± 0.167 |
+| xlm-roberta-base-frjudge-5s | 0.177 ± 0.265 | 2.570 ± 0.179 | 0.163 ± 0.183 | 2.292 ± 0.094 |
+| xlm-roberta-base-frjudge-5s-da | 0.541 ± 0.143 | 2.326 ± 0.200 | 0.444 ± 0.093 | 2.190 ± 0.123 |
 | xlm-roberta-base-frjudge-da | 0.669 ± 0.069 | 1.998 ± 0.120 | 0.485 ± 0.144 | 2.059 ± 0.163 |
 | xlm-roberta-base-frjudge-demo | 0.638 | 2.110 | 0.375 | 2.161 |
 
@@ -76,11 +91,16 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 | labse-cal | 1.327 ± 0.053 | -0.394 ± 0.345 | 2.202 ± 0.096 | -2.202 ± 0.096 | 3.023 ± 0.392 | 2.678 ± 0.702 |
 | muril-base-cased | 3.824 ± 0.252 | -3.824 ± 0.252 | 6.144 ± 0.178 | -6.144 ± 0.178 | 1.661 ± 0.351 | -1.224 ± 0.429 |
 | muril-base-cased-da | 1.779 ± 0.395 | -1.079 ± 0.583 | 2.634 ± 0.203 | -2.634 ± 0.203 | 2.682 ± 0.211 | 2.284 ± 0.524 |
+| muril-base-cased-frjudge-5s | 1.255 ± 0.204 | -0.320 ± 0.525 | 1.736 ± 0.841 | -1.730 ± 0.851 | 2.357 ± 0.553 | 2.038 ± 0.458 |
+| muril-base-cased-frjudge-5s-da | 1.324 ± 0.215 | -0.413 ± 0.552 | 0.813 ± 0.204 | -0.774 ± 0.242 | 2.028 ± 0.168 | 1.685 ± 0.162 |
+| muril-base-cased-frjudge-demo-da | 1.026 | -0.016 | 0.207 | -0.176 | 2.080 | 1.467 |
 | rougeL | 4.832 ± 0.283 | -4.832 ± 0.283 | 4.171 ± 0.124 | -4.171 ± 0.124 | 1.687 ± 0.150 | 0.612 ± 0.625 |
 | rougeL-cal | 1.370 ± 0.041 | -0.204 ± 0.336 | 2.338 ± 0.112 | -2.338 ± 0.112 | 2.942 ± 0.384 | 2.573 ± 0.715 |
 | xlm-roberta-base | 1.401 ± 0.050 | -0.212 ± 0.503 | 2.533 ± 0.224 | -2.533 ± 0.224 | 2.801 ± 0.342 | 2.387 ± 0.745 |
 | xlm-roberta-base-da | 1.411 ± 0.214 | -0.388 ± 0.875 | 1.545 ± 1.254 | -1.537 ± 1.266 | 3.104 ± 0.743 | 2.836 ± 1.125 |
 | xlm-roberta-base-frjudge | 1.348 ± 0.175 | -0.222 ± 0.711 | 0.856 ± 0.203 | -0.837 ± 0.198 | 2.371 ± 0.210 | 2.209 ± 0.138 |
+| xlm-roberta-base-frjudge-5s | 1.218 ± 0.198 | 0.137 ± 0.423 | 1.915 ± 0.397 | -1.915 ± 0.397 | 3.147 ± 0.347 | 2.859 ± 0.557 |
+| xlm-roberta-base-frjudge-5s-da | 1.210 ± 0.164 | -0.466 ± 0.429 | 0.940 ± 0.298 | -0.908 ± 0.335 | 2.555 ± 0.343 | 2.347 ± 0.424 |
 | xlm-roberta-base-frjudge-da | 1.205 ± 0.134 | -0.683 ± 0.294 | 1.015 ± 0.630 | -0.995 ± 0.640 | 2.203 ± 0.057 | 1.961 ± 0.189 |
 | xlm-roberta-base-frjudge-demo | 1.072 | -0.692 | 1.367 | -1.361 | 2.530 | 2.269 |
 
@@ -96,11 +116,16 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 | labse-cal | 2.254 ± 0.466 | 1.616 ± 1.123 | 2.496 ± 0.334 | 1.883 ± 0.847 | 4.629 ± 0.531 | 4.629 ± 0.531 | 2.722 ± 0.172 | 2.722 ± 0.172 | 2.672 ± 0.208 | 2.313 ± 0.820 |
 | muril-base-cased | 2.240 ± 0.834 | -2.240 ± 0.834 | 2.052 ± 0.582 | -2.052 ± 0.582 | 1.137 ± 0.118 | 0.751 ± 0.279 | 1.151 ± 0.120 | -1.151 ± 0.120 | 1.613 ± 0.635 | -1.613 ± 0.635 |
 | muril-base-cased-da | 1.959 ± 0.309 | 1.264 ± 0.880 | 2.205 ± 0.048 | 1.462 ± 0.677 | 4.266 ± 0.314 | 4.266 ± 0.314 | 2.336 ± 0.128 | 2.336 ± 0.128 | 2.272 ± 0.092 | 1.901 ± 0.554 |
+| muril-base-cased-frjudge-5s | 2.139 ± 0.644 | 1.644 ± 1.087 | 2.536 ± 0.680 | 2.185 ± 0.981 | 2.874 ± 1.756 | 2.806 ± 1.856 | 1.745 ± 0.985 | 1.700 ± 1.047 | 1.706 ± 1.088 | 0.929 ± 0.944 |
+| muril-base-cased-frjudge-5s-da | 1.992 ± 0.833 | 1.958 ± 0.836 | 3.203 ± 0.456 | 3.029 ± 0.622 | 2.086 ± 0.802 | 1.796 ± 0.700 | 0.791 ± 0.561 | 0.332 ± 0.703 | 0.936 ± 0.602 | 0.080 ± 0.294 |
+| muril-base-cased-frjudge-demo-da | 3.126 | 3.126 | 3.317 | 2.489 | 0.934 | -0.665 | 0.118 | 0.079 | 0.895 | 0.762 |
 | rougeL | 1.709 ± 0.507 | -0.523 ± 1.478 | 1.374 ± 0.525 | -0.285 ± 0.657 | 2.971 ± 0.344 | 2.848 ± 0.546 | 0.568 ± 0.102 | 0.349 ± 0.211 | 1.383 ± 0.289 | 0.326 ± 1.148 |
 | rougeL-cal | 2.196 ± 0.475 | 1.550 ± 1.138 | 2.416 ± 0.298 | 1.741 ± 0.860 | 4.566 ± 0.547 | 4.566 ± 0.547 | 2.626 ± 0.157 | 2.626 ± 0.157 | 2.569 ± 0.201 | 2.190 ± 0.844 |
 | xlm-roberta-base | 2.150 ± 0.333 | 1.379 ± 1.183 | 2.279 ± 0.269 | 1.540 ± 0.860 | 4.369 ± 0.644 | 4.369 ± 0.644 | 2.467 ± 0.274 | 2.467 ± 0.274 | 2.467 ± 0.222 | 2.012 ± 1.003 |
 | xlm-roberta-base-da | 2.251 ± 0.212 | 1.623 ± 1.280 | 3.006 ± 0.890 | 2.613 ± 1.530 | 4.317 ± 1.172 | 4.317 ± 1.172 | 2.499 ± 0.927 | 2.499 ± 0.927 | 2.510 ± 0.760 | 2.063 ± 1.309 |
 | xlm-roberta-base-frjudge | 1.902 ± 0.084 | 1.902 ± 0.084 | 3.126 ± 0.423 | 3.030 ± 0.474 | 1.878 ± 0.744 | 1.860 ± 0.769 | 2.874 ± 0.817 | 2.874 ± 0.817 | 1.995 ± 0.834 | 1.356 ± 0.350 |
+| xlm-roberta-base-frjudge-5s | 2.251 ± 0.450 | 1.775 ± 0.845 | 2.615 ± 0.638 | 2.056 ± 1.072 | 4.480 ± 0.876 | 4.480 ± 0.876 | 3.112 ± 0.521 | 3.112 ± 0.521 | 2.745 ± 0.309 | 2.314 ± 0.733 |
+| xlm-roberta-base-frjudge-5s-da | 2.022 ± 0.549 | 1.881 ± 0.736 | 3.012 ± 0.811 | 2.924 ± 0.874 | 3.234 ± 1.289 | 3.000 ± 1.546 | 2.289 ± 1.379 | 2.183 ± 1.516 | 1.572 ± 1.050 | 1.265 ± 1.171 |
 | xlm-roberta-base-frjudge-da | 1.673 ± 0.474 | 1.659 ± 0.491 | 3.160 ± 0.878 | 2.966 ± 1.087 | 1.896 ± 0.533 | 1.542 ± 0.869 | 2.274 ± 0.466 | 2.274 ± 0.466 | 1.860 ± 0.517 | 1.496 ± 0.835 |
 | xlm-roberta-base-frjudge-demo | 1.230 | 1.230 | 2.956 | 2.436 | 1.649 | 1.214 | 3.581 | 3.581 | 3.403 | 3.403 |
 
@@ -116,11 +141,16 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 | labse-cal | 0 ± 0 | 7.875 ± 0.081 | 0 ± 0 | 6.726 ± 0.236 |
 | muril-base-cased | 0 ± 0 | 3.815 ± 0.175 | 0 ± 0 | 3.816 ± 0.175 |
 | muril-base-cased-da | 0 ± 0 | 7.331 ± 0.190 | 63 ± 55 | 1.577 ± 0.692 |
+| muril-base-cased-frjudge-5s | 23 ± 33 | 8.212 ± 1.269 | 0 ± 0 | 6.225 ± 0.404 |
+| muril-base-cased-frjudge-5s-da | 98 ± 2 | 9.990 ± 0.016 | 92 ± 5 | 1.086 ± 0.096 |
+| muril-base-cased-frjudge-demo-da | 100 ± 0 | 9.999 | 82 ± 0 | 1.356 |
 | rougeL | 100 ± 0 | 10.000 | 0 ± 0 | 2.221 |
 | rougeL-cal | 0 ± 0 | 7.882 ± 0.082 | 0 ± 0 | 7.400 ± 0.141 |
 | xlm-roberta-base | 0 ± 0 | 7.449 ± 0.269 | 0 ± 0 | 7.446 ± 0.273 |
 | xlm-roberta-base-da | 33 ± 58 | 8.491 ± 1.480 | 31 ± 28 | 3.155 ± 2.411 |
 | xlm-roberta-base-frjudge | 90 ± 5 | 9.968 ± 0.018 | 18 ± 10 | 5.572 ± 0.578 |
+| xlm-roberta-base-frjudge-5s | 0 ± 0 | 8.208 ± 0.620 | 0 ± 0 | 7.289 ± 0.532 |
+| xlm-roberta-base-frjudge-5s-da | 98 ± 3 | 9.994 ± 0.014 | 66 ± 36 | 1.127 ± 0.078 |
 | xlm-roberta-base-frjudge-da | 67 ± 58 | 9.937 ± 0.109 | 94 ± 6 | 1.086 ± 0.125 |
 | xlm-roberta-base-frjudge-demo | 98 ± 0 | 9.989 | 0 ± 0 | 5.347 |
 
@@ -128,6 +158,8 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 
 | System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
 |---|---|---|---|---|---|---|---|
+| muril-base-cased-frjudge-5s-da | 5 | 0.220 ± 0.088 | 0.214 ± 0.080 | 2.414 ± 0.119 | 2.076 ± 0.122 | 39 ± 4 | 0.514 ± 0.072 |
+| xlm-roberta-base-frjudge-5s-da | 5 | 0.106 ± 0.100 | 0.175 ± 0.065 | 2.539 ± 0.187 | 2.012 ± 0.197 | 42 ± 5 | 0.447 ± 0.139 |
 | xlm-roberta-base-frjudge-da | 3 | 0.064 ± 0.106 | 0.172 ± 0.063 | 2.514 ± 0.234 | 2.142 ± 0.148 | 41 ± 6 | 0.433 ± 0.165 |
 | xlm-roberta-base-da | 3 | -0.021 ± 0.147 | -0.001 ± 0.073 | 2.354 ± 0.124 | 2.184 ± 0.098 | 43 ± 5 | 0.384 ± 0.026 |
 
@@ -135,21 +167,27 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 
 | System | en pearson | en rmse | hi pearson | hi rmse |
 |---|---|---|---|---|
+| muril-base-cased-frjudge-5s-da | 0.269 ± 0.090 | 2.426 ± 0.229 | 0.182 ± 0.119 | 2.396 ± 0.106 |
 | xlm-roberta-base-da | -0.059 ± 0.197 | 2.391 ± 0.141 | -0.058 ± 0.108 | 2.314 ± 0.146 |
+| xlm-roberta-base-frjudge-5s-da | 0.155 ± 0.094 | 2.451 ± 0.232 | 0.066 ± 0.141 | 2.619 ± 0.213 |
 | xlm-roberta-base-frjudge-da | 0.165 ± 0.063 | 2.380 ± 0.161 | -0.041 ± 0.144 | 2.638 ± 0.334 |
 
 ### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
 
 | System | identical pass % | identical mean pred | unrelated pass % | unrelated mean pred |
 |---|---|---|---|---|
+| muril-base-cased-frjudge-5s-da | 59 ± 28 | 9.578 ± 0.349 | 89 ± 5 | 1.218 ± 0.163 |
 | xlm-roberta-base-da | 0 ± 0 | 7.290 ± 0.185 | 0 ± 0 | 6.752 ± 0.564 |
+| xlm-roberta-base-frjudge-5s-da | 61 ± 51 | 9.812 ± 0.248 | 72 ± 34 | 1.260 ± 0.380 |
 | xlm-roberta-base-frjudge-da | 45 ± 45 | 9.875 ± 0.100 | 88 ± 10 | 1.341 ± 0.107 |
 
 ## E3 — out-of-domain: cpa → rti
 
 | System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
 |---|---|---|---|---|---|---|---|
+| muril-base-cased-frjudge-5s-da | 5 | 0.394 ± 0.054 | 0.395 ± 0.057 | 2.387 ± 0.093 | 1.671 ± 0.074 | 43 ± 2 | 0.532 ± 0.135 |
 | xlm-roberta-base-frjudge-da | 3 | 0.388 ± 0.021 | 0.397 ± 0.034 | 2.391 ± 0.101 | 1.703 ± 0.031 | 47 ± 3 | 0.424 ± 0.017 |
+| xlm-roberta-base-frjudge-5s-da | 5 | 0.339 ± 0.046 | 0.368 ± 0.046 | 2.457 ± 0.109 | 1.749 ± 0.090 | 45 ± 4 | 0.401 ± 0.017 |
 | xlm-roberta-base-da | 3 | 0.186 ± 0.053 | 0.197 ± 0.040 | 2.603 ± 0.163 | 2.042 ± 0.162 | 41 ± 4 | 0.442 ± 0.107 |
 | labse-cal | 1 | 0.119 | 0.233 | 2.327 | 2.142 | 46 ± 0 | 0.363 |
 | labse | 1 | 0.119 | 0.233 | 2.685 | 1.997 | 43 ± 0 | 0.499 |
@@ -170,9 +208,11 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 | bleu-cal | 0.082 | 2.296 | 0.033 | 2.391 |
 | labse | 0.146 | 2.616 | 0.108 | 2.758 |
 | labse-cal | 0.146 | 2.276 | 0.108 | 2.381 |
+| muril-base-cased-frjudge-5s-da | 0.550 ± 0.065 | 2.063 ± 0.137 | 0.226 ± 0.055 | 2.692 ± 0.144 |
 | rougeL | 0.084 | 3.987 | -0.001 | 4.113 |
 | rougeL-cal | 0.084 | 2.297 | -0.001 | 2.391 |
 | xlm-roberta-base-da | 0.235 ± 0.115 | 2.598 ± 0.401 | 0.175 ± 0.049 | 2.593 ± 0.110 |
+| xlm-roberta-base-frjudge-5s-da | 0.524 ± 0.073 | 2.102 ± 0.159 | 0.129 ± 0.032 | 2.790 ± 0.085 |
 | xlm-roberta-base-frjudge-da | 0.520 ± 0.035 | 2.116 ± 0.084 | 0.241 ± 0.002 | 2.657 ± 0.135 |
 
 ### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
@@ -185,15 +225,19 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 | bleu-cal | 0 ± 0 | 7.623 | 0 ± 0 | 7.410 |
 | labse | 100 ± 0 | 10.000 | 0 ± 0 | 3.479 |
 | labse-cal | 0 ± 0 | 7.689 | 0 ± 0 | 6.937 |
+| muril-base-cased-frjudge-5s-da | 97 ± 4 | 9.963 ± 0.058 | 84 ± 8 | 1.241 ± 0.176 |
 | rougeL | 100 ± 0 | 10.000 | 0 ± 0 | 2.221 |
 | rougeL-cal | 0 ± 0 | 7.513 | 0 ± 0 | 7.415 |
 | xlm-roberta-base-da | 0 ± 0 | 9.591 ± 0.201 | 82 ± 18 | 1.065 ± 0.065 |
+| xlm-roberta-base-frjudge-5s-da | 100 ± 0 | 10.000 | 69 ± 30 | 1.395 ± 0.231 |
 | xlm-roberta-base-frjudge-da | 100 ± 0 | 10.000 | 86 ± 3 | 1.344 ± 0.029 |
 
 ## E3 — out-of-domain: rti → cpa
 
 | System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
 |---|---|---|---|---|---|---|---|
+| muril-base-cased-frjudge-5s-da | 5 | 0.251 ± 0.186 | 0.256 ± 0.200 | 2.632 ± 0.202 | 1.974 ± 0.273 | 41 ± 4 | 0.585 ± 0.152 |
+| xlm-roberta-base-frjudge-5s-da | 5 | 0.147 ± 0.040 | 0.175 ± 0.030 | 2.621 ± 0.055 | 2.192 ± 0.060 | 45 ± 5 | 0.526 ± 0.072 |
 | xlm-roberta-base-frjudge-da | 3 | 0.119 ± 0.051 | 0.142 ± 0.028 | 2.629 ± 0.068 | 2.212 ± 0.041 | 46 ± 3 | 0.478 ± 0.100 |
 | labse-cal | 1 | 0.084 | 0.209 | 2.555 | 2.272 | 48 ± 0 | 0.468 |
 | labse | 1 | 0.084 | 0.209 | 3.014 | 2.328 | 39 ± 0 | 0.531 |
@@ -215,9 +259,11 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 | bleu-cal | 0.025 | 2.570 |
 | labse | 0.084 | 3.014 |
 | labse-cal | 0.084 | 2.555 |
+| muril-base-cased-frjudge-5s-da | 0.251 ± 0.186 | 2.632 ± 0.202 |
 | rougeL | 0.015 | 3.987 |
 | rougeL-cal | 0.015 | 2.568 |
 | xlm-roberta-base-da | 0.056 ± 0.110 | 2.589 ± 0.036 |
+| xlm-roberta-base-frjudge-5s-da | 0.147 ± 0.040 | 2.621 ± 0.055 |
 | xlm-roberta-base-frjudge-da | 0.119 ± 0.051 | 2.629 ± 0.068 |
 
 ### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
@@ -230,15 +276,19 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 | bleu-cal | 0 ± 0 | 8.742 | 0 ± 0 | 7.409 |
 | labse | 100 ± 0 | 10.000 | 0 ± 0 | 3.479 |
 | labse-cal | 0 ± 0 | 7.993 | 0 ± 0 | 6.552 |
+| muril-base-cased-frjudge-5s-da | 69 ± 30 | 9.822 ± 0.135 | 88 ± 4 | 1.221 ± 0.149 |
 | rougeL | 100 ± 0 | 10.000 | 0 ± 0 | 2.221 |
 | rougeL-cal | 0 ± 0 | 8.067 | 0 ± 0 | 7.429 |
 | xlm-roberta-base-da | 0 ± 0 | 8.177 ± 1.021 | 12 ± 20 | 5.810 ± 3.087 |
+| xlm-roberta-base-frjudge-5s-da | 72 ± 41 | 9.777 ± 0.437 | 26 ± 26 | 2.097 ± 0.387 |
 | xlm-roberta-base-frjudge-da | 75 ± 44 | 9.935 ± 0.112 | 53 ± 16 | 1.817 ± 0.259 |
 
 ## E2 — language transfer: bilingual__train-en_test-hi
 
 | System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
 |---|---|---|---|---|---|---|---|
+| xlm-roberta-base-frjudge-5s-da | 5 | 0.115 ± 0.088 | 0.153 ± 0.123 | 2.558 ± 0.226 | 2.112 ± 0.233 | 43 ± 4 | 0.418 ± 0.086 |
+| muril-base-cased-frjudge-5s-da | 5 | 0.086 ± 0.102 | 0.127 ± 0.133 | 2.788 ± 0.285 | 2.162 ± 0.274 | 45 ± 4 | 0.462 ± 0.119 |
 | xlm-roberta-base-frjudge-da | 3 | 0.035 ± 0.027 | 0.112 ± 0.125 | 2.564 ± 0.293 | 2.175 ± 0.255 | 42 ± 2 | 0.409 ± 0.067 |
 | xlm-roberta-base-da | 3 | -0.059 ± 0.086 | -0.096 ± 0.123 | 2.583 ± 0.315 | 2.267 ± 0.208 | 44 ± 4 | 0.359 ± 0.080 |
 
@@ -246,34 +296,44 @@ All numbers are computed from prediction files on **annotated test pairs only** 
 
 | System | hi pearson | hi rmse |
 |---|---|---|
+| muril-base-cased-frjudge-5s-da | 0.086 ± 0.102 | 2.788 ± 0.285 |
 | xlm-roberta-base-da | -0.059 ± 0.086 | 2.583 ± 0.315 |
+| xlm-roberta-base-frjudge-5s-da | 0.115 ± 0.088 | 2.558 ± 0.226 |
 | xlm-roberta-base-frjudge-da | 0.035 ± 0.027 | 2.564 ± 0.293 |
 
 ### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
 
 | System | identical pass % | identical mean pred | unrelated pass % | unrelated mean pred |
 |---|---|---|---|---|
+| muril-base-cased-frjudge-5s-da | 40 ± 28 | 9.035 ± 0.642 | n/a | n/a |
 | xlm-roberta-base-da | 0 ± 0 | 7.704 ± 1.573 | n/a | n/a |
+| xlm-roberta-base-frjudge-5s-da | 60 ± 55 | 9.795 ± 0.394 | n/a | n/a |
 | xlm-roberta-base-frjudge-da | 100 ± 0 | 10.000 | n/a | n/a |
 
 ## E2 — language transfer: bilingual__train-hi_test-en
 
 | System | runs | Pearson | Spearman | RMSE | MAE | Over-score % | Decision F1 |
 |---|---|---|---|---|---|---|---|
+| xlm-roberta-base-frjudge-5s-da | 5 | 0.136 ± 0.070 | 0.211 ± 0.069 | 2.550 ± 0.177 | 2.058 ± 0.085 | 39 ± 10 | 0.462 ± 0.072 |
 | xlm-roberta-base-frjudge-da | 3 | 0.131 ± 0.115 | 0.268 ± 0.032 | 2.519 ± 0.282 | 2.024 ± 0.265 | 31 ± 7 | 0.565 ± 0.086 |
+| muril-base-cased-frjudge-5s-da | 5 | 0.104 ± 0.084 | 0.132 ± 0.102 | 2.604 ± 0.304 | 2.122 ± 0.278 | 34 ± 5 | 0.529 ± 0.153 |
 | xlm-roberta-base-da | 3 | 0.028 ± 0.027 | -0.030 ± 0.077 | 2.433 ± 0.074 | 2.264 ± 0.047 | 38 ± 7 | 0.423 ± 0.049 |
 
 ### By language
 
 | System | en pearson | en rmse |
 |---|---|---|
+| muril-base-cased-frjudge-5s-da | 0.104 ± 0.084 | 2.604 ± 0.304 |
 | xlm-roberta-base-da | 0.028 ± 0.027 | 2.433 ± 0.074 |
+| xlm-roberta-base-frjudge-5s-da | 0.136 ± 0.070 | 2.550 ± 0.177 |
 | xlm-roberta-base-frjudge-da | 0.131 ± 0.115 | 2.519 ± 0.282 |
 
 ### E4 — sanity checks (identical ≥ 9.9, unrelated ≤ 1.1)
 
 | System | identical pass % | identical mean pred | unrelated pass % | unrelated mean pred |
 |---|---|---|---|---|
+| muril-base-cased-frjudge-5s-da | 56 ± 38 | 9.584 ± 0.406 | 87 ± 5 | 1.196 ± 0.208 |
 | xlm-roberta-base-da | 0 ± 0 | 7.258 ± 0.150 | 0 ± 0 | 6.694 ± 0.994 |
+| xlm-roberta-base-frjudge-5s-da | 40 ± 55 | 9.648 ± 0.326 | 62 ± 36 | 1.226 ± 0.277 |
 | xlm-roberta-base-frjudge-da | 100 ± 0 | 10.000 ± 0.000 | 90 ± 7 | 1.115 ± 0.064 |
 
