@@ -21,6 +21,43 @@ Block kinds consumed by the builders:
 """
 from __future__ import annotations
 
+import json as _json
+import os as _os
+from pathlib import Path as _Path
+
+
+def _load_human() -> dict:
+    """reports/human_validation.json from src/human_validation.py; {"status": "pending"} until scored."""
+    roots = [_Path(_os.environ["LMP_DATA_ROOT"])] if _os.environ.get("LMP_DATA_ROOT") else []
+    roots.append(_Path(__file__).resolve().parents[1])
+    for root in roots:
+        f = root / "reports" / "human_validation.json"
+        if f.exists():
+            return _json.loads(f.read_text(encoding="utf-8"))
+    return {"status": "pending"}
+
+
+HUMAN = _load_human()
+HUMAN_SCORED = HUMAN.get("status") == "scored"
+
+
+def _hcmp(name: str) -> dict:
+    """One row of the human-validation comparisons, by its exact name (see src/human_validation.py)."""
+    return next((c for c in HUMAN.get("comparisons", []) if c["name"] == name), {})
+
+
+def _human_who() -> str:
+    team = [n for n in HUMAN.get("annotators", []) if n != "legal_expert"]
+    who = {0: "", 1: "one of the authors", 2: "two of the authors", 3: "the three authors"}.get(
+        len(team), f"{len(team)} annotators")
+    if "legal_expert" in HUMAN.get("annotators", []):
+        who = (who + " and a practising lawyer") if who else "a practising lawyer"
+    return who
+
+
+def _track(r: float) -> str:
+    return "track" if r >= 0.7 else "only partly track" if r >= 0.4 else "do not track"
+
 TITLE = ("Assessing Legal Meaning Preservation in English and Hindi "
          "Simplifications of Indian Statutes")
 
@@ -39,7 +76,7 @@ KEYWORDS = ("legal NLP, text simplification, meaning preservation, evaluation me
 
 # --------------------------------------------------------------------------- abstract
 
-ABSTRACT = (
+_ABSTRACT = (
     "Plain-language versions of statutes widen access to the law, but a simplification that drops a "
     "condition, turns an obligation into a permission or alters a time limit misleads the reader "
     "while still reading fluently. JUDGEBERT introduced a learned metric for legal meaning "
@@ -59,6 +96,20 @@ ABSTRACT = (
     "for rules. Injected negations are handled far better than by embedding baselines, "
     "obligation-to-permission flips poorly, and no system passes both sanity checks."
 )
+
+
+def _abstract() -> str:
+    if not HUMAN_SCORED:
+        return _ABSTRACT
+    r = _hcmp("LLM label vs humans").get("pearson")
+    return (_ABSTRACT
+            .replace("rather than humans, a deviation we report throughout.",
+                     f"rather than humans; on {HUMAN['n_pairs']} pairs scored blind by {len(HUMAN['annotators'])} "
+                     f"people the LLM labels correlate with the human mean at Pearson {r:.2f}.")
+            .replace(" Zero-shot English-Hindi transfer stays near zero.", ""))
+
+
+ABSTRACT = _abstract()
 
 # --------------------------------------------------------------------------- body
 
@@ -324,12 +375,18 @@ BODY: list[tuple] = [
      "provision, one annotator scored Off-track, the other Imprecise with a confusion. The label "
      "is the mean of the two, as in FrJUDGE, and the adjudication list records every such divergence."),
     ("p",
-     "To keep a path to the original claim open, a separate 30-pair validation workbook was prepared "
-     "for human legal annotators, stratified by language and variant. At the time of writing it has "
-     "not been scored. No human validation of these labels therefore exists, the correlation "
-     "between our model labels and human legal judgement is unmeasured, and every result in this "
-     "paper should be read with that gap in mind. The workbook and the tooling to aggregate it are "
-     "in the repository, so the measurement is a scoring session away rather than a rebuild."),
+     ("To keep a path to the original claim open, a separate 30-pair validation workbook was prepared "
+      "for human legal annotators, stratified by language and variant. At the time of writing it has "
+      "not been scored. No human validation of these labels therefore exists, the correlation "
+      "between our model labels and human legal judgement is unmeasured, and every result in this "
+      "paper should be read with that gap in mind. The workbook and the tooling to aggregate it are "
+      "in the repository, so the measurement is a scoring session away rather than a rebuild.")
+     if not HUMAN_SCORED else
+     ("To test the LLM labels against people, a separate 30-pair validation set, stratified by language "
+      "and variant (15 English and 15 Hindi pairs, 10 per variant), was scored blind with the same rubric "
+      f"and workbook by {_human_who()}, after the LLM annotation. Section V ends with the comparison "
+      "(Table XI). The training and test labels remain the LLM labels; the human scores are used only "
+      "to validate them.")),
     ("h2", "Augmentation, sanity holdouts and splits"),
     ("p",
      "Following JUDGEBERT we add, for each clause and language, an identical pair labelled 10 and "
@@ -600,6 +657,26 @@ BODY: list[tuple] = [
      "the model recognises these error types; it says nothing about errors a simplifier makes "
      "naturally, which carry no type label here."),
 
+    *([] if not HUMAN_SCORED else [
+        ("h2", "Human validation of the labels"),
+        ("p",
+         f"{HUMAN['n_pairs']} pairs were scored blind by {_human_who()} ({HUMAN['n_ratings']} ratings). "
+         + (f"Agreement among the human annotators is Krippendorff's alpha {HUMAN['alpha_humans']:.3f} "
+            "(interval)" if "alpha_humans" in HUMAN else "")
+         + (f", {HUMAN['alpha_team']:.3f} among the authors alone" if "alpha_team" in HUMAN else "")
+         + ("; JUDGEBERT's five law students reached 0.10. " if "alpha_humans" in HUMAN else ". ")
+         + f"The mean human score correlates with the LLM label at Pearson {_hcmp('LLM label vs humans')['pearson']:.3f} "
+         f"(Spearman {_hcmp('LLM label vs humans')['spearman']:.3f}, MAE {_hcmp('LLM label vs humans')['mae']:.2f}); on average the "
+         f"LLM label is {abs(_hcmp('LLM label vs humans')['bias']):.2f} points "
+         f"{'higher' if _hcmp('LLM label vs humans')['bias'] > 0 else 'lower'} than the human mean. On these 30 pairs the "
+         f"LLM labels therefore {_track(_hcmp('LLM label vs humans')['pearson'])} human judgement. Table XI also scores "
+         "the trained models against the humans on the pairs that fall in a test split, next to the same "
+         "models against the LLM label on those pairs. With 30 pairs, and fewer for the model rows, every "
+         "coefficient here has a wide confidence interval."),
+        ("caption", "Human validation on 30 pairs (blind, same rubric): Pearson, Spearman, MAE and bias "
+                    "(first minus second, in LMP points)"),
+        ("table", "human"),
+    ]),
     ("h1", "Error Analysis"),
     ("p",
      "Scoring the corpus blind made one structure plain, and it organises this section. The ways a "
@@ -701,10 +778,13 @@ BODY: list[tuple] = [
 
     ("h1", "Limitations and Ethics"),
     ("bullets", [
-        "The LMP labels in this version are disclosed model judgements, not human legal judgements. "
-        "The central claim of the predecessor work, agreement with human legal judgement, is "
-        "therefore not tested here, and the planned 30-pair human validation set is the minimum "
-        "needed to begin testing it.",
+        ("The LMP labels in this version are disclosed model judgements, not human legal judgements. "
+         "The central claim of the predecessor work, agreement with human legal judgement, is "
+         "therefore not tested here, and the planned 30-pair human validation set is the minimum "
+         "needed to begin testing it." if not HUMAN_SCORED else
+         "The training and test labels are disclosed model judgements. The human validation covers "
+         f"only 30 pairs scored by {_human_who()}, so it can show whether the LLM labels track human "
+         "judgement, not replace them; the brief's 300 human-judged pairs are still not met."),
         "The inter-LLM agreement (Pearson 0.723) is the correlation between two instances of the same "
         "model, may reflect shared pretraining rather than a well-defined construct, and is not an "
         "upper bound on predicting their mean. One of the two also wrote the simplifications and so "

@@ -62,7 +62,7 @@ We use two central acts from different legal domains, each chosen because an off
 | RTI Act 2005, English (DoPT) | As on 18 Nov 2025; includes the 2023 amendment | 31 | 109 |
 | RTI Act 2005, Hindi (DoPT) | Carries the 2019 amendments; sec. 8(1) is the older wording; text layer unusable, read by OCR (Tesseract 5.4, tessdata_best hin) | 27 | 101 |
 | Consumer Protection Act 2019, English (Gazette) | Act 35 of 2019, 9 Aug 2019; original enactment | 107 | 229 |
-| Consumer Protection Act 2019, Hindi | Not obtainable; India Code unreachable | -- | -- |
+| Consumer Protection Act 2019, Hindi | Not used: unavailable when the corpus was built (Bill text as introduced found later) | -- | -- |
 
 Two consequences follow and are carried through the rest of the paper. First, the official Hindi text of the Consumer Protection Act could not be obtained, so that act contributes English-only material and the English-Hindi comparison (E2) is confined to the Right to Information Act. Second, the two Right to Information copies are not the same edition: the English consolidation is current to 18 November 2025 and includes the 2023 amendment, whereas the Hindi copy, although it carries the 2019 amendments in its footnotes, retains the older personal-information wording in section 8(1). Provisions affected by this are flagged automatically and dropped at review rather than silently reconciled, because editing one language to match the other would fabricate statutory text.
 
@@ -275,28 +275,28 @@ Scoring the corpus blind made one structure plain, and it organises this section
 
 The cases below are selected automatically from our labelled pairs and the blinded annotator's own workbook comments, taking the injected-error pairs first so that the error type is known rather than inferred, and capping each group so that every error type appears before any repeats. For each case the table gives the provision, the language, the variant, the kind of change, the label (the mean of the annotators), the prediction of each system with test predictions for that pair, and the blinded annotator's own score, so that annotator disagreement stays visible rather than being hidden inside the mean.
 
-**TABLE XI. E5: legally difficult cases, with the change that was made**
+**TABLE XI. E5: legally difficult cases, with the change that was made (pert. = perturbed, aggr. = aggressive, norm. = normal; Annot. = annotator B, the blinded one)**
 
-| # | Provision | Lang | Variant | Change | Label | Annot. | XLM-R+fr+DA | XLM-R+DA | LaBSE-cal |
-|---|---|---|---|---|---|---|---|---|---|
-| 1 | rti-s11_2 | HI | perturbed | number | 5.0 | 5 | -- | -- | -- |
-| 2 | cpa-s10_1 | EN | perturbed | negation | 2.5 | 1 | 3.2 | 4.8 | 7.6 |
-| 3 | rti-s11_3 | HI | perturbed | number | 5.0 | 5 | -- | -- | -- |
-| 4 | cpa-s10_2 | EN | perturbed | negation | 2.5 | 1 | 2.5 | 6.8 | 7.7 |
-| 5 | rti-s11_4 | HI | perturbed | modality | 5.0 | 5 | 8.5 | 8.3 | 7.7 |
-| 6 | cpa-s12 | EN | perturbed | scope | 5.0 | 5 | 6.0 | 6.9 | 7.9 |
-| 7 | rti-s12_1 | HI | perturbed | modality | 5.0 | 5 | 10.0 | 8.3 | 7.9 |
-| 8 | cpa-s14_1 | EN | perturbed | negation | 2.5 | 1 | 2.6 | 7.1 | 7.5 |
-| 9 | rti-s12_4 | HI | perturbed | scope | 5.0 | 5 | 10.0 | 7.9 | 7.8 |
-| 10 | cpa-s33_1 | EN | perturbed | modality | 5.0 | 5 | 8.8 | 9.1 | 7.7 |
-| 11 | rti-s14_2 | HI | perturbed | exception_drop | 7.0 | 9 | 8.0 | 9.5 | 7.7 |
-| 12 | rti-s16_1 | HI | perturbed | exception_drop | 5.0 | 5 | -- | -- | -- |
-| 13 | rti-s11_2 | HI | aggressive | omission | 6.5 | 4 | -- | -- | -- |
-| 14 | rti-s11_3 | HI | aggressive | condition/omission | 5.5 | 3 | -- | -- | -- |
-| 15 | rti-s12_6 | HI | normal | terminology | 9.5 | 9 | -- | -- | -- |
-| 16 | rti-s14_1 | HI | normal | obligation/permission | 9.5 | 9 | 10.0 | 7.2 | 7.7 |
-| 17 | rti-s15_5 | HI | aggressive | omission/scope | 6.5 | 4 | 7.4 | 7.8 | 7.7 |
-| 18 | cpa-s51_2 | EN | aggressive | exception/omission | 8.5 | 8 | 7.9 | 9.6 | 7.2 |
+| Provision | Variant | Change | Label | Annot. | XLM-R+fr+DA | XLM-R+DA | LaBSE-cal |
+|---|---|---|---|---|---|---|---|
+| rti-s11_2 HI | pert. | number | 5.0 | 5 | -- | -- | -- |
+| cpa-s10_1 EN | pert. | negation | 2.5 | 1 | 3.2 | 4.8 | 7.6 |
+| rti-s11_3 HI | pert. | number | 5.0 | 5 | -- | -- | -- |
+| cpa-s10_2 EN | pert. | negation | 2.5 | 1 | 2.5 | 6.8 | 7.7 |
+| rti-s11_4 HI | pert. | modality | 5.0 | 5 | 8.5 | 8.3 | 7.7 |
+| cpa-s12 EN | pert. | scope | 5.0 | 5 | 6.0 | 6.9 | 7.9 |
+| rti-s12_1 HI | pert. | modality | 5.0 | 5 | 10.0 | 8.3 | 7.9 |
+| cpa-s14_1 EN | pert. | negation | 2.5 | 1 | 2.6 | 7.1 | 7.5 |
+| rti-s12_4 HI | pert. | scope | 5.0 | 5 | 10.0 | 7.9 | 7.8 |
+| cpa-s33_1 EN | pert. | modality | 5.0 | 5 | 8.8 | 9.1 | 7.7 |
+| rti-s14_2 HI | pert. | exception drop | 7.0 | 9 | 8.0 | 9.5 | 7.7 |
+| rti-s16_1 HI | pert. | exception drop | 5.0 | 5 | -- | -- | -- |
+| rti-s11_2 HI | aggr. | omission | 6.5 | 4 | -- | -- | -- |
+| rti-s11_3 HI | aggr. | condition/ omission | 5.5 | 3 | -- | -- | -- |
+| rti-s12_6 HI | norm. | terminology | 9.5 | 9 | -- | -- | -- |
+| rti-s14_1 HI | norm. | obligation/ permission | 9.5 | 9 | 10.0 | 7.2 | 7.7 |
+| rti-s15_5 HI | aggr. | omission/ scope | 6.5 | 4 | 7.4 | 7.8 | 7.7 |
+| cpa-s51_2 EN | aggr. | exception/ omission | 8.5 | 8 | 7.9 | 9.6 | 7.2 |
 
 - **rti-s11_2 (HI, perturbed)** Original: “जहां उपधारा (1) के अधीन, यथास्थिति, केन्द्रीय लोक सूचना अधिकारी या राज्य लोक सूचना अधिकारी द्वारा पर व्यक्ति पर किसी सूचना या अभिलेख या उसके किसी भाग के बारे में किसी सूचना की ताम…” Simplification: “जब केन्द्रीय या राज्य लोक सूचना अधिकारी उपधारा (1) के तहत किसी सूचना या अभिलेख के बारे में पर व्यक्ति को नोटिस भेजता है, तो उस पर व्यक्ति को नोटिस मिलने की तारीख से पंद्रह दिन के…” The third party has ten days from receipt of the notice, not fifteen.
 - **cpa-s10_1 (EN, perturbed)** Original: “The Central Government shall, by notification, establish with effect from such date as it may specify in that notification, a Central Consumer Protection Authority to be known as…” Simplification: “The Central Government will not set up, by notification and from a date it chooses, a Central Consumer Protection Authority, called the Central Authority. Its job is to deal with…” Says the Central Government will NOT establish the Central Authority, reversing the provision and contradicting the rest of the sentence.

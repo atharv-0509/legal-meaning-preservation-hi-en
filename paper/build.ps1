@@ -35,6 +35,9 @@ $env:PYTHONUTF8 = "1"
 Write-Output "python:    $Python"
 Write-Output "data root: $(if ($DataRoot) { $DataRoot } else { '(none - tables will be [TBD])' })"
 
+# Human validation: scores from data/annotation/human/*.xlsx (writes status "pending" while they are empty)
+& $Python (Join-Path (Split-Path -Parent $paperDir) "src/human_validation.py")
+if (-not $?) { throw "human_validation.py failed" }
 & $Python (Join-Path $paperDir "build_paper.py") --markdown
 if (-not $?) { throw "build_paper.py failed" }
 & $Python (Join-Path $paperDir "build_slides.py")
