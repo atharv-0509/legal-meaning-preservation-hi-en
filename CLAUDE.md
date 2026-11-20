@@ -52,6 +52,8 @@ As of 18 Nov 2026:
 
 - 20 Nov 2026: human validation wired in. `src/human_validation.py` writes `reports/human_validation.json` + `reports/tables/human.tsv` (status `pending` while `data/annotation/human/*.xlsx` are empty: all four sheets were empty on 20 Nov). The paper (§ data, new Results subsection + Table XI, limitations, abstract) and slides (new 'Human validation' slide, scoring/limits bullets) switch automatically once scored; `paper/build.ps1` runs it first. Tested on simulated scores in a temp folder only.
 
+- 20 Nov 2026: Overleaf version of the paper. `paper/build_latex.py` turns the same content.py + tables into an IEEEtran LaTeX project (`paper/out/overleaf/`, upload zip `paper/out/LMP_paper_overleaf.zip`); XeLaTeX via the bundled `latexmkrc`, Noto Serif Devanagari bundled for the Hindi, TeX Gyre Termes body. Compiled here with TeX Live: 13 pages, no errors (`paper/out/LMP_paper_latex.pdf`); human-validation switch also works in LaTeX. `build.ps1` builds it too.
+
 When you (Claude) finish a step, tick it here and add one line saying what changed.
 
 19 Nov 2026 decision: the deadline version uses disclosed LLM annotations, not human labels
