@@ -50,6 +50,8 @@ As of 18 Nov 2026:
 
 - 20 Nov 2026: final pre-presentation run. 53 tests pass; every table regenerates identically from the run files (`results.md` now also lists the follow-up runs). Demo app redesigned; MuRIL demo models re-fetched and verified (test Pearson 0.682 on random_s42). Demo slide shows a real app output (`paper/figures/demo_ui.png`); presenter checklist, demo script and Q&A in `paper/PRESENTATION_GUIDE.md`.
 
+- 20 Nov 2026: human validation wired in. `src/human_validation.py` writes `reports/human_validation.json` + `reports/tables/human.tsv` (status `pending` while `data/annotation/human/*.xlsx` are empty: all four sheets were empty on 20 Nov). The paper (§ data, new Results subsection + Table XI, limitations, abstract) and slides (new 'Human validation' slide, scoring/limits bullets) switch automatically once scored; `paper/build.ps1` runs it first. Tested on simulated scores in a temp folder only.
+
 When you (Claude) finish a step, tick it here and add one line saying what changed.
 
 19 Nov 2026 decision: the deadline version uses disclosed LLM annotations, not human labels

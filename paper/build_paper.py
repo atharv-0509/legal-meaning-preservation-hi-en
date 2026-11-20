@@ -80,13 +80,16 @@ def para(doc, text="", size=10, bold=False, italic=False, align=None, space_afte
     return p
 
 
-def add_table(doc, rows: list[list[str]], size=8) -> None:
+FIXED_WIDTH_TABLES = {"human"}      # long first-column labels: autofit would push them past the column edge
+
+
+def add_table(doc, rows: list[list[str]], size=8, fixed: bool = False) -> None:
     table = doc.add_table(rows=len(rows), cols=len(rows[0]))
     table.style = "Table Grid"
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = True
     ncols = len(rows[0])
-    if ncols >= 7:
+    if ncols >= 7 or fixed:
         # Many-column tables overflow a narrow IEEE column under autofit (LibreOffice ignores the column
         # edge), so fix the widths to the column.
         sec = doc.sections[-1]
@@ -261,7 +264,7 @@ def build(out_path: Path) -> list[str]:
             run = cap.add_run(f"  {value}")
             run.font.name, run.font.size = FONT, Pt(8)
         elif kind == "table":
-            add_table(doc, tables.get(value))
+            add_table(doc, tables.get(value), fixed=value in FIXED_WIDTH_TABLES)
         elif kind == "cases":
             add_table(doc, e5_rows())
             for case in e5.cases():

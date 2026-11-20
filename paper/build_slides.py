@@ -242,8 +242,11 @@ def build(out_path: Path) -> list[str]:
          "is the weaker result. Mean scores differ (8.1 vs 6.9); 68 disagreements unadjudicated.", 16, 1),
         "Blinding is partial: opaque pair ids and per-annotator shuffle, but annotator A wrote "
         "the simplifications; the score is recomputed by our code from bracket + error counts.",
-        "Human validation: 30-pair blind sheets for the three authors (results reported when scored). "
-        "The brief's 300 human-judged pairs are not met.",
+        ("Human validation: 30-pair blind sheets for the three authors (results reported when scored). "
+         "The brief's 300 human-judged pairs are not met." if not content.HUMAN_SCORED else
+         f"Human validation: 30 pairs scored blind by {content._human_who()}; LLM label vs human mean "
+         f"Pearson **{content._hcmp('LLM label vs humans')['pearson']:.2f}** (slide: Human validation). "
+         "The brief's 300 human-judged pairs are not met."),
     ], note=DISCLOSURE)
 
     # ---- 8. method
@@ -375,6 +378,17 @@ def build(out_path: Path) -> list[str]:
                      "training clauses only; it uses the same rules as the test errors, so this "
                      "measures recognition of these five types, not natural errors.")
 
+    # ---- 14f. human validation (only once the sheets are scored: src/human_validation.py)
+    if content.HUMAN_SCORED:
+        h = content.HUMAN
+        alpha = (f"Human agreement: Krippendorff's α {h['alpha_humans']:.2f}"
+                 + (f" (authors alone {h['alpha_team']:.2f})" if "alpha_team" in h else "")
+                 + "; JUDGEBERT's law students: 0.10. ") if "alpha_humans" in h else ""
+        table_slide(prs, "Human validation: do the LLM labels track people?", "human",
+                    subtitle=f"30 pairs scored blind by {content._human_who()}, same rubric and workbook",
+                    note=alpha + "Bias = first minus second, in LMP points. Model rows: pairs in a test split "
+                         "only. n = 30 at most, so every coefficient has a wide confidence interval.")
+
     # ---- 15. conclusion
     bullet_slide(prs, "Where this stands", [
         "Built: bilingual extraction from government PDFs with acceptance tests, three-variant "
@@ -385,11 +399,16 @@ def build(out_path: Path) -> list[str]:
         "5 seeds) and generalises better (Hindi 0.466; RTI→CPA 0.251).",
         "Explanation: a MuRIL error-type classifier with augmentation reaches macro-F1 **0.789** "
         "(rules 0.509), so each score comes with the likely legal error.",
-        "Limits: labels are disclosed LLM judgements, not human legal judgement; 30-pair human "
-        "validation is prepared, not yet scored; E2 too small; the metric is not deployable.",
+        ("Limits: labels are disclosed LLM judgements, not human legal judgement; 30-pair human "
+         "validation is prepared, not yet scored; E2 too small; the metric is not deployable."
+         if not content.HUMAN_SCORED else
+         "Limits: training labels are disclosed LLM judgements, checked against people on only 30 pairs "
+         f"(Pearson {content._hcmp('LLM label vs humans')['pearson']:.2f}); E2 too small; the metric is not deployable."),
         "What the design buys: the diagnostic set and clause-grouped splits make weaknesses "
         "measurable rather than arguable — including our own model's modality failures.",
-        "Next: human labels; fix obligation/permission over-scoring instead of averaging it away.",
+        ("Next: human labels; fix obligation/permission over-scoring instead of averaging it away."
+         if not content.HUMAN_SCORED else
+         "Next: extend human scoring from 30 pairs to the full set; fix obligation/permission over-scoring."),
     ], note=DISCLOSURE)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
