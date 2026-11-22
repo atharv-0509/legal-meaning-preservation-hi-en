@@ -56,6 +56,8 @@ As of 18 Nov 2026:
 
 - 22 Nov 2026: the team's hand-revised Word paper (`paper/edited/LMP_paper_IEEE_edited.docx`) is the final text. Checked against the generated paper: every decimal result matches the tables, all LLM-use disclosures kept. `paper/docx_to_latex.py` converts it to the Overleaf project `paper/out/overleaf_final/` (zip `paper/out/LMP_paper_final_overleaf.zip`, PDF `paper/out/LMP_paper_final.pdf`, 14 pages, XeLaTeX). Edits now happen in that docx (re-run the converter) or in Overleaf; `content.py`/`build_latex.py` no longer hold the final wording. Commits: no Claude co-author or session trailers (team request, 21 Nov; history rewritten).
 
+- 22 Nov 2026: Overleaf slides. `paper/pptx_to_beamer.py` converts `paper/out/LMP_slides.pptx` into a 16:9 Beamer project (`paper/out/overleaf_slides/`, zip `paper/out/LMP_slides_overleaf.zip`, PDF `paper/out/LMP_slides_beamer.pdf`, 23 slides). No Devanagari in the deck, so it compiles with pdfLaTeX (Overleaf's default). `build.ps1` runs it after build_slides.py. The paper's Overleaf `latexmkrc` now redirects $pdflatex to xelatex (works with the default setting).
+
 When you (Claude) finish a step, tick it here and add one line saying what changed.
 
 19 Nov 2026 decision: the deadline version uses disclosed LLM annotations, not human labels

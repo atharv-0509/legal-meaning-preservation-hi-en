@@ -42,6 +42,9 @@ if (-not $?) { throw "human_validation.py failed" }
 if (-not $?) { throw "build_paper.py failed" }
 & $Python (Join-Path $paperDir "build_slides.py")
 if (-not $?) { throw "build_slides.py failed" }
+# Overleaf Beamer slides (paper/out/LMP_slides_overleaf.zip), converted from the PowerPoint deck just built
+& $Python (Join-Path $paperDir "pptx_to_beamer.py")
+if (-not $?) { throw "pptx_to_beamer.py failed" }
 # Overleaf project (paper/out/LMP_paper_overleaf.zip): same content as the Word paper, compiled with XeLaTeX on Overleaf
 & $Python (Join-Path $paperDir "build_latex.py")
 if (-not $?) { throw "build_latex.py failed" }

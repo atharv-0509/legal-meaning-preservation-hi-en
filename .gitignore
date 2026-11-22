@@ -42,3 +42,13 @@ paper/out/overleaf_final/*.fdb_latexmk
 paper/out/overleaf_final/*.xdv
 paper/out/overleaf_final/*.pdf
 paper/out/overleaf_final/build.log
+paper/out/overleaf_slides/*.aux
+paper/out/overleaf_slides/*.log
+paper/out/overleaf_slides/*.out
+paper/out/overleaf_slides/*.nav
+paper/out/overleaf_slides/*.snm
+paper/out/overleaf_slides/*.toc
+paper/out/overleaf_slides/*.fls
+paper/out/overleaf_slides/*.fdb_latexmk
+paper/out/overleaf_slides/*.pdf
+paper/out/overleaf_slides/build.log
