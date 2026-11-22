@@ -20,7 +20,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from build_latex import FONT_NAME, FONT_SOURCES, PREAMBLE, esc, latex_table  # noqa: E402
+from build_latex import FONT_NAME, FONT_SOURCES, LATEXMKRC, PREAMBLE, esc, latex_table  # noqa: E402
 
 H1 = re.compile(r"^([IVXLC]+)\.\s+(.+)$")
 H2 = re.compile(r"^([A-Z])\.\s+(.+)$")
@@ -147,7 +147,7 @@ def build(src: Path, out_dir: Path) -> list[str]:
 
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "main.tex").write_text("\n".join(L), encoding="utf-8")
-    (out_dir / "latexmkrc").write_text("$pdf_mode = 5;\n", encoding="utf-8")
+    (out_dir / "latexmkrc").write_text(LATEXMKRC, encoding="utf-8")
     fonts = out_dir / "fonts"
     fonts.mkdir(exist_ok=True)
     font = next((p for p in FONT_SOURCES if p.exists()), None)

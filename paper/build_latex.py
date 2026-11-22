@@ -6,7 +6,8 @@ Text comes from `content.py`, tables from `reports/tables/*.tsv` (via tables.py)
 as in build_paper.py, so the LaTeX and Word versions cannot disagree; rebuild both after any change (including when
 the human validation sheets are scored: run src/human_validation.py first).
 
-On Overleaf: New Project -> Upload Project -> the zip. The included `latexmkrc` selects XeLaTeX, which the Hindi in
+On Overleaf: New Project -> Upload Project -> the zip. The included `latexmkrc` makes Overleaf run XeLaTeX (even
+with the default pdfLaTeX setting), which the Hindi in
 the E5 cases needs (pdfLaTeX cannot shape Devanagari); the Devanagari font is bundled under fonts/ (Noto Serif
 Devanagari, SIL Open Font License), so nothing has to be installed.
 """
@@ -28,6 +29,10 @@ import tables  # noqa: E402
 from build_paper import _clip, e5_rows  # noqa: E402
 
 FONT_NAME = "NotoSerifDevanagari-Regular.ttf"
+# Overleaf runs latexmk in pdfLaTeX mode unless the project setting is changed; redirecting $pdflatex makes
+# that mode run XeLaTeX too (tested with latexmk -pdf), so an uploaded project compiles without any setting.
+LATEXMKRC = ("# Use XeLaTeX (the Hindi needs it) even when the Overleaf compiler setting is pdfLaTeX\n"
+             "$pdflatex = 'xelatex %O %S';\n$pdf_mode = 5;\n")
 FONT_SOURCES = [Path("/usr/share/fonts/truetype/noto") / FONT_NAME, HERE / "fonts" / FONT_NAME]
 
 PREAMBLE = r"""%% Compile with XeLaTeX (Overleaf: Menu -> Compiler -> XeLaTeX).
@@ -166,8 +171,7 @@ def build(out_dir: Path) -> list[str]:
 
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "main.tex").write_text("\n".join(L), encoding="utf-8")
-    (out_dir / "latexmkrc").write_text("# Overleaf and latexmk: compile with XeLaTeX (needed for the Hindi text)\n"
-                                       "$pdf_mode = 5;\n", encoding="utf-8")
+    (out_dir / "latexmkrc").write_text(LATEXMKRC, encoding="utf-8")
     fonts = out_dir / "fonts"
     fonts.mkdir(exist_ok=True)
     src = next((p for p in FONT_SOURCES if p.exists()), None)

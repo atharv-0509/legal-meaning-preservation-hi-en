@@ -1,2 +1,3 @@
-# Overleaf and latexmk: compile with XeLaTeX (needed for the Hindi text)
+# Use XeLaTeX (the Hindi needs it) even when the Overleaf compiler setting is pdfLaTeX
+$pdflatex = 'xelatex %O %S';
 $pdf_mode = 5;
