@@ -34,3 +34,11 @@ paper/out/overleaf/*.fdb_latexmk
 paper/out/overleaf/*.xdv
 paper/out/overleaf/*.pdf
 paper/out/overleaf/build.log
+paper/out/overleaf_final/*.aux
+paper/out/overleaf_final/*.log
+paper/out/overleaf_final/*.out
+paper/out/overleaf_final/*.fls
+paper/out/overleaf_final/*.fdb_latexmk
+paper/out/overleaf_final/*.xdv
+paper/out/overleaf_final/*.pdf
+paper/out/overleaf_final/build.log

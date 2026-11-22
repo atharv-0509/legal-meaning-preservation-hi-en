@@ -54,6 +54,8 @@ As of 18 Nov 2026:
 
 - 20 Nov 2026: Overleaf version of the paper. `paper/build_latex.py` turns the same content.py + tables into an IEEEtran LaTeX project (`paper/out/overleaf/`, upload zip `paper/out/LMP_paper_overleaf.zip`); XeLaTeX via the bundled `latexmkrc`, Noto Serif Devanagari bundled for the Hindi, TeX Gyre Termes body. Compiled here with TeX Live: 13 pages, no errors (`paper/out/LMP_paper_latex.pdf`); human-validation switch also works in LaTeX. `build.ps1` builds it too.
 
+- 22 Nov 2026: the team's hand-revised Word paper (`paper/edited/LMP_paper_IEEE_edited.docx`) is the final text. Checked against the generated paper: every decimal result matches the tables, all LLM-use disclosures kept. `paper/docx_to_latex.py` converts it to the Overleaf project `paper/out/overleaf_final/` (zip `paper/out/LMP_paper_final_overleaf.zip`, PDF `paper/out/LMP_paper_final.pdf`, 14 pages, XeLaTeX). Edits now happen in that docx (re-run the converter) or in Overleaf; `content.py`/`build_latex.py` no longer hold the final wording. Commits: no Claude co-author or session trailers (team request, 21 Nov; history rewritten).
+
 When you (Claude) finish a step, tick it here and add one line saying what changed.
 
 19 Nov 2026 decision: the deadline version uses disclosed LLM annotations, not human labels
